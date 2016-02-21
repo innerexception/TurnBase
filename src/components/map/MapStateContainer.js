@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import { regionClicked } from './MapActions.js';
 import Map from './Map.jsx'
 
-const mapStateToProps = (state = {}) => {
+const mapStateToProps = (state) => {
     return {
         regions: state.regions
     };

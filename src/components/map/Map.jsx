@@ -18,13 +18,19 @@ const Map = ({ regions, onRegionClick }) => {
 const _getRegionPaths = (regions, onRegionClick) => {
     return regions.map((region) => {
         return (
-            <path onClick={() => onRegionClick(region.id)} d={region.d} id={region.id} title={region.title} className='turnbase-region'></path>
+            <path onClick={() => onRegionClick(region.attributes.id)} d={region.attributes.d} id={region.attributes.id} title={region.attributes.title} className={'turnbase-region ' + _getRegionClassNames(region)}></path>
         )
     });
 };
 
+const _getRegionClassNames = (region) => {
+    let classes = '';
+    if(region.selected) classes += 'selected';
+    return classes;
+};
+
 Map.propTypes = {
-    regions: PropTypes.array.isRequired,
+    regions: PropTypes.array,
     onRegionClick: PropTypes.func.isRequired
 };
 

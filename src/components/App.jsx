@@ -1,6 +1,7 @@
 import React from 'react';
 import MapStateContainer from './map/MapStateContainer.js';
 import { fetchMap } from './map/MapActions.js';
+import './App.css';
 
 class App extends React.Component {
     constructor(props){
@@ -9,14 +10,13 @@ class App extends React.Component {
     };
 
     componentDidMount(){
-        const { dispatch } = this.props;
-        dispatch(fetchMap('./res/svg/baseMap.svg'));
+        this.props.store.dispatch(fetchMap('./res/svg/baseMap.txt'));
     }
 
     render(){
         return (
             <div className='turnbase-app'>
-                <MapStateContainer />
+                <MapStateContainer store={this.props.store} />
             </div>
         );
     }

@@ -1,12 +1,16 @@
-const mapReducer = (state, action) => {
+const mapReducer = (state = {}, action) => {
     switch (action.type) {
         case 'REGION_CLICKED':
-            return state.regions.map((region) => {
-                region.id === action.id ? region.selected = true : region.selected = false;
+            let regions = state.regions.map((region) => {
+                region.attributes.id === action.id ? region.selected = true : region.selected = false;
+                return region;
             });
+            console.log('clicked on '+action.id);
+            return {
+                regions
+            };
         case 'MAP_LOAD':
-            state.regions = action.regions;
-            return state;
+            return { regions: action.regions };
         default:
             return state
     }

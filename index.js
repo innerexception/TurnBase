@@ -11,8 +11,6 @@ let store = createStore(mapReducer, applyMiddleware(
 ));
 
 render(
-    <Provider store={store}>
-        <App />
-    </Provider>,
+    <App store={store} />,
     document.body
 );
