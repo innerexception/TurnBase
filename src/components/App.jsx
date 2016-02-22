@@ -10,7 +10,7 @@ class App extends React.Component {
     };
 
     componentDidMount(){
-        this.props.store.dispatch(fetchMap('./res/svg/baseMap.txt'));
+        this.props.store.dispatch(fetchMap('./res/map/baseMap.map'));
     }
 
     render(){

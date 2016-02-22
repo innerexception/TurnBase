@@ -21170,6 +21170,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
 	var mapReducer = function mapReducer() {
 	    var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 	    var action = arguments[1];
@@ -21181,14 +21184,52 @@
 	                return region;
 	            });
 	            console.log('clicked on ' + action.id);
-	            return {
-	                regions: regions
-	            };
+	            return _extends({}, state, { regions: regions });
 	        case 'MAP_LOAD':
-	            return { regions: action.regions };
+	            return _extends({}, state, { regions: action.regions });
+	        case 'UNIT_LOAD':
+	            return _extends({}, state, { units: action.units });
+	        case 'VIEW_STATE_CHANGED':
+	            return _extends({}, state, { viewState: action.viewState });
+	        case 'MAP_DRAGGED':
+	            return _extends({}, state, { viewState: updateViewStatePanFromEvent(state.viewState, action.e) });
+	        case 'MAP_DRAG_START':
+	            return _extends({}, state, { viewState: updateViewStateDragStart(state.viewState, action.e) });
+	        case 'MAP_DRAG_END':
+	            return _extends({}, state, { viewState: updateViewStateDragEnd(state.viewState) });
+	        case 'MAP_ZOOM':
+	            return _extends({}, state, { viewState: updateViewStateZoom(state.viewState, action.e) });
 	        default:
 	            return state;
 	    }
+	};
+	
+	var updateViewStateZoom = function updateViewStateZoom(viewState, e) {
+	    var newState = _extends({}, viewState);
+	    newState.zoomLevel += e.deltaY * 0.001;
+	    newState.pan.x += e.deltaY > 0 ? -10 / newState.zoomLevel : 10 / newState.zoomLevel;
+	    return newState;
+	};
+	
+	var updateViewStatePanFromEvent = function updateViewStatePanFromEvent(viewState, e) {
+	    var newState = _extends({}, viewState);
+	    var currentX = newState.mapDragStart.x;
+	    var currentY = newState.mapDragStart.y;
+	    newState.pan = { x: e.clientX - currentX, y: e.clientY - currentY };
+	    newState.mapDragStart = { x: currentX, y: currentY };
+	    return newState;
+	};
+	
+	var updateViewStateDragStart = function updateViewStateDragStart(viewState, e) {
+	    var newState = _extends({}, viewState);
+	    newState.mapDragStart = { x: e.clientX, y: e.clientY };
+	    return newState;
+	};
+	
+	var updateViewStateDragEnd = function updateViewStateDragEnd(viewState) {
+	    var newState = _extends({}, viewState);
+	    newState.mapDragStart = null;
+	    return newState;
 	};
 	
 	exports.default = mapReducer;
@@ -21215,7 +21256,7 @@
 	
 	var _MapActions = __webpack_require__(185);
 	
-	__webpack_require__(197);
+	__webpack_require__(198);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -21237,7 +21278,7 @@
 	    _createClass(App, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            this.props.store.dispatch((0, _MapActions.fetchMap)('./res/svg/baseMap.txt'));
+	            this.props.store.dispatch((0, _MapActions.fetchMap)('./res/map/baseMap.map'));
 	        }
 	    }, {
 	        key: 'render',
@@ -21271,7 +21312,7 @@
 	
 	var _MapActions = __webpack_require__(185);
 	
-	var _Map = __webpack_require__(192);
+	var _Map = __webpack_require__(193);
 	
 	var _Map2 = _interopRequireDefault(_Map);
 	
@@ -21279,7 +21320,9 @@
 	
 	var mapStateToProps = function mapStateToProps(state) {
 	    return {
-	        regions: state.regions
+	        regions: state.regions,
+	        units: state.units,
+	        viewState: state.viewState
 	    };
 	};
 	
@@ -21287,6 +21330,24 @@
 	    return {
 	        onRegionClick: function onRegionClick(id) {
 	            dispatch((0, _MapActions.regionClicked)(id));
+	        },
+	        onUnitClick: function onUnitClick(id) {
+	            dispatch(unitClicked(id));
+	        },
+	        onUnitStackClick: function onUnitStackClick(region) {
+	            dispatch(unitStackClicked(region));
+	        },
+	        onMapDrag: function onMapDrag(e) {
+	            dispatch((0, _MapActions.mapDragged)(e));
+	        },
+	        onMapDragEnd: function onMapDragEnd(e) {
+	            dispatch((0, _MapActions.mapDragEnd)(e));
+	        },
+	        onMapDragStart: function onMapDragStart(e) {
+	            dispatch((0, _MapActions.mapDragStart)(e));
+	        },
+	        onMapZoom: function onMapZoom(e) {
+	            dispatch((0, _MapActions.mapZoom)(e));
 	        }
 	    };
 	};
@@ -21304,7 +21365,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.mapFetched = exports.fetchMap = exports.regionClicked = undefined;
+	exports.mapFetched = exports.fetchMap = exports.fetchViewState = exports.fetchUnits = exports.mapZoom = exports.mapDragStart = exports.mapDragEnd = exports.mapDragged = exports.unitStackClicked = exports.unitClicked = exports.regionClicked = undefined;
 	
 	var _isomorphicFetch = __webpack_require__(186);
 	
@@ -21314,12 +21375,71 @@
 	
 	var _xmlParser2 = _interopRequireDefault(_xmlParser);
 	
+	var _Constants = __webpack_require__(192);
+	
+	var _Constants2 = _interopRequireDefault(_Constants);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var regionClicked = exports.regionClicked = function regionClicked(id) {
 	    return {
 	        type: 'REGION_CLICKED',
 	        id: id
+	    };
+	};
+	
+	var unitClicked = exports.unitClicked = function unitClicked(unitInfo) {
+	    return {
+	        type: 'UNIT_CLICKED',
+	        unitInfo: unitInfo
+	    };
+	};
+	
+	var unitStackClicked = exports.unitStackClicked = function unitStackClicked(region) {
+	    return {
+	        type: 'UNIT_STACK_CLICKED',
+	        region: region
+	    };
+	};
+	
+	var mapDragged = exports.mapDragged = function mapDragged(e) {
+	    return {
+	        type: 'MAP_DRAGGED',
+	        e: e
+	    };
+	};
+	
+	var mapDragEnd = exports.mapDragEnd = function mapDragEnd(e) {
+	    return {
+	        type: 'MAP_DRAG_END'
+	    };
+	};
+	
+	var mapDragStart = exports.mapDragStart = function mapDragStart(e) {
+	    return {
+	        type: 'MAP_DRAG_START',
+	        e: e
+	    };
+	};
+	
+	var mapZoom = exports.mapZoom = function mapZoom(e) {
+	    return {
+	        type: 'MAP_ZOOM',
+	        e: e
+	    };
+	};
+	
+	var fetchUnits = exports.fetchUnits = function fetchUnits(units) {
+	    return {
+	        type: 'UNIT_LOAD',
+	        units: units
+	    };
+	};
+	
+	var fetchViewState = exports.fetchViewState = function fetchViewState(viewState) {
+	    return {
+	        type: 'VIEW_STATE_CHANGED',
+	        viewState: viewState
 	    };
 	};
 	
@@ -21341,12 +21461,10 @@
 	};
 	
 	var getRegionsFromSVG = function getRegionsFromSVG(text) {
-	    if (text) {
-	        var svgObj = (0, _xmlParser2.default)(text);
-	        return svgObj.root.children.filter(function (child) {
-	            return child.name === 'g';
-	        })[0].children;
-	    }
+	    var svgObj = (0, _xmlParser2.default)(text);
+	    return svgObj.root.children.filter(function (child) {
+	        return child.name === 'g';
+	    })[0].children;
 	};
 
 /***/ },
@@ -22439,6 +22557,45 @@
 
 /***/ },
 /* 192 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = {
+	    Units: {
+	        DefaultPositions: [{
+	            region: 'FR',
+	            units: [{ type: 'Infantry', number: 3, owner: 'FR' }]
+	        }, {
+	            region: 'DE',
+	            units: [{ type: 'Tank', number: 5, owner: 'DE' }]
+	        }],
+	        Infantry: {
+	            width: 20,
+	            height: 40,
+	            attack: 1,
+	            defend: 2,
+	            move: 1,
+	            cost: 3,
+	            imgPath: './res/svg/usinfantry.svg'
+	        },
+	        Tank: {
+	            width: 30,
+	            height: 30,
+	            attack: 3,
+	            defend: 3,
+	            move: 2,
+	            cost: 5,
+	            imgPath: './res/svg/tank.svg'
+	        }
+	    }
+	};
+
+/***/ },
+/* 193 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -22447,73 +22604,156 @@
 	    value: true
 	});
 	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
 	var _react = __webpack_require__(2);
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	__webpack_require__(193);
+	__webpack_require__(194);
+	
+	var _MapActions = __webpack_require__(185);
+	
+	var _Constants = __webpack_require__(192);
+	
+	var _Constants2 = _interopRequireDefault(_Constants);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var Map = function Map(_ref) {
-	    var regions = _ref.regions;
-	    var onRegionClick = _ref.onRegionClick;
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	    if (regions) {
-	        return _react2.default.createElement(
-	            'div',
-	            { className: 'turnbase-map-outer' },
-	            _react2.default.createElement(
-	                'svg',
-	                null,
-	                _react2.default.createElement(
-	                    'g',
-	                    null,
-	                    _getRegionPaths(regions, onRegionClick)
-	                )
-	            )
-	        );
-	    } else {
-	        return _react2.default.createElement(
-	            'div',
-	            null,
-	            'No Map'
-	        );
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Map = function (_React$Component) {
+	    _inherits(Map, _React$Component);
+	
+	    function Map(props) {
+	        _classCallCheck(this, Map);
+	
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Map).call(this, props));
+	
+	        _this._getUnitImages = function (regions, unitList, onUnitClick, onUnitStackClick) {
+	            var els = [];
+	            unitList.forEach(function (list) {
+	                var unitRegion = regions.filter(function (region) {
+	                    return region.attributes.id === list.region;
+	                })[0];
+	                var initialPlacementPosition = _this._getInitialPlacementPosition(document.getElementById(unitRegion.id));
+	                var i = 0;
+	                list.units.forEach(function (unitInfo) {
+	                    els.push(_this._getUnitImage(initialPlacementPosition, unitInfo, i, onUnitClick, onUnitStackClick, unitRegion));
+	                    i++;
+	                });
+	            });
+	            return els;
+	        };
+	
+	        _this._getInitialPlacementPosition = function (region) {
+	            var bbox = region.getBBox();
+	            var x = Math.floor(bbox.x + bbox.width / 2.0);
+	            var y = Math.floor(bbox.y + bbox.height / 2.0);
+	            return { x: x, y: y, maxWidth: bbox.width, maxHeight: bbox.height };
+	        };
+	
+	        _this._getUnitImage = function (initialPlacementPosition, unitInfo, i, onUnitClick, onUnitStackClick, unitRegion) {
+	            var nextValidX = initialPlacementPosition.x + i * 20;
+	            var nextValidY = 0;
+	            while (nextValidX > initialPlacementPosition.maxWidth) {
+	                nextValidX = nextValidX - Math.round(initialPlacementPosition.maxWidth);
+	                nextValidY += 20;
+	            }
+	            if (nextValidY > initialPlacementPosition.maxHeight) {
+	                return _react2.default.createElement('image', { src: './res/svg/unitStack.svg', onClick: function onClick() {
+	                        return onUnitStackClick(unitRegion);
+	                    } });
+	            }
+	            var unitData = _Constants2.default.Units[unitInfo.type];
+	            return _react2.default.createElement('image', { src: unitData.imgPath,
+	                onClick: function onClick() {
+	                    return onUnitClick(unitInfo);
+	                },
+	                x: nextValidX, y: nextValidY,
+	                width: unitData.width, height: unitData.height });
+	        };
+	
+	        _this._getRegionPaths = function (regions, onRegionClick) {
+	            return regions.map(function (region) {
+	                return _react2.default.createElement('path', { onClick: function onClick() {
+	                        return onRegionClick(region.attributes.id);
+	                    }, d: region.attributes.d,
+	                    id: region.attributes.id, title: region.attributes.title,
+	                    className: 'turnbase-region ' + _this._getRegionClassNames(region) });
+	            });
+	        };
+	
+	        _this._getRegionClassNames = function (region) {
+	            var classes = '';
+	            if (region.selected) classes += 'selected';
+	            return classes;
+	        };
+	
+	        _this._getViewTransformString = function (viewState) {
+	            return viewState ? 'scale(' + viewState.zoomLevel + ')translate(' + viewState.pan.x + ',' + viewState.pan.y + ')' : null;
+	        };
+	
+	        _this.props.store.dispatch((0, _MapActions.fetchViewState)({ zoomLevel: 2.5, pan: { x: 100, y: 100 } }));
+	        return _this;
 	    }
-	};
 	
-	var _getRegionPaths = function _getRegionPaths(regions, onRegionClick) {
-	    return regions.map(function (region) {
-	        return _react2.default.createElement('path', { onClick: function onClick() {
-	                return onRegionClick(region.attributes.id);
-	            }, d: region.attributes.d, id: region.attributes.id, title: region.attributes.title, className: 'turnbase-region ' + _getRegionClassNames(region) });
-	    });
-	};
+	    _createClass(Map, [{
+	        key: 'componentDidUpdate',
+	        value: function componentDidUpdate() {
+	            if (!this.props.units) {
+	                console.log('would dispatch for units here...');
+	                //this.props.store.dispatch(fetchUnits(Constants.Units.DefaultPositions));
+	            }
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            if (this.props.regions) {
+	                return _react2.default.createElement(
+	                    'div',
+	                    { className: 'turnbase-map-outer' },
+	                    _react2.default.createElement(
+	                        'svg',
+	                        { onMouseDown: this.props.onMapDragStart, onMouseMove: this.props.viewState.mapDragStart ? this.props.onMapDrag : null, onMouseUp: this.props.onMapDragEnd, onWheel: this.props.onMapZoom },
+	                        _react2.default.createElement(
+	                            'g',
+	                            { transform: this._getViewTransformString(this.props.viewState) },
+	                            this._getRegionPaths(this.props.regions, this.props.onRegionClick),
+	                            this.props.units ? this._getUnitImages(this.props.regions, this.props.units, this.props.onUnitClick, this.props.onUnitStackClick) : null
+	                        )
+	                    )
+	                );
+	            } else {
+	                return _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    'No Map'
+	                );
+	            }
+	        }
+	    }]);
 	
-	var _getRegionClassNames = function _getRegionClassNames(region) {
-	    var classes = '';
-	    if (region.selected) classes += 'selected';
-	    return classes;
-	};
-	
-	Map.propTypes = {
-	    regions: _react.PropTypes.array,
-	    onRegionClick: _react.PropTypes.func.isRequired
-	};
+	    return Map;
+	}(_react2.default.Component);
 	
 	exports.default = Map;
 
 /***/ },
-/* 193 */
+/* 194 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(194);
+	var content = __webpack_require__(195);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(196)(content, {});
+	var update = __webpack_require__(197)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -22530,10 +22770,10 @@
 	}
 
 /***/ },
-/* 194 */
+/* 195 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(195)();
+	exports = module.exports = __webpack_require__(196)();
 	// imports
 	
 	
@@ -22544,7 +22784,7 @@
 
 
 /***/ },
-/* 195 */
+/* 196 */
 /***/ function(module, exports) {
 
 	/*
@@ -22600,7 +22840,7 @@
 
 
 /***/ },
-/* 196 */
+/* 197 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -22854,16 +23094,16 @@
 
 
 /***/ },
-/* 197 */
+/* 198 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(198);
+	var content = __webpack_require__(199);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(196)(content, {});
+	var update = __webpack_require__(197)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -22880,10 +23120,10 @@
 	}
 
 /***/ },
-/* 198 */
+/* 199 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(195)();
+	exports = module.exports = __webpack_require__(196)();
 	// imports
 	
 	
