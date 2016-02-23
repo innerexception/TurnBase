@@ -16,6 +16,14 @@ svg {
     stroke-width:0.5;
 }
 
+.turnbase-unit{
+    fill: black;
+    fill-opacity: 1;
+    stroke:darkgrey;
+    stroke-opacity: 1;
+    stroke-width:0.5;
+}
+
 .turnbase-region:hover{
     fill: green;
 }

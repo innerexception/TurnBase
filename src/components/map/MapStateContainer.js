@@ -6,7 +6,8 @@ const mapStateToProps = (state) => {
     return {
         regions: state.regions,
         units: state.units,
-        viewState: state.viewState
+        viewState: state.viewState,
+        centroidMap: state.centroidMap
     };
 };
 

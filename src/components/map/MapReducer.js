@@ -10,7 +10,7 @@ const mapReducer = (state = {}, action) => {
         case 'MAP_LOAD':
             return { ...state, regions: action.regions };
         case 'UNIT_LOAD':
-            return { ...state, units: action.units };
+            return { ...state, units: action.units, centroidMap: action.centroidMap };
         case 'VIEW_STATE_CHANGED':
             return { ...state, viewState: action.viewState};
         case 'MAP_DRAGGED':
@@ -37,8 +37,8 @@ const updateViewStatePanFromEvent = (viewState, e) => {
     let newState = { ...viewState };
     let currentX = newState.mapDragStart.x;
     let currentY = newState.mapDragStart.y;
-    newState.pan = {x: (e.clientX - currentX), y: (e.clientY -  currentY)};
-    newState.mapDragStart = {x: currentX, y: currentY};
+    newState.pan = {x: newState.pan.x + (e.clientX - currentX), y: newState.pan.y + (e.clientY -  currentY)};
+    newState.mapDragStart = {x: e.clientX, y: e.clientY};
     return newState;
 };
 

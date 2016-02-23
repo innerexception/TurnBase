@@ -1,9 +1,10 @@
 import React, { PropTypes } from 'react'
+import d3 from 'd3';
 import './Map.css';
 import { fetchUnits, fetchViewState } from './MapActions.js';
 import Constants from '../Constants.js';
 
-class Map extends React.Component {
+class BaseMap extends React.Component {
 
     static propTypes: {
         regions: PropTypes.array,
@@ -20,58 +21,60 @@ class Map extends React.Component {
 
     constructor(props) {
         super(props);
-        this.props.store.dispatch(fetchViewState({ zoomLevel: 2.5, pan: {x: 100, y:100}}));
+        this.props.store.dispatch(fetchViewState({ zoomLevel: 3, pan: {x: -145, y:-126}}));
     }
 
     componentDidUpdate(){
-        if(!this.props.units){
-            console.log('would dispatch for units here...');
-            //this.props.store.dispatch(fetchUnits(Constants.Units.DefaultPositions));
+        if(this.props.regions && !this.props.units){
+            let centroidMap = new Map();
+            d3.select('svg').selectAll('path')[0].forEach((path) => {
+                centroidMap.set(path.attributes.id.nodeValue, path.getBBox());
+            });
+            this.props.store.dispatch(fetchUnits(Constants.Units.DefaultPositions, centroidMap));
         }
     }
 
-    _getUnitImages = (regions, unitList, onUnitClick, onUnitStackClick) => {
+    _getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, centroidMap) => {
         let els = [];
         unitList.forEach((list) => {
             let unitRegion = regions.filter((region) => {
                 return region.attributes.id === list.region
             })[0];
-            let initialPlacementPosition = this._getInitialPlacementPosition(document.getElementById(unitRegion.id));
+            let initialPlacementPosition = this._getInitialPlacementPosition(centroidMap.get(unitRegion.attributes.id));
             let i = 0;
             list.units.forEach((unitInfo) => {
-                els.push(this._getUnitImage(initialPlacementPosition, unitInfo, i, onUnitClick, onUnitStackClick, unitRegion));
+                els.push(this._getUnitImageGroup(initialPlacementPosition, unitInfo, i, onUnitClick, onUnitStackClick, unitRegion));
                 i++;
             });
         });
         return els;
     };
 
-    _getInitialPlacementPosition = (region) => {
-        var bbox = region.getBBox();
+    _getInitialPlacementPosition = (bbox) => {
         var x = Math.floor(bbox.x + bbox.width / 2.0);
         var y = Math.floor(bbox.y + bbox.height / 2.0);
         return {x, y, maxWidth: bbox.width, maxHeight: bbox.height};
     };
 
-    _getUnitImage = (initialPlacementPosition, unitInfo, i, onUnitClick, onUnitStackClick, unitRegion) => {
+    _getUnitImageGroup = (initialPlacementPosition, unitInfo, i, onUnitClick, onUnitStackClick, unitRegion) => {
         let nextValidX = initialPlacementPosition.x + (i * 20);
-        let nextValidY = 0;
-        while (nextValidX > initialPlacementPosition.maxWidth) {
+        let nextValidY = initialPlacementPosition.y;
+        while (nextValidX > nextValidX + initialPlacementPosition.maxWidth) {
             nextValidX = nextValidX - Math.round(initialPlacementPosition.maxWidth);
             nextValidY += 20;
         }
-        if (nextValidY > initialPlacementPosition.maxHeight) {
-            return (
-                <image src='./res/svg/unitStack.svg' onClick={()=>onUnitStackClick(unitRegion)}></image>
-            )
-        }
+        //if (nextValidY > initialPlacementPosition.maxHeight) {
+        //    return (
+        //        <g><path d={Constants.Units['UnitStack'].d} x={nextValidX} y={nextValidY} width={20} height={20} onClick={()=>onUnitStackClick(unitRegion)}></path></g>
+        //    )
+        //}
         let unitData = Constants.Units[unitInfo.type];
-        return (
-            <image src={unitData.imgPath}
-                   onClick={()=> onUnitClick(unitInfo)}
-                   x={nextValidX} y={nextValidY}
-                   width={unitData.width} height={unitData.height}></image>
-        )
+        let pathEls = [];
+        unitInfo.paths.forEach((path) => {
+            pathEls.push((<path  d={path.attributes.d} className='turnbase-unit'
+                                 onClick={()=> onUnitClick(unitInfo)}></path>));
+        });
+        return (<g transform={'translate('+nextValidX+','+nextValidY+')scale(0.1)'}>{pathEls}</g>);
     };
 
     _getRegionPaths = (regions, onRegionClick) => {
@@ -101,7 +104,7 @@ class Map extends React.Component {
                     <svg onMouseDown={this.props.onMapDragStart} onMouseMove={this.props.viewState.mapDragStart ? this.props.onMapDrag : null} onMouseUp={this.props.onMapDragEnd} onWheel={this.props.onMapZoom} >
                         <g transform={this._getViewTransformString(this.props.viewState)}>
                             {this._getRegionPaths(this.props.regions, this.props.onRegionClick)}
-                            {this.props.units ? this._getUnitImages(this.props.regions, this.props.units, this.props.onUnitClick, this.props.onUnitStackClick) : null}
+                            {this.props.units ? this._getUnitPaths(this.props.regions, this.props.units, this.props.onUnitClick, this.props.onUnitStackClick, this.props.centroidMap) : null}
                         </g>
                     </svg>
                 </div>);
@@ -113,4 +116,4 @@ class Map extends React.Component {
 
 }
 
-export default Map;
+export default BaseMap;
