@@ -30,7 +30,7 @@ export const mapDragged = (e) => {
     }
 };
 
-export const mapDragEnd = (e) => {
+export const mapDragEnd = () => {
     return {
         type: 'MAP_DRAG_END'
     }
@@ -39,6 +39,27 @@ export const mapDragEnd = (e) => {
 export const mapDragStart = (e) => {
     return {
         type: 'MAP_DRAG_START',
+        e
+    }
+};
+
+export const unitDragStart = (e) => {
+    e.stopPropagation();
+    return {
+        type: 'UNIT_DRAG_START',
+        e
+    }
+};
+
+export const unitDragEnd = () => {
+    return {
+        type: 'UNIT_DRAG_END'
+    }
+};
+
+export const unitMove = (e) => {
+    return {
+        type: 'UNIT_MOVE',
         e
     }
 };

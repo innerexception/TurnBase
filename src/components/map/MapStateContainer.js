@@ -1,13 +1,12 @@
 import { connect } from 'react-redux'
-import { regionClicked, mapDragged, mapDragEnd, mapDragStart, mapZoom } from './MapActions.js';
+import { regionClicked, mapDragged, mapDragEnd, mapDragStart, mapZoom, unitDragStart, unitDragEnd, unitMove } from './MapActions.js';
 import Map from './Map.jsx'
 
 const mapStateToProps = (state) => {
     return {
         regions: state.regions,
         units: state.units,
-        viewState: state.viewState,
-        centroidMap: state.centroidMap
+        viewState: state.viewState
     };
 };
 
@@ -33,6 +32,16 @@ const mapDispatchToProps = (dispatch) => {
         },
         onMapZoom: (e) => {
             dispatch(mapZoom(e))
+        },
+        onUnitDrag: (e) => {
+            dispatch(unitMove(e))
+        },
+        onUnitDragStart: (e, unitInfo) => {
+            e.unitInfo = unitInfo;
+            dispatch(unitDragStart(e))
+        },
+        onUnitDragEnd: (e) => {
+            dispatch(unitDragEnd(e))
         }
     }
 };

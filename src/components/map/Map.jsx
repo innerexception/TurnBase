@@ -19,14 +19,14 @@ class BaseMap extends React.Component {
         onUnitClick: PropTypes.func.isRequired,
         onUnitStackClick: PropTypes.func.isRequired,
         onUnitDragStart: PropTypes.func.isRequired,
+        onUnitDrag: PropTypes.func.isRequired,
         onUnitDragEnd: PropTypes.func.isRequired,
-        onUnitMove: PropTypes.func.isRequired,
         viewState: PropTypes.object.isRequired
     };
 
     constructor(props) {
         super(props);
-        this.props.store.dispatch(fetchViewState({ zoomLevel: 3, pan: {x: -145, y:-126}}));
+        this.props.store.dispatch(fetchViewState({ zoomLevel: 4, pan: {x: -305, y:-246}}));
     }
 
     componentDidUpdate(){
@@ -43,21 +43,28 @@ class BaseMap extends React.Component {
         return viewState ? 'scale('+viewState.zoomLevel+')translate('+viewState.pan.x + ',' + viewState.pan.y + ')' : null;
     };
 
+    _getMapMoveHandler = (viewState) => {
+        if(this.props.viewState.mapDragStart) return this.props.onMapDrag;
+        if(this.props.viewState.unitDragStart) return this.props.onUnitDrag;
+        return null;
+    };
+
     render() {
         if (this.props.regions) {
             return (
                 <div className='turnbase-map-outer'>
-                    <svg onMouseDown={this.props.onMapDragStart} onMouseMove={this.props.viewState.mapDragStart ? this.props.onMapDrag : null} onMouseUp={this.props.onMapDragEnd} onWheel={this.props.onMapZoom} >
+                    <svg onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.viewState)} onMouseUp={this.props.onMapDragEnd} onWheel={this.props.onMapZoom} >
                         <g transform={this._getViewTransformString(this.props.viewState)}>
                             {Region.getRegionPaths(this.props.regions, this.props.onRegionClick)}
                             {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units, this.props.onUnitClick,
-                                this.props.onUnitStackClick, this.props.centroidMap, this.props.onUnitDragStart, this.props.onUnitDragEnd, this.props.onUnitMove) : null}
+                                                                  this.props.onUnitStackClick, this.props.onUnitDragStart,
+                                                                  this.props.onUnitDragEnd, this.props.viewState) : null}
                         </g>
                     </svg>
                 </div>);
         }
         else {
-            return (<div>No Map</div>);
+            return (<div>Error Loading Base Map</div>);
         }
     }
 

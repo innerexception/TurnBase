@@ -3,11 +3,11 @@ export default {
         DefaultPositions: [
             {
                 region: 'FR',
-                units: [{type: 'infantry', number: 3, owner: 'FR'}]
+                units: [{type: 'infantry', number: 3, owner: 'FR', region: 'FR'}]
             },
             {
                 region: 'DE',
-                units: [{type: 'infantry', number: 5, owner: 'DE'}]
+                units: [{type: 'infantry', number: 5, owner: 'DE', region: 'DE'}]
             }
         ],
         infantry: {
@@ -30,6 +30,11 @@ export default {
         },
         unitStack: {
             d: ''
+        }
+    },
+    UI: {
+        Arrow: {
+            polygonPoints: "902.25049,222.98633 233.17773,222.98633 233.17773,364.71875 0,182.35938 233.17773,0 233.17773,141.73242 902.25049,141.73242 902.25049,222.98633 "
         }
     }
 }
