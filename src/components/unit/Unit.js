@@ -34,18 +34,28 @@ class Unit {
             pathEls.push((<path  d={path.attributes.d} className='turnbase-unit'
                                  onClick={()=> onUnitClick(unitInfo)}></path>));
         });
+        let pathEl;
+        if(viewState.unitDragStart && viewState.unitDragStart.uniqueId === (unitInfo.region + unitInfo.type + unitInfo.owner)){
+            let angleToMouse = (Math.atan2(position.x - viewState.unitOriginalStart.x, position.y - viewState.unitOriginalStart.y )*(180/Math.PI));
+            let dist = Math.sqrt( ((viewState.unitOriginalStart.x-position.x)*(viewState.unitOriginalStart.x - position.x)) + ((viewState.unitOriginalStart.y-position.y)*(viewState.unitOriginalStart.y-position.y)) );
 
-        if(viewState.unitDragStart){
-            let angleToMouse = (Math.atan2(position.x- viewState.unitOriginalStart.x, position.y- viewState.unitOriginalStart.y )*(180/Math.PI));
-            let d = Math.sqrt( ((viewState.unitOriginalStart.x-position.x)*(viewState.unitOriginalStart.x - position.x)) + ((viewState.unitOriginalStart.y-position.y)*(viewState.unitOriginalStart.y-position.y)) );
-            console.log(angleToMouse + ' d:' + d);
+            let scale = Math.max(dist/200, 0.01);
 
-            pathEls.push((<polygon transform={'scale(0.2)rotate('+(angleToMouse)+')translate(-1250,-400)'} points={Constants.UI.Arrow.polygonPoints}/> ));
+            let x2 = -(viewState.unitOriginalStart.x-position.x);
+            let y2 = -(viewState.unitOriginalStart.y-position.y);
+
+            pathEl=(<g transform='scale(0.9)translate(1,5)'>
+                         <line markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke="lightgreen"/>
+                    </g>);
         }
 
-        return (<svg x={position.x} y={position.y}><g onMouseDown={(e) => onUnitDragStart(e, unitInfo)}
-                   onMouseUp={onUnitDragEnd}
-                   transform={'scale(0.1)'}>{pathEls}</g></svg>);
+        return (<svg>
+                    <svg x={position.x} y={position.y}><g onMouseDown={(e) => onUnitDragStart(e, unitInfo)}
+                       onMouseUp={onUnitDragEnd}
+                       transform={'scale(0.1)'}>{pathEls}</g></svg>
+                    {pathEl ? <svg x={viewState.unitOriginalStart.x} y={viewState.unitOriginalStart.y}>
+                        <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="lightgreen" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
+                </svg>);
     };
 }
 

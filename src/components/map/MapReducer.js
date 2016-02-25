@@ -83,15 +83,15 @@ const updateViewStateUnitPanFromEvent = (viewState, e) => {
     let currentY = newState.unitDragStart.y;
     let offset = {x: ((e.clientX - currentX)/viewState.zoomLevel), y: ((e.clientY -  currentY)/viewState.zoomLevel)};
     newState.unitPositions[uniqueId] = {x: newState.unitPositions[uniqueId].x + offset.x, y: newState.unitPositions[uniqueId].y + offset.y };
-    newState.unitDragStart = {x: e.clientX, y: e.clientY};
+    newState.unitDragStart = {x: e.clientX, y: e.clientY, uniqueId};
 
     return newState;
 };
 
 const updateViewStateUnitDragStart = (viewState, e) => {
     let newState = { ...viewState };
-    newState.unitDragStart = {x: e.clientX, y: e.clientY};
     let uniqueId = e.unitInfo.region + e.unitInfo.type + e.unitInfo.owner;
+    newState.unitDragStart = {x: e.clientX, y: e.clientY, uniqueId};
     newState.unitOriginalStart = newState.unitPositions[uniqueId];
     return newState;
 };
