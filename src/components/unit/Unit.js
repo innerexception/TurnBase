@@ -44,7 +44,7 @@ class Unit {
             let x2 = -(viewState.unitOriginalStart.x-position.x);
             let y2 = -(viewState.unitOriginalStart.y-position.y);
 
-            pathEl=(<g transform='scale(0.9)translate(1,5)'>
+            pathEl=(<g transform={'scale('+Math.min(Math.max(dist/20, 0.6), 0.9)+')translate(0,5)'}>
                          <line markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke="lightgreen"/>
                     </g>);
         }
