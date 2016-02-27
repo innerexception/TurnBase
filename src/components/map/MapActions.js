@@ -9,6 +9,13 @@ export const regionClicked = (id) => {
     }
 };
 
+export const regionMouseEnter = (id) => {
+    return {
+        type: 'REGION_MOUSE_OVER',
+        id
+    }
+};
+
 export const unitClicked = (unitInfo) => {
     return {
         type: 'UNIT_CLICKED',
@@ -43,11 +50,12 @@ export const mapDragStart = (e) => {
     }
 };
 
-export const unitDragStart = (e) => {
+export const unitDragStart = (e, unitInfo) => {
     e.stopPropagation();
     return {
         type: 'UNIT_DRAG_START',
-        e
+        e,
+        unitInfo
     }
 };
 
@@ -120,7 +128,8 @@ export const fetchMap = (svgPath) => {
 export const mapFetched = (text) => {
     return {
         type: 'MAP_LOAD',
-        regions: getRegionPathsFromSVG(text)
+        regions: getRegionPathsFromSVG(text),
+        regionAdjacencyMap: getRegionAdjacencyMap(text)
     }
 };
 
@@ -140,7 +149,26 @@ const getUnitPathsFromResponse = (regionUnits, textArray) => {
 
 const getRegionPathsFromSVG = (text) => {
     let svgObj = parser(text);
-    return svgObj.root.children.filter((child) => {
+    let paths = [];
+    svgObj.root.children.filter((child) => {
         return child.name === 'g'
-    })[0].children;
+    }).forEach((childCollection) => { paths = paths.concat(childCollection.children);});
+    return paths;
+};
+
+const getRegionAdjacencyMap = (text) => {
+
+    let regionPaths = getRegionPathsFromSVG(text);
+
+    let svgObj = parser(text);
+    let adjacencyInfo = svgObj.root.children.filter((child) => {
+        return child.name === 'defs'
+    })[0].children.filter((child) => { return child.name === 'adjacency'})[0].children;
+
+    let AdjacencyMap = new Map();
+    regionPaths.forEach((regionPath) => {
+        let adjInfo = adjacencyInfo.filter((info) => { return info.name === regionPath.attributes.id})[0];
+        if(adjInfo) AdjacencyMap.set(regionPath.attributes.id, adjInfo.children);
+    });
+    return AdjacencyMap;
 };

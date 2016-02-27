@@ -7,8 +7,13 @@ const mapReducer = (state = {}, action) => {
             });
             console.log('clicked on '+action.id);
             return { ...state, regions };
+        case 'REGION_MOUSE_OVER':
+            let region = state.regions.filter((region) => {
+                return region.attributes.id === action.id;
+            })[0];
+            return { ...state, viewState: updateViewStateRegionOver(state.viewState, region) };
         case 'MAP_LOAD':
-            return { ...state, regions: action.regions };
+            return { ...state, regions: action.regions, regionAdjacencyMap: action.regionAdjacencyMap };
         case 'UNIT_LOAD':
             return { ...state, units: action.units, viewState: initializeViewStateUnits(action.units, action.centroidMap, state.viewState) };
         case 'VIEW_STATE_CHANGED':
@@ -24,12 +29,18 @@ const mapReducer = (state = {}, action) => {
         case 'UNIT_MOVE':
             return { ...state, viewState: updateViewStateUnitPanFromEvent(state.viewState, action.e)};
         case 'UNIT_DRAG_START':
-            return { ...state, viewState: updateViewStateUnitDragStart(state.viewState, action.e)};
+            return { ...state, viewState: updateViewStateUnitDragStart(state.viewState, action.e, action.unitInfo)};
         case 'UNIT_DRAG_END':
             return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState)};
         default:
             return state
     }
+};
+
+const updateViewStateAdjMap = (viewState, adjMap) => {
+    let newState = {...viewState};
+    newState.adjacencyMap = adjMap;
+    return newState;
 };
 
 const initializeViewStateUnits = (regions, centroidMap, viewState) => {
@@ -76,7 +87,7 @@ const updateViewStateDragEnd = (viewState) => {
 
 const updateViewStateUnitPanFromEvent = (viewState, e) => {
     let newState = { ...viewState };
-    let uniqueId = e.unitInfo.region + e.unitInfo.type + e.unitInfo.owner;
+    let uniqueId = viewState.unitDragStart.uniqueId;
 
     //Update unit position
     let currentX = newState.unitDragStart.x;
@@ -85,12 +96,17 @@ const updateViewStateUnitPanFromEvent = (viewState, e) => {
     newState.unitPositions[uniqueId] = {x: newState.unitPositions[uniqueId].x + offset.x, y: newState.unitPositions[uniqueId].y + offset.y };
     newState.unitDragStart = {x: e.clientX, y: e.clientY, uniqueId};
 
+    //TODO: elementsFromPoint is hot but only supported on the latest FF/Chrome. Need cross-browser solution...
+    newState.regionOver = document.elementsFromPoint(e.clientX, e.clientY).filter((element) => {
+        return element.attributes.id;
+    })[0].attributes.id.textContent;
+
     return newState;
 };
 
-const updateViewStateUnitDragStart = (viewState, e) => {
+const updateViewStateUnitDragStart = (viewState, e, unitInfo) => {
     let newState = { ...viewState };
-    let uniqueId = e.unitInfo.region + e.unitInfo.type + e.unitInfo.owner;
+    let uniqueId = unitInfo.region + unitInfo.type + unitInfo.owner;
     newState.unitDragStart = {x: e.clientX, y: e.clientY, uniqueId};
     newState.unitOriginalStart = newState.unitPositions[uniqueId];
     return newState;
@@ -102,5 +118,12 @@ const updateViewStateUnitDragEnd = (viewState) => {
     newState.unitOriginalStart = null;
     return newState;
 };
+
+const updateViewStateRegionOver = (viewState, region) => {
+    let newState = {...viewState};
+    newState.regionOver = region.attributes.id;
+    return newState;
+};
+
 
 export default mapReducer;

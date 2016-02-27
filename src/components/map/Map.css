@@ -10,11 +10,19 @@ svg {
 }
 
 .turnbase-region{
-    fill: steelblue;
-    fill-opacity: 1;
     stroke:darkgrey;
     stroke-opacity: 1;
     stroke-width:0.5;
+}
+
+.turnbase-sea{
+    fill: steelblue;
+    fill-opacity: 1;
+}
+
+.turnbase-land{
+    fill: brown;
+    fill-opacity: 1;
 }
 
 .turnbase-unit{
