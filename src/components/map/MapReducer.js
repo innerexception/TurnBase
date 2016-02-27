@@ -24,7 +24,7 @@ const mapReducer = (state = {}, action) => {
         case 'UNIT_DRAG_START':
             return { ...state, viewState: updateViewStateUnitDragStart(state.viewState, action.e, action.unitInfo)};
         case 'UNIT_DRAG_END':
-            return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart.unitInfo, state.viewState.regionOver)};
+            return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart.unitInfo, state.viewState.regionOver, state.viewState.currentPathIsValid)};
         default:
             return state
     }
@@ -127,14 +127,14 @@ const updateViewStateUnitDragEnd = (viewState, units) => {
 
 
     let uniqueId = Utils.getUnitUniqueId(unitInfo);
-
+    let targetRegionId = newState.currentPathIsValid ? viewState.regionOver : unitInfo.region;
     units.forEach((region) => {
         region.units.forEach((unit) => {
             if(Utils.getUnitUniqueId(unit) === uniqueId){
-                let bbox = viewState.centroidMap.get(viewState.regionOver);
+                let bbox = viewState.centroidMap.get(targetRegionId);
                 var x = Math.floor(bbox.x + bbox.width / 4);
                 var y = Math.floor(bbox.y + bbox.height / 4);
-                newState.unitPositions[viewState.regionOver + unit.type + unit.owner] = { x, y };
+                newState.unitPositions[targetRegionId + unit.type + unit.owner] = { x, y };
             }
         });
     });
@@ -142,17 +142,19 @@ const updateViewStateUnitDragEnd = (viewState, units) => {
     return newState;
 };
 
-const updateUnitsDragEnd = (units, unitInfo, regionOver) => {
+const updateUnitsDragEnd = (units, unitInfo, regionOver, isValidPath) => {
     let newUnits = Array.from(units);
 
-    let uniqueId = Utils.getUnitUniqueId(unitInfo);
-    newUnits.forEach((unitList) => {
-        unitList.units.forEach((unit) => {
-            if((Utils.getUnitUniqueId(unit)) === uniqueId){
-                unit.region = regionOver;
-            }
+    if(isValidPath){
+        let uniqueId = Utils.getUnitUniqueId(unitInfo);
+        newUnits.forEach((unitList) => {
+            unitList.units.forEach((unit) => {
+                if((Utils.getUnitUniqueId(unit)) === uniqueId){
+                    unit.region = regionOver;
+                }
+            });
         });
-    });
+    }
 
     return newUnits;
 };

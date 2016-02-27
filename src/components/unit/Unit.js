@@ -41,12 +41,13 @@ class Unit {
             let dist = Math.sqrt( ((viewState.unitOriginalStart.x-position.x)*(viewState.unitOriginalStart.x - position.x)) + ((viewState.unitOriginalStart.y-position.y)*(viewState.unitOriginalStart.y-position.y)) );
 
             //let scale = Math.max(dist/200, 0.01);
+            moveFill = viewState.currentPathIsValid ? 'green' : 'red';
 
             let x2 = -(viewState.unitOriginalStart.x-position.x);
             let y2 = -(viewState.unitOriginalStart.y-position.y);
 
             pathEl=(<g transform={'scale('+Math.min(Math.max(dist/20, 0.6), 0.9)+')translate(0,5)'}>
-                         <line markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={viewState.currentPathIsValid ? 'green' : 'red'}/>
+                         <line markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill}/>
                     </g>);
         }
 
