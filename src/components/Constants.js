@@ -2,11 +2,11 @@ export default {
     Units: {
         DefaultPositions: [
             {
-                region: 'CentralFrance',
+                //region: 'CentralFrance',
                 units: [{type: 'infantry', number: 3, owner: 'FR', region: 'CentralFrance'}]
             },
             {
-                region: 'WesternGermany',
+                //region: 'WesternGermany',
                 units: [{type: 'infantry', number: 5, owner: 'DE', region: 'WesternGermany'}]
             }
         ],

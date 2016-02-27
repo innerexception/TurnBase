@@ -40,8 +40,8 @@ const mapDispatchToProps = (dispatch) => {
         onUnitDragStart: (e, unitInfo) => {
             dispatch(unitDragStart(e, unitInfo))
         },
-        onUnitDragEnd: (e) => {
-            dispatch(unitDragEnd(e))
+        onUnitDragEnd: (e, unitInfo) => {
+            dispatch(unitDragEnd(e, unitInfo))
         }
     }
 };

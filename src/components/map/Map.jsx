@@ -55,7 +55,7 @@ class BaseMap extends React.Component {
                 <div className='turnbase-map-outer'>
                     <svg onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this.props.onMapDragEnd} onWheel={this.props.onMapZoom} >
                         <g transform={this._getViewTransformString(this.props.viewState)}>
-                            {Region.getRegionPaths(this.props.regions, this.props.onRegionClick)}
+                            {Region.getRegionPaths(this.props.regions, this.props.onRegionClick, this.props.viewState)}
                             {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units, this.props.onUnitClick,
                                                                   this.props.onUnitStackClick, this.props.onUnitDragStart,
                                                                   this.props.onUnitDragEnd, this.props.viewState, this.props.regionAdjacencyMap) : null}

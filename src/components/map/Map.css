@@ -33,10 +33,10 @@ svg {
     stroke-width:0.5;
 }
 
-.turnbase-region:hover{
+.turnbase-region.selected{
     fill: green;
 }
 
-.turnbase-region.selected{
+.turnbase-region.unit-path-region{
     fill: green;
 }

@@ -1,12 +1,8 @@
 const mapReducer = (state = {}, action) => {
     switch (action.type) {
         case 'REGION_CLICKED':
-            let regions = state.regions.map((region) => {
-                region.attributes.id === action.id ? region.selected = true : region.selected = false;
-                return region;
-            });
             console.log('clicked on '+action.id);
-            return { ...state, regions };
+            return { ...state, viewState: updateViewStateSelectedRegion(state.viewState, action.id) };
         case 'MAP_LOAD':
             return { ...state, regions: action.regions, regionAdjacencyMap: action.regionAdjacencyMap };
         case 'UNIT_LOAD':
@@ -26,10 +22,16 @@ const mapReducer = (state = {}, action) => {
         case 'UNIT_DRAG_START':
             return { ...state, viewState: updateViewStateUnitDragStart(state.viewState, action.e, action.unitInfo)};
         case 'UNIT_DRAG_END':
-            return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState)};
+            return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units, action.unitInfo), units: updateUnitsDragEnd(state.units, action.unitInfo, state.viewState.regionOver)};
         default:
             return state
     }
+};
+
+const updateViewStateSelectedRegion = (viewState, regionId) => {
+    let newState = {...viewState};
+    newState.selectedRegionId = regionId;
+    return newState;
 };
 
 const updateViewStateAdjMap = (viewState, adjMap) => {
@@ -49,6 +51,7 @@ const initializeViewStateUnits = (regions, centroidMap, viewState) => {
             newState.unitPositions[unit.region + unit.type + unit.owner] = { x, y };
         });
     });
+    newState.centroidMap = centroidMap;
     return newState;
 };
 
@@ -140,11 +143,41 @@ const updateViewStateUnitDragStart = (viewState, e, unitInfo) => {
     return newState;
 };
 
-const updateViewStateUnitDragEnd = (viewState) => {
+const updateViewStateUnitDragEnd = (viewState, units, unitInfo) => {
     let newState = { ...viewState };
     newState.unitDragStart = null;
     newState.unitOriginalStart = null;
+    newState.unitPath = null;
+
+    let uniqueId = unitInfo.region + unitInfo.type + unitInfo.owner;
+
+    units.forEach((region) => {
+        region.units.forEach((unit) => {
+            if(unit.region + unit.type + unit.owner === uniqueId){
+                let bbox = viewState.centroidMap.get(viewState.regionOver);
+                var x = Math.floor(bbox.x + bbox.width / 4);
+                var y = Math.floor(bbox.y + bbox.height / 4);
+                newState.unitPositions[viewState.regionOver + unit.type + unit.owner] = { x, y };
+            }
+        });
+    });
+
     return newState;
+};
+
+const updateUnitsDragEnd = (units, unitInfo, regionOver) => {
+    let newUnits = Array.from(units);
+
+    let uniqueId = unitInfo.region + unitInfo.type + unitInfo.owner;
+    newUnits.forEach((unitList) => {
+        unitList.units.forEach((unit) => {
+            if((unit.region + unit.type + unit.owner) === uniqueId){
+                unit.region = regionOver;
+            }
+        });
+    });
+
+    return newUnits;
 };
 
 export default mapReducer;

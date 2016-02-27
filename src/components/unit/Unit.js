@@ -56,7 +56,7 @@ class Unit {
 
         return (<svg>
                     <svg x={position.x} y={position.y}><g onMouseDown={(e) => onUnitDragStart(e, unitInfo)}
-                       onMouseUp={onUnitDragEnd}
+                       onMouseUp={(e) => onUnitDragEnd(e, unitInfo)}
                        transform={'scale(0.07)'}>{pathEls}</g></svg>
                     {pathEl ? <svg x={viewState.unitOriginalStart.x} y={viewState.unitOriginalStart.y}>
                         <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="'+moveFill+'" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
@@ -78,6 +78,9 @@ class Unit {
 
             // land units can never move on water and vv
 
+            //A transport unit could be a valid move target
+
+            //Air units must end their move on a friendly region
         }
 
         return isAdjacent;
