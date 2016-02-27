@@ -6,8 +6,7 @@ const mapStateToProps = (state) => {
     return {
         regions: state.regions,
         units: state.units,
-        viewState: state.viewState,
-        regionAdjacencyMap: state.regionAdjacencyMap
+        viewState: state.viewState
     };
 };
 
@@ -40,8 +39,8 @@ const mapDispatchToProps = (dispatch) => {
         onUnitDragStart: (e, unitInfo) => {
             dispatch(unitDragStart(e, unitInfo))
         },
-        onUnitDragEnd: (e, unitInfo) => {
-            dispatch(unitDragEnd(e, unitInfo))
+        onUnitDragEnd: (e) => {
+            dispatch(unitDragEnd(e))
         }
     }
 };

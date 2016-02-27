@@ -1,10 +1,12 @@
+import Utils from './MapUtils.js';
+
 const mapReducer = (state = {}, action) => {
     switch (action.type) {
         case 'REGION_CLICKED':
             console.log('clicked on '+action.id);
             return { ...state, viewState: updateViewStateSelectedRegion(state.viewState, action.id) };
         case 'MAP_LOAD':
-            return { ...state, regions: action.regions, regionAdjacencyMap: action.regionAdjacencyMap };
+            return { ...state, regions: action.regions, viewState: updateViewStateRegionMap(state.viewState, action.regionAdjacencyMap) };
         case 'UNIT_LOAD':
             return { ...state, units: action.units, viewState: initializeViewStateUnits(action.units, action.centroidMap, state.viewState) };
         case 'VIEW_STATE_CHANGED':
@@ -22,10 +24,16 @@ const mapReducer = (state = {}, action) => {
         case 'UNIT_DRAG_START':
             return { ...state, viewState: updateViewStateUnitDragStart(state.viewState, action.e, action.unitInfo)};
         case 'UNIT_DRAG_END':
-            return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units, action.unitInfo), units: updateUnitsDragEnd(state.units, action.unitInfo, state.viewState.regionOver)};
+            return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart.unitInfo, state.viewState.regionOver)};
         default:
             return state
     }
+};
+
+const updateViewStateRegionMap = (viewState, regionMap) => {
+    let newState = {...viewState};
+    newState.adjacencyMap = regionMap;
+    return newState;
 };
 
 const updateViewStateSelectedRegion = (viewState, regionId) => {
@@ -48,7 +56,7 @@ const initializeViewStateUnits = (regions, centroidMap, viewState) => {
             let bbox = centroidMap.get(unit.region);
             var x = Math.floor(bbox.x + bbox.width / 4);
             var y = Math.floor(bbox.y + bbox.height / 4);
-            newState.unitPositions[unit.region + unit.type + unit.owner] = { x, y };
+            newState.unitPositions[Utils.getUnitUniqueId(unit)] = { x, y };
         });
     });
     newState.centroidMap = centroidMap;
@@ -92,68 +100,37 @@ const updateViewStateUnitPanFromEvent = (viewState, e) => {
     let currentY = newState.unitDragStart.y;
     let offset = {x: ((e.clientX - currentX)/viewState.zoomLevel), y: ((e.clientY -  currentY)/viewState.zoomLevel)};
     newState.unitPositions[uniqueId] = {x: newState.unitPositions[uniqueId].x + offset.x, y: newState.unitPositions[uniqueId].y + offset.y };
-    newState.unitDragStart = {x: e.clientX, y: e.clientY, uniqueId};
+    newState.unitDragStart.x = e.clientX;
+    newState.unitDragStart.y = e.clientY;
 
-    //TODO: elementsFromPoint is hot but only supported on the latest FF/Chrome. Need cross-browser solution...
-    let possibleNewRegion = document.elementsFromPoint(e.clientX, e.clientY).filter((element) => {
-        return element.attributes.id;
-    })[0].attributes.id.textContent;
+    newState = Utils.updateUnitPath(newState, e);
 
-    //If we entered a new region, save the last region.
-    if(newState.regionOver !== possibleNewRegion){
-        newState.lastRegionOver = newState.regionOver;
-        console.log('calculating adjacency from center of: '+newState.lastRegionOver);
-        newState.regionOver = possibleNewRegion;
-
-        //Determine number of region moves so far
-        if(!newState.unitPath) newState.unitPath = [newState.regionOver];
-        else{
-            //If you backtracked, remove last region in path
-            if(newState.unitPath[newState.unitPath.length-2] === possibleNewRegion){
-                console.log('removed ' +newState.unitPath[newState.unitPath.length-1]+ ' from unit path');
-                newState.unitPath.splice(newState.unitPath.length-1, 1);
-            }
-            else{
-                //Check if region exists in path, region can only be in path once.
-                let duplicate = newState.unitPath.filter((path) => {
-                    return path === possibleNewRegion;
-                });
-                if(duplicate.length === 0){
-                    newState.unitPath.push(possibleNewRegion);
-                    console.log('added ' +possibleNewRegion+ ' to unit path');
-                }
-                else{
-                    console.log('possibleNewRegion was already found in path!');
-                }
-
-            }
-        }
-        console.debug('new path is: '+newState.unitPath);
-
-    }
+    newState.currentPathIsValid = Utils.getValidMove(viewState.lastRegionOver ? viewState.lastRegionOver : viewState.unitDragStart.unitInfo.region, viewState.regionOver ? viewState.regionOver : viewState.unitDragStart.unitInfo.region, viewState.unitDragStart.unitInfo, newState.adjacencyMap, newState.unitPath);
 
     return newState;
 };
 
 const updateViewStateUnitDragStart = (viewState, e, unitInfo) => {
     let newState = { ...viewState };
-    let uniqueId = unitInfo.region + unitInfo.type + unitInfo.owner;
-    newState.unitDragStart = {x: e.clientX, y: e.clientY, uniqueId};
+    let uniqueId = Utils.getUnitUniqueId(unitInfo);
+    newState.unitDragStart = {x: e.clientX, y: e.clientY, uniqueId, unitInfo};
     newState.unitOriginalStart = newState.unitPositions[uniqueId];
     return newState;
 };
 
-const updateViewStateUnitDragEnd = (viewState, units, unitInfo) => {
+const updateViewStateUnitDragEnd = (viewState, units) => {
     let newState = { ...viewState };
+    let unitInfo = viewState.unitDragStart.unitInfo;
     newState.unitDragStart = null;
     newState.unitOriginalStart = null;
     newState.unitPath = null;
 
-    let uniqueId = unitInfo.region + unitInfo.type + unitInfo.owner;
+
+    let uniqueId = Utils.getUnitUniqueId(unitInfo);
 
     units.forEach((region) => {
         region.units.forEach((unit) => {
-            if(unit.region + unit.type + unit.owner === uniqueId){
+            if(Utils.getUnitUniqueId(unit) === uniqueId){
                 let bbox = viewState.centroidMap.get(viewState.regionOver);
                 var x = Math.floor(bbox.x + bbox.width / 4);
                 var y = Math.floor(bbox.y + bbox.height / 4);
@@ -168,10 +145,10 @@ const updateViewStateUnitDragEnd = (viewState, units, unitInfo) => {
 const updateUnitsDragEnd = (units, unitInfo, regionOver) => {
     let newUnits = Array.from(units);
 
-    let uniqueId = unitInfo.region + unitInfo.type + unitInfo.owner;
+    let uniqueId = Utils.getUnitUniqueId(unitInfo);
     newUnits.forEach((unitList) => {
         unitList.units.forEach((unit) => {
-            if((unit.region + unit.type + unit.owner) === uniqueId){
+            if((Utils.getUnitUniqueId(unit)) === uniqueId){
                 unit.region = regionOver;
             }
         });
@@ -179,5 +156,6 @@ const updateUnitsDragEnd = (units, unitInfo, regionOver) => {
 
     return newUnits;
 };
+
 
 export default mapReducer;

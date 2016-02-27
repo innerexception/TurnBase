@@ -52,10 +52,9 @@ export const unitDragStart = (e, unitInfo) => {
     }
 };
 
-export const unitDragEnd = (e, unitInfo) => {
+export const unitDragEnd = (e) => {
     return {
-        type: 'UNIT_DRAG_END',
-        unitInfo
+        type: 'UNIT_DRAG_END'
     }
 };
 
