@@ -3,10 +3,10 @@ import Constants from '../Constants.js';
 
 class Region {
 
-    static getRegionPaths = (regions, onRegionClick, onRegionMouseEnter) => {
+    static getRegionPaths = (regions, onRegionClick) => {
         return regions.map((region) => {
             return (
-                <path onClick={() => onRegionClick(region.attributes.id)} onMouseOver ={() => onRegionMouseEnter(region.attributes.id)}
+                <path onClick={() => onRegionClick(region.attributes.id)}
                       d={region.attributes.d}
                       id={region.attributes.id} title={region.attributes.title}
                       className={'turnbase-region ' + Region.getRegionClassNames(region)}></path>

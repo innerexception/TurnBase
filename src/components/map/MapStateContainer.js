@@ -16,9 +16,6 @@ const mapDispatchToProps = (dispatch) => {
         onRegionClick: (id) => {
             dispatch(regionClicked(id))
         },
-        onRegionMouseEnter: (id) => {
-            dispatch(regionMouseEnter(id))
-        },
         onUnitClick: (id) => {
             dispatch(unitClicked(id))
         },

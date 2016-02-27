@@ -7,11 +7,6 @@ const mapReducer = (state = {}, action) => {
             });
             console.log('clicked on '+action.id);
             return { ...state, regions };
-        case 'REGION_MOUSE_OVER':
-            let region = state.regions.filter((region) => {
-                return region.attributes.id === action.id;
-            })[0];
-            return { ...state, viewState: updateViewStateRegionOver(state.viewState, region) };
         case 'MAP_LOAD':
             return { ...state, regions: action.regions, regionAdjacencyMap: action.regionAdjacencyMap };
         case 'UNIT_LOAD':
@@ -97,9 +92,42 @@ const updateViewStateUnitPanFromEvent = (viewState, e) => {
     newState.unitDragStart = {x: e.clientX, y: e.clientY, uniqueId};
 
     //TODO: elementsFromPoint is hot but only supported on the latest FF/Chrome. Need cross-browser solution...
-    newState.regionOver = document.elementsFromPoint(e.clientX, e.clientY).filter((element) => {
+    let possibleNewRegion = document.elementsFromPoint(e.clientX, e.clientY).filter((element) => {
         return element.attributes.id;
     })[0].attributes.id.textContent;
+
+    //If we entered a new region, save the last region.
+    if(newState.regionOver !== possibleNewRegion){
+        newState.lastRegionOver = newState.regionOver;
+        console.log('calculating adjacency from center of: '+newState.lastRegionOver);
+        newState.regionOver = possibleNewRegion;
+
+        //Determine number of region moves so far
+        if(!newState.unitPath) newState.unitPath = [newState.regionOver];
+        else{
+            //If you backtracked, remove last region in path
+            if(newState.unitPath[newState.unitPath.length-2] === possibleNewRegion){
+                console.log('removed ' +newState.unitPath[newState.unitPath.length-1]+ ' from unit path');
+                newState.unitPath.splice(newState.unitPath.length-1, 1);
+            }
+            else{
+                //Check if region exists in path, region can only be in path once.
+                let duplicate = newState.unitPath.filter((path) => {
+                    return path === possibleNewRegion;
+                });
+                if(duplicate.length === 0){
+                    newState.unitPath.push(possibleNewRegion);
+                    console.log('added ' +possibleNewRegion+ ' to unit path');
+                }
+                else{
+                    console.log('possibleNewRegion was already found in path!');
+                }
+
+            }
+        }
+        console.debug('new path is: '+newState.unitPath);
+
+    }
 
     return newState;
 };
@@ -118,12 +146,5 @@ const updateViewStateUnitDragEnd = (viewState) => {
     newState.unitOriginalStart = null;
     return newState;
 };
-
-const updateViewStateRegionOver = (viewState, region) => {
-    let newState = {...viewState};
-    newState.regionOver = region.attributes.id;
-    return newState;
-};
-
 
 export default mapReducer;

@@ -43,7 +43,7 @@ class Unit {
             //let scale = Math.max(dist/200, 0.01);
 
 
-            let validMove = Unit.getValidMove(unitInfo.region, viewState.regionOver, unitInfo.move, regionAdjacencyMap);
+            let validMove = Unit.getValidMove(viewState.lastRegionOver ? viewState.lastRegionOver : unitInfo.region, viewState.regionOver ? viewState.regionOver : unitInfo.region, unitInfo, regionAdjacencyMap);
             moveFill = validMove ? "lightgreen" : "red";
 
             let x2 = -(viewState.unitOriginalStart.x-position.x);
@@ -57,18 +57,18 @@ class Unit {
         return (<svg>
                     <svg x={position.x} y={position.y}><g onMouseDown={(e) => onUnitDragStart(e, unitInfo)}
                        onMouseUp={onUnitDragEnd}
-                       transform={'scale(0.1)'}>{pathEls}</g></svg>
+                       transform={'scale(0.07)'}>{pathEls}</g></svg>
                     {pathEl ? <svg x={viewState.unitOriginalStart.x} y={viewState.unitOriginalStart.y}>
                         <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="'+moveFill+'" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
                 </svg>);
     };
 
-    static getValidMove = (originRegionId, targetRegionId, unitMoves, adjacencyMap) => {
+    static getValidMove = (originRegionId, targetRegionId, unitInfo, adjacencyMap) => {
         // for unit move value, get adjacent regions of origin and return true if target region is one of them.
 
         let isAdjacent = false;
 
-        if(targetRegionId && (originRegionId !== targetRegionId)){
+        if(targetRegionId && (originRegionId !== targetRegionId) && targetRegionId !== unitInfo.region){
 
             let targetRegionAdjacencies = adjacencyMap.get(targetRegionId);
 

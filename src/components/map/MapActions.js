@@ -9,13 +9,6 @@ export const regionClicked = (id) => {
     }
 };
 
-export const regionMouseEnter = (id) => {
-    return {
-        type: 'REGION_MOUSE_OVER',
-        id
-    }
-};
-
 export const unitClicked = (unitInfo) => {
     return {
         type: 'UNIT_CLICKED',
