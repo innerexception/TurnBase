@@ -73,6 +73,11 @@
         <CentralGermany />
         <Denmark />
       </WesternGermany>
+      <CentralGermany>
+         <WesternGermany/>
+         <SouthernGermany/>
+         <Poland/>
+      </CentralGermany>
     </adjacency>
   </defs>
   <g
