@@ -5,6 +5,10 @@ svg {
     overflow: visible;
 }
 
+.no-events{
+    pointer-events: none;
+}
+
 .turnbase-map-outer{
     height: 100%;
 }

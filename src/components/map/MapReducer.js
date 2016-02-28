@@ -25,9 +25,30 @@ const mapReducer = (state = {}, action) => {
             return { ...state, viewState: updateViewStateUnitDragStart(state.viewState, action.e, action.unitInfo)};
         case 'UNIT_DRAG_END':
             return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart.unitInfo, state.viewState.regionOver, state.viewState.currentPathIsValid)};
+        case 'UNIT_MOVE_CANCELLED':
+            return { ...state, units: updateUnitRegionOnMoveCancelled(state.units, action.uniqueId, state.viewState), viewState: updateViewStateRemoveSavedMoveArrows(state.viewState, action.uniqueId)};
         default:
             return state
     }
+};
+
+const updateUnitRegionOnMoveCancelled = (units, uniqueId, viewState) => {
+    let newUnits = Array.from(units);
+    newUnits.forEach((unitList) => {
+        unitList.units.forEach((unit) => {
+            if((Utils.getUnitUniqueId(unit)) === uniqueId){
+                unit.region = viewState.savedMoveArrows.get(uniqueId).originalRegionId;
+            }
+        });
+    });
+};
+
+const updateViewStateRemoveSavedMoveArrows = (viewState, uniqueId) => {
+    let newState = {...viewState};
+    //Set unit position back to origin
+    newState.unitPositions[uniqueId] = newState.savedMoveArrows.get(uniqueId).unitOriginalStart;
+    newState.savedMoveArrows.delete(uniqueId);
+    return newState;
 };
 
 const updateViewStateRegionMap = (viewState, regionMap) => {
@@ -138,7 +159,7 @@ const updateViewStateUnitDragEnd = (viewState, units) => {
 
     if(newState.currentPathIsValid){
         if(!newState.savedMoveArrows) newState.savedMoveArrows = new Map();
-        newState.savedMoveArrows.set(targetRegionId + unitInfo.type + unitInfo.owner, {unitOriginalStart: newState.unitOriginalStart, newPosition: newState.unitPositions[targetRegionId + unitInfo.type + unitInfo.owner]})
+        newState.savedMoveArrows.set(targetRegionId + unitInfo.type + unitInfo.owner, {unitOriginalStart: newState.unitOriginalStart, newPosition: newState.unitPositions[targetRegionId + unitInfo.type + unitInfo.owner], originalRegionId:unitInfo.region})
     }
 
     newState.unitDragStart = null;

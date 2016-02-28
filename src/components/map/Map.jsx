@@ -16,6 +16,7 @@ class BaseMap extends React.Component {
         onMapDragStart: PropTypes.func.isRequired,
         onMapDragEnd: PropTypes.func.isRequired,
         onMapZoom: PropTypes.func.isRequired,
+        onMoveCancelClick: PropTypes.func.isRequired,
         onUnitClick: PropTypes.func.isRequired,
         onUnitStackClick: PropTypes.func.isRequired,
         onUnitDragStart: PropTypes.func.isRequired,
@@ -58,7 +59,7 @@ class BaseMap extends React.Component {
                             {Region.getRegionPaths(this.props.regions, this.props.onRegionClick, this.props.viewState)}
                             {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units, this.props.onUnitClick,
                                                                   this.props.onUnitStackClick, this.props.onUnitDragStart,
-                                                                  this.props.onUnitDragEnd, this.props.viewState) : null}
+                                                                  this.props.onUnitDragEnd, this.props.viewState, this.props.onMoveCancelClick) : null}
                         </g>
                     </svg>
                 </div>);

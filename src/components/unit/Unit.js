@@ -4,12 +4,12 @@ import d3 from 'd3';
 
 class Unit {
 
-    static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState) => {
+    static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
         let els = [];
         unitList.forEach((list) => {
             let i = 0;
             list.units.forEach((unitInfo) => {
-                els.push(Unit.getUnitImageGroup(Unit.getPlacementPosition(viewState, unitInfo), unitInfo, i, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState));
+                els.push(Unit.getUnitImageGroup(Unit.getPlacementPosition(viewState, unitInfo), unitInfo, i, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
                 i++;
             });
         });
@@ -21,7 +21,7 @@ class Unit {
         return viewState.unitPositions[unitInfo.region + unitInfo.type + unitInfo.owner];
     };
 
-    static getUnitImageGroup = (position, unitInfo, i, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState) => {
+    static getUnitImageGroup = (position, unitInfo, i, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
 
         //TODO: place stack marker if no room in region
         //if (nextValidY > initialPlacementPosition.maxHeight) {
@@ -47,12 +47,13 @@ class Unit {
             let y2 = -(viewState.unitOriginalStart.y-position.y);
 
             pathEl=(<g transform={'scale('+Math.min(Math.max(dist/20, 0.6), 0.9)+')translate(0,5)'}>
-                         <line markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill}/>
+                         <line markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill} />
                     </g>);
         }
         let savedMoveArrowInfo;
-        if(viewState.savedMoveArrows){
-            savedMoveArrowInfo = viewState.savedMoveArrows.get((unitInfo.region + unitInfo.type + unitInfo.owner));
+        if((!viewState.unitDragStart) && viewState.savedMoveArrows){
+            let uniqueId = (unitInfo.region + unitInfo.type + unitInfo.owner);
+            savedMoveArrowInfo = viewState.savedMoveArrows.get(uniqueId);
             if(savedMoveArrowInfo){
                 let dist = Math.sqrt( ((savedMoveArrowInfo.unitOriginalStart.x-savedMoveArrowInfo.newPosition.x)*(savedMoveArrowInfo.unitOriginalStart.x - savedMoveArrowInfo.newPosition.x))
                     + ((savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)*(savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)) );
@@ -63,7 +64,7 @@ class Unit {
                 let y2 = -(savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y);
 
                 pathEl=(<g transform={'scale('+Math.min(Math.max(dist/20, 0.6), 0.9)+')translate(0,5)'}>
-                    <line markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill}/>
+                    <line onClick={()=>onMoveCancelClick(uniqueId)} markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill} strokeWidth={1.5}/>
                 </g>);
             }
         }
@@ -71,7 +72,7 @@ class Unit {
         return (<svg>
                     {pathEl ? <svg x={viewState.unitOriginalStart ? viewState.unitOriginalStart.x : savedMoveArrowInfo.unitOriginalStart.x} y={viewState.unitOriginalStart ? viewState.unitOriginalStart.y : savedMoveArrowInfo.unitOriginalStart.y}>
                         <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="'+moveFill+'" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
-                    <svg x={position.x} y={position.y}><g onMouseDown={(e) => onUnitDragStart(e, unitInfo)}
+                    <svg className={savedMoveArrowInfo ? 'no-events' : null} x={position.x} y={position.y}><g onMouseDown={(e) => onUnitDragStart(e, unitInfo)}
                                onMouseUp={onUnitDragEnd}
                                transform={'scale(0.07)'}>{pathEls}</g></svg>
                 </svg>);

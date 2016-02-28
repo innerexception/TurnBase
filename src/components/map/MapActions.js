@@ -58,6 +58,13 @@ export const unitDragEnd = (e) => {
     }
 };
 
+export const moveCancel = (uniqueId) => {
+    return {
+        type: 'UNIT_MOVE_CANCELLED',
+        uniqueId
+    }
+};
+
 export const unitMove = (e) => {
     return {
         type: 'UNIT_MOVE',
