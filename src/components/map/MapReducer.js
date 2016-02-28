@@ -115,16 +115,13 @@ const updateViewStateUnitDragStart = (viewState, e, unitInfo) => {
     let uniqueId = Utils.getUnitUniqueId(unitInfo);
     newState.unitDragStart = {x: e.clientX, y: e.clientY, uniqueId, unitInfo};
     newState.unitOriginalStart = newState.unitPositions[uniqueId];
+    newState.savedMoveArrows && newState.savedMoveArrows.set(uniqueId, null);
     return newState;
 };
 
 const updateViewStateUnitDragEnd = (viewState, units) => {
     let newState = { ...viewState };
     let unitInfo = viewState.unitDragStart.unitInfo;
-    newState.unitDragStart = null;
-    newState.unitOriginalStart = null;
-    newState.unitPath = null;
-
 
     let uniqueId = Utils.getUnitUniqueId(unitInfo);
     let targetRegionId = newState.currentPathIsValid ? viewState.regionOver : unitInfo.region;
@@ -138,6 +135,16 @@ const updateViewStateUnitDragEnd = (viewState, units) => {
             }
         });
     });
+
+    if(newState.currentPathIsValid){
+        if(!newState.savedMoveArrows) newState.savedMoveArrows = new Map();
+        newState.savedMoveArrows.set(targetRegionId + unitInfo.type + unitInfo.owner, {unitOriginalStart: newState.unitOriginalStart, newPosition: newState.unitPositions[targetRegionId + unitInfo.type + unitInfo.owner]})
+    }
+
+    newState.unitDragStart = null;
+    newState.unitOriginalStart = null;
+    newState.unitPath = null;
+    newState.regionOver = null;
 
     return newState;
 };
