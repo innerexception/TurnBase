@@ -79,15 +79,13 @@ export const mapZoom = (e) => {
     }
 };
 
-export const fetchUnits = (regionUnits, centroidMap) => {
+export const fetchUnits = (units, centroidMap) => {
     return (dispatch) => {
         let fetchArray = [];
         let typesFetched = new Map();
-        regionUnits.forEach((region) => {
-            region.units.forEach((unitInfo) => {
-                if(!typesFetched.get(unitInfo.type)) fetchArray.push(fetch('./res/svg/units/'+Constants.Units[unitInfo.type].svgName));
-                typesFetched.set(unitInfo.type, true);
-            });
+        units.forEach((unitInfo) => {
+            if(!typesFetched.get(unitInfo.type)) fetchArray.push(fetch('./res/svg/units/de/'+Constants.Units[unitInfo.type].svgName));
+            typesFetched.set(unitInfo.type, true);
         });
         return Promise.all(fetchArray).then((responseArray) => {
             let textFetches = [];
@@ -95,7 +93,7 @@ export const fetchUnits = (regionUnits, centroidMap) => {
                 textFetches.push(response.text());
             });
             Promise.all(textFetches).then((textResponseArray) => {
-               dispatch(fetchedUnits(regionUnits, textResponseArray, centroidMap));
+               dispatch(fetchedUnits(units, textResponseArray, centroidMap));
             });
         });
     }
@@ -133,7 +131,7 @@ export const mapFetched = (text) => {
     }
 };
 
-const getUnitPathsFromResponse = (regionUnits, textArray) => {
+const getUnitPathsFromResponse = (units, textArray) => {
     textArray.forEach((svgText) => {
         let svgObj = parser(svgText);
         let unitName = svgObj.root.children.filter((child) => {
@@ -142,9 +140,9 @@ const getUnitPathsFromResponse = (regionUnits, textArray) => {
         let unitPaths = svgObj.root.children.filter((child) => {
             return child.name === 'g'
         })[0].children;
-        regionUnits.forEach((region) => region.units.forEach((unit) => { if(unit.type === unitName) unit.paths = unitPaths }));
+        units.forEach((unit) => { if(unit.type === unitName) unit.paths = unitPaths });
     });
-    return regionUnits;
+    return units;
 };
 
 const getRegionPathsFromSVG = (text) => {

@@ -34,13 +34,12 @@ const mapReducer = (state = {}, action) => {
 
 const updateUnitRegionOnMoveCancelled = (units, uniqueId, viewState) => {
     let newUnits = Array.from(units);
-    newUnits.forEach((unitList) => {
-        unitList.units.forEach((unit) => {
-            if((Utils.getUnitUniqueId(unit)) === uniqueId){
-                unit.region = viewState.savedMoveArrows.get(uniqueId).originalRegionId;
-            }
-        });
+    units.forEach((unit) => {
+        if((Utils.getUnitUniqueId(unit)) === uniqueId){
+            unit.region = viewState.savedMoveArrows.get(uniqueId).originalRegionId;
+        }
     });
+    return newUnits;
 };
 
 const updateViewStateRemoveSavedMoveArrows = (viewState, uniqueId) => {
@@ -69,17 +68,15 @@ const updateViewStateAdjMap = (viewState, adjMap) => {
     return newState;
 };
 
-const initializeViewStateUnits = (regions, centroidMap, viewState) => {
+const initializeViewStateUnits = (units, centroidMap, viewState) => {
     let newState = {...viewState};
     newState.unitPositions = {};
-    regions.forEach((region) => {
-        region.units.forEach((unit) => {
+    units.forEach((unit) => {
             let bbox = centroidMap.get(unit.region);
             var x = Math.floor(bbox.x + bbox.width / 4);
             var y = Math.floor(bbox.y + bbox.height / 4);
             newState.unitPositions[Utils.getUnitUniqueId(unit)] = { x, y };
         });
-    });
     newState.centroidMap = centroidMap;
     return newState;
 };
@@ -146,15 +143,13 @@ const updateViewStateUnitDragEnd = (viewState, units) => {
 
     let uniqueId = Utils.getUnitUniqueId(unitInfo);
     let targetRegionId = newState.currentPathIsValid ? viewState.regionOver : unitInfo.region;
-    units.forEach((region) => {
-        region.units.forEach((unit) => {
-            if(Utils.getUnitUniqueId(unit) === uniqueId){
-                let bbox = viewState.centroidMap.get(targetRegionId);
-                var x = Math.floor(bbox.x + bbox.width / 4);
-                var y = Math.floor(bbox.y + bbox.height / 4);
-                newState.unitPositions[targetRegionId + unit.type + unit.owner] = { x, y };
-            }
-        });
+    units.forEach((unit) => {
+        if(Utils.getUnitUniqueId(unit) === uniqueId){
+            let bbox = viewState.centroidMap.get(targetRegionId);
+            var x = Math.floor(bbox.x + bbox.width / 4);
+            var y = Math.floor(bbox.y + bbox.height / 4);
+            newState.unitPositions[targetRegionId + unit.type + unit.owner] = { x, y };
+        }
     });
 
     if(newState.currentPathIsValid){
@@ -175,12 +170,10 @@ const updateUnitsDragEnd = (units, unitInfo, regionOver, isValidPath) => {
 
     if(isValidPath){
         let uniqueId = Utils.getUnitUniqueId(unitInfo);
-        newUnits.forEach((unitList) => {
-            unitList.units.forEach((unit) => {
-                if((Utils.getUnitUniqueId(unit)) === uniqueId){
-                    unit.region = regionOver;
-                }
-            });
+        units.forEach((unit) => {
+            if((Utils.getUnitUniqueId(unit)) === uniqueId){
+                unit.region = regionOver;
+            }
         });
     }
 

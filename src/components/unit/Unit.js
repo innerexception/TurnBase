@@ -6,13 +6,11 @@ class Unit {
 
     static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
         let els = [];
-        unitList.forEach((list) => {
             let i = 0;
-            list.units.forEach((unitInfo) => {
+            unitList.forEach((unitInfo) => {
                 els.push(Unit.getUnitImageGroup(Unit.getPlacementPosition(viewState, unitInfo), unitInfo, i, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
                 i++;
             });
-        });
         return els;
     };
 

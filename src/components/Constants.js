@@ -1,14 +1,10 @@
 export default {
     Units: {
         DefaultPositions: [
-            {
-                //region: 'CentralFrance',
-                units: [{type: 'infantry', number: 3, owner: 'FR', region: 'CentralFrance'}]
-            },
-            {
-                //region: 'WesternGermany',
-                units: [{type: 'tank', number: 5, owner: 'DE', region: 'WesternGermany'}]
-            }
+            {type: 'infantry', number: 6, owner: 'FR', region: 'CentralFrance'},
+            {type: 'infantry', number: 2, owner: 'FR', region: 'UnitedKingdom'},
+            {type: 'infantry', number: 1, owner: 'FR', region: 'Normandy'},
+            {type: 'infantry', number: 1, owner: 'FR', region: 'SouthernFrance'}
         ],
         infantry: {
             width: 20,
