@@ -13,6 +13,12 @@ export default {
     Units: {
         DefaultPositions: [
             {type: 'infantry', number: 6, owner: 'FR', region: 'CentralFrance'},
+            {type: 'artillery', number: 1, owner: 'FR', region: 'CentralFrance'},
+            {type: 'tank', number: 1, owner: 'FR', region: 'CentralFrance'},
+            {type: 'aaa', number: 1, owner: 'FR', region: 'CentralFrance'},
+            {type: 'fighter', number: 1, owner: 'FR', region: 'CentralFrance'},
+            {type: 'majorIC', number: 1, owner: 'FR', region: 'CentralFrance'},
+            {type: 'airfield', number: 1, owner: 'FR', region: 'CentralFrance'},
             {type: 'infantry', number: 2, owner: 'FR', region: 'UnitedKingdom'},
             {type: 'infantry', number: 1, owner: 'FR', region: 'Normandy'},
             {type: 'infantry', number: 1, owner: 'FR', region: 'SouthernFrance'}
@@ -111,6 +117,26 @@ export default {
             defend: 2,
             cost: 8,
             svgName: 'submarine.svg'
+        },
+        aaa: {
+            width: 20,
+            height: 20,
+            attack: 0,
+            defend: 1,
+            cost: 8,
+            svgName: 'aaa.svg'
+        },
+        airfield: {
+            width: 20,
+            height: 20,
+            svgName: 'airfield.svg',
+            isBuilding: true
+        },
+        majorIC: {
+            width: 20,
+            height: 20,
+            svgName: 'majorIC.svg',
+            isBuilding: true
         }
     },
     UI: {

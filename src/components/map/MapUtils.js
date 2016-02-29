@@ -28,48 +28,49 @@ let Utils = {
     },
 
     updateUnitPath: (newState, e) => {
-    //TODO: elementsFromPoint is hot but only supported on the latest FF/Chrome. Need cross-browser solution...
-    let possibleNewRegion = document.elementsFromPoint(e.clientX, e.clientY).filter((element) => {
-        return element.attributes.id;
-    })[0].attributes.id.textContent;
+        //TODO: elementsFromPoint is hot but only supported on the latest FF/Chrome. Need cross-browser solution...
+        let possibleNewRegion = document.elementsFromPoint(e.clientX, e.clientY).filter((element) => {
+            return element.attributes.id;
+        })[0].attributes.id.textContent;
 
-    //If we entered a new region, save the last region.
-    if(newState.regionOver !== possibleNewRegion){
-        newState.lastRegionOver = newState.regionOver;
-        console.log('calculating adjacency from center of: '+newState.lastRegionOver);
-        newState.regionOver = possibleNewRegion;
+        //If we entered a new region, save the last region.
+        if(newState.regionOver !== possibleNewRegion){
+            newState.lastRegionOver = newState.regionOver;
+            console.log('calculating adjacency from center of: '+newState.lastRegionOver);
+            newState.regionOver = possibleNewRegion;
 
-        //Determine number of region moves so far
-        if(!newState.unitPath) newState.unitPath = [newState.regionOver];
-        else{
-            //If you backtracked, remove last region in path
-            if(newState.unitPath[newState.unitPath.length-2] === possibleNewRegion){
-                console.log('removed ' +newState.unitPath[newState.unitPath.length-1]+ ' from unit path');
-                newState.unitPath.splice(newState.unitPath.length-1, 1);
-            }
+            //Determine number of region moves so far
+            if(!newState.unitPath) newState.unitPath = [newState.regionOver];
             else{
-                //Check if region exists in path, region can only be in path once.
-                let duplicate = newState.unitPath.filter((path) => {
-                    return path === possibleNewRegion;
-                });
-                if(duplicate.length === 0){
-                    newState.unitPath.push(possibleNewRegion);
-                    console.log('added ' +possibleNewRegion+ ' to unit path');
+                //If you backtracked, remove last region in path
+                if(newState.unitPath[newState.unitPath.length-2] === possibleNewRegion){
+                    console.log('removed ' +newState.unitPath[newState.unitPath.length-1]+ ' from unit path');
+                    newState.unitPath.splice(newState.unitPath.length-1, 1);
                 }
                 else{
-                    console.log('possibleNewRegion was already found in path!');
+                    //Check if region exists in path, region can only be in path once.
+                    let duplicate = newState.unitPath.filter((path) => {
+                        return path === possibleNewRegion;
+                    });
+                    if(duplicate.length === 0){
+                        newState.unitPath.push(possibleNewRegion);
+                        console.log('added ' +possibleNewRegion+ ' to unit path');
+                    }
+                    else{
+                        console.log('possibleNewRegion was already found in path!');
+                    }
+
                 }
-
             }
-        }
-        console.debug('new path is: '+newState.unitPath);
+            console.debug('new path is: '+newState.unitPath);
 
-    }
-    return newState;
-},
+        }
+
+        return newState;
+    },
 
     getUnitUniqueId: (unitInfo) => {
-        return unitInfo.region + unitInfo.type + unitInfo.owner;
+        return unitInfo.region + unitInfo.type + unitInfo.owner + unitInfo.number;
     }
 };
 

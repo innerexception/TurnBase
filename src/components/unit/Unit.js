@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react'
 import Constants from '../Constants.js';
+import Utils from '../map/MapUtils.js';
 import d3 from 'd3';
 
 class Unit {
@@ -16,7 +17,7 @@ class Unit {
 
     static getPlacementPosition = (viewState, unitInfo) => {
         //TODO, modify position by number of different unit types in region
-        return viewState.unitPositions[unitInfo.region + unitInfo.type + unitInfo.owner];
+        return unitInfo.position;
     };
 
     static getUnitImageGroup = (position, unitInfo, i, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
@@ -34,7 +35,9 @@ class Unit {
                                  onClick={()=> onUnitClick(unitInfo)}></path>));
         });
         let pathEl, moveFill;
-        if(viewState.unitDragStart && viewState.unitDragStart.uniqueId === (unitInfo.region + unitInfo.type + unitInfo.owner)){
+
+        //Drawing move arrows
+        if(viewState.unitDragStart && viewState.unitDragStart.uniqueId === (Utils.getUnitUniqueId(unitInfo))){
             //let angleToMouse = (Math.atan2(position.x - viewState.unitOriginalStart.x, position.y - viewState.unitOriginalStart.y )*(180/Math.PI));
             let dist = Math.sqrt( ((viewState.unitOriginalStart.x-position.x)*(viewState.unitOriginalStart.x - position.x)) + ((viewState.unitOriginalStart.y-position.y)*(viewState.unitOriginalStart.y-position.y)) );
 
@@ -50,7 +53,7 @@ class Unit {
         }
         let savedMoveArrowInfo;
         if((!viewState.unitDragStart) && viewState.savedMoveArrows){
-            let uniqueId = (unitInfo.region + unitInfo.type + unitInfo.owner);
+            let uniqueId = Utils.getUnitUniqueId(unitInfo) + '_queued';
             savedMoveArrowInfo = viewState.savedMoveArrows.get(uniqueId);
             if(savedMoveArrowInfo){
                 let dist = Math.sqrt( ((savedMoveArrowInfo.unitOriginalStart.x-savedMoveArrowInfo.newPosition.x)*(savedMoveArrowInfo.unitOriginalStart.x - savedMoveArrowInfo.newPosition.x))
