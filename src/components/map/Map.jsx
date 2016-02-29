@@ -36,7 +36,7 @@ class BaseMap extends React.Component {
             d3.select('svg').selectAll('path')[0].forEach((path) => {
                 centroidMap.set(path.attributes.id.nodeValue, path.getBBox());
             });
-            this.props.store.dispatch(fetchUnits(Constants.Units.DefaultPositions, centroidMap));
+            this.props.store.dispatch(fetchUnits(Constants.Units.DefaultPositions, centroidMap, this.props.regions));
         }
     }
 

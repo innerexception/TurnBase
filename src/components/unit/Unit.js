@@ -5,29 +5,106 @@ import d3 from 'd3';
 
 class Unit {
 
-    static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
+    static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onArmyClick) => {
         let els = [];
-            let i = 0;
-            unitList.forEach((unitInfo) => {
-                els.push(Unit.getUnitImageGroup(Unit.getPlacementPosition(viewState, unitInfo), unitInfo, i, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
-                i++;
+        regions.forEach((region) => {
+            let unitsInRegion = unitList.filter((unitInfo) => {
+                return unitInfo.region === region.attributes.id;
             });
+            if(unitsInRegion.length > 0){
+                let regionTestPositions = Unit.getRondelPlacementPositions(unitsInRegion, region.centroid);
+                regionTestPositions.forEach((playerPositions) => {
+                    if(playerPositions.showRondel) els.push(Unit.getPlayerArmyRondelPath(playerPositions.roundelPosition, playerPositions.player, onArmyClick, region.attributes.id));
+                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(region, playerPositions, unitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
+                });
+            }
+        });
         return els;
     };
 
-    static getPlacementPosition = (viewState, unitInfo) => {
-        //TODO, modify position by number of different unit types in region
-        return unitInfo.position;
+    static getPlayerUnitPathsForRegion = (region, playerPositions, unitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
+        let els = [];
+        let i = 0;
+        unitsInRegion.forEach((unitInfo) => {
+            if(unitInfo.owner === playerPositions.player) els.push(Unit.getUnitImageGroup(Unit.getPlacementPosition(viewState, unitInfo, playerPositions, i), unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
+            i++;
+        });
+        return els;
     };
 
-    static getUnitImageGroup = (position, unitInfo, i, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
+    static getRondelPlacementPositions = (unitsInRegion, regionCentroid) => {
 
-        //TODO: place stack marker if no room in region
-        //if (nextValidY > initialPlacementPosition.maxHeight) {
-        //    return (
-        //        <g><path d={Constants.Units['UnitStack'].d} x={nextValidX} y={nextValidY} width={20} height={20} onClick={()=>onUnitStackClick(unitRegion)}></path></g>
-        //    )
-        //}
+        let players = [], numPlayers = 0;
+        unitsInRegion.forEach((unit) => { if(players.indexOf(unit.owner) === -1) { players.push(unit.owner); numPlayers++; }});
+
+        let availablePlayerDimensions = { width: regionCentroid.width / numPlayers, height: regionCentroid.height / numPlayers };
+
+        let i=0;
+
+        players = players.map((player) => {
+            let playerUnitTypes = [];
+            let playerUnits = unitsInRegion.filter((unit) => {
+                return unit.owner === player;
+            });
+
+            playerUnits.forEach((unit) => {
+                if(playerUnitTypes.indexOf(unit.type) === -1) playerUnitTypes.push(unit.type);
+            });
+
+            let playerUnitQuadrantDimensions = { width: availablePlayerDimensions.width / playerUnitTypes.length, height: availablePlayerDimensions.height / playerUnitTypes.length };
+            let remainingPlayerDimensions = {...availablePlayerDimensions};
+            let fit = true;
+
+            playerUnitTypes.forEach((unitType) => {
+                if(fit){
+                    let currentUnit =playerUnits.filter((unit) => {
+                        return unit.type === unitType;
+                    })[0];
+
+                    let unitWidth = Constants.Units[currentUnit.type].width;
+                    let unitHeight = Constants.Units[currentUnit.type].height;
+
+                    //Will it git into the play unit slots?
+                    fit = unitWidth < playerUnitQuadrantDimensions.width;
+                    fit = unitHeight < playerUnitQuadrantDimensions.height;
+
+                    //Is there enough space remaining?
+                    fit = remainingPlayerDimensions.width > unitWidth;
+
+                    remainingPlayerDimensions.width -= unitWidth;
+
+                }
+            });
+
+            i++;
+
+            if(fit){
+                return { player, availablePlayerDimensions, unitTypes: playerUnitTypes };
+            }
+            else{
+                return { player, showRondel: true, roundelPosition: { x: regionCentroid.x + ((availablePlayerDimensions.width/4) * (i > 1 ? i*2 : 1)), y: regionCentroid.y + ((availablePlayerDimensions.height/4)) } };
+            }
+        });
+
+
+        return players;
+    };
+
+    static getPlayerArmyRondelPath = (position, playerId, onArmyClick, regionId) => {
+        return (<image width={5} height={5} x={position.x} y={position.y} xlinkHref={Constants.Players[playerId].markerPath} onClick={() => onArmyClick(regionId, playerId)}></image>);
+    };
+
+    static getPlacementPosition = (viewState, unitInfo, playerPositions, i) => {
+        //TODO, modify position by number of different players and unit types in region
+        //i is number of unit types placed in region for current player already
+        //gets you playerPositions.xOffset * i etc...
+        let position = {x: unitInfo.position.x, y: unitInfo.position.y};
+        position.x += ((playerPositions.availablePlayerDimensions.width/(playerPositions.unitTypes.length+2))*i);
+
+        return position;
+    };
+
+    static getUnitImageGroup = (position, unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
 
         let pathEls = [];
         unitInfo.paths.forEach((path) => {
@@ -75,7 +152,7 @@ class Unit {
                         <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="'+moveFill+'" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
                     <svg className={savedMoveArrowInfo ? 'no-events' : null} x={position.x} y={position.y}><g onMouseDown={(e) => onUnitDragStart(e, unitInfo)}
                                onMouseUp={onUnitDragEnd}
-                               transform={'scale(0.07)'}>{pathEls}</g></svg>
+                               transform={'scale('+Constants.Units[unitInfo.type].scaleFactor+')'}>{pathEls}</g></svg>
                 </svg>);
     };
 }

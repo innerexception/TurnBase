@@ -79,7 +79,7 @@ export const mapZoom = (e) => {
     }
 };
 
-export const fetchUnits = (units, centroidMap) => {
+export const fetchUnits = (units, centroidMap, regions) => {
     return (dispatch) => {
         let fetchArray = [];
         let typesFetched = new Map();
@@ -93,16 +93,17 @@ export const fetchUnits = (units, centroidMap) => {
                 textFetches.push(response.text());
             });
             Promise.all(textFetches).then((textResponseArray) => {
-               dispatch(fetchedUnits(units, textResponseArray, centroidMap));
+               dispatch(fetchedUnits(units, textResponseArray, centroidMap, regions));
             });
         });
     }
 };
 
-export const fetchedUnits = (regionUnits, textResponseArray, centroidMap) => {
+export const fetchedUnits = (regionUnits, textResponseArray, centroidMap, regions) => {
     return {
         type: 'UNIT_LOAD',
         units: getUnitPathsFromResponse(regionUnits, textResponseArray),
+        regions: updateRegionsWithCentroids(regions, centroidMap),
         centroidMap
     };
 };
@@ -124,11 +125,18 @@ export const fetchMap = (svgPath) => {
 };
 
 export const mapFetched = (text) => {
+    let regions = getRegionPathsFromSVG(text);
     return {
         type: 'MAP_LOAD',
-        regions: getRegionPathsFromSVG(text),
-        regionAdjacencyMap: getRegionAdjacencyMap(text)
+        regions: getRegionAdjacencyMap(text, regions)
     }
+};
+
+const updateRegionsWithCentroids = (regions, centroidMap) => {
+    regions.forEach((region) => {
+        region.centroid = centroidMap.get(region.attributes.id);
+    });
+    return regions;
 };
 
 const getUnitPathsFromResponse = (units, textArray) => {
@@ -154,7 +162,7 @@ const getRegionPathsFromSVG = (text) => {
     return paths;
 };
 
-const getRegionAdjacencyMap = (text) => {
+const getRegionAdjacencyMap = (text, regions) => {
 
     let regionPaths = getRegionPathsFromSVG(text);
 
@@ -163,10 +171,11 @@ const getRegionAdjacencyMap = (text) => {
         return child.name === 'defs'
     })[0].children.filter((child) => { return child.name === 'adjacency'})[0].children;
 
-    let AdjacencyMap = new Map();
     regionPaths.forEach((regionPath) => {
         let adjInfo = adjacencyInfo.filter((info) => { return info.name === regionPath.attributes.id})[0];
-        if(adjInfo) AdjacencyMap.set(regionPath.attributes.id, adjInfo.children);
+        if(adjInfo){
+            regions.forEach((region)=> { if(region.attributes.id === regionPath.attributes.id) region.adjacencyMap = adjInfo.children;});
+        }
     });
-    return AdjacencyMap;
+    return regions;
 };

@@ -9,11 +9,7 @@ let Utils = {
 
         if(targetRegionId && (originRegionId !== targetRegionId) && targetRegionId !== unitInfo.region){
 
-            let targetRegionAdjacencies = adjacencyMap.get(targetRegionId);
-
-            targetRegionAdjacencies.forEach((targetAdjacency) => {
-                if(targetAdjacency.name === originRegionId) isValid = true;
-            });
+            isValid = adjacencyMap.filter((adjObject) => { return targetRegionId === adjObject.name; }).length > 0;
 
             if(unitPath.length-1 > Constants.Units[unitInfo.type].move) isValid = false;
 
