@@ -8,6 +8,7 @@ class Region {
             return (
                 <path onClick={() => onRegionClick(region.attributes.id)}
                       d={region.attributes.d}
+                      fill={Constants.Players[region.attributes.defaultOwner ? region.attributes.defaultOwner : 'N'].color}
                       id={region.attributes.id} title={region.attributes.title}
                       className={'turnbase-region ' + Region.getRegionClassNames(region, viewState)}></path>
             )
@@ -18,7 +19,6 @@ class Region {
         let classes = '';
         if (region.attributes.id === viewState.selectedRegionId) classes += 'selected';
         if (region.attributes.id.indexOf('Sea') !== -1) classes += ' turnbase-sea';
-        else classes += ' turnbase-land';
         if (Region.isInPath(region, viewState)) classes += ' unit-path-region';
         return classes;
     };

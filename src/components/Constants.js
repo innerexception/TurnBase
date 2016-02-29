@@ -1,4 +1,15 @@
 export default {
+    Players: {
+        UK: { markerPng: 'uk_round.png', color: 'beige'},
+        US: { markerPng: 'us_round.png', color: 'green'},
+        DE: { markerPng: 'german_round.png', color: 'darkbrown'},
+        FR: { markerPng: 'france_round.png', color: 'blue'},
+        JP: { markerPng: 'japan_round.png', color: 'orange'},
+        IT: { markerPng: 'italy_round.png', color: 'darkgoldenrod'},
+        CH: { markerPng: 'china_round.png', color: 'yellow'},
+        N: { color: 'gray'},
+        RU: { markerPng: 'cccp_round.png', color: 'darkred'}
+    },
     Units: {
         DefaultPositions: [
             {type: 'infantry', number: 6, owner: 'FR', region: 'CentralFrance'},

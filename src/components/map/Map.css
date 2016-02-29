@@ -17,6 +17,7 @@ svg {
     stroke:darkgrey;
     stroke-opacity: 1;
     stroke-width:0.5;
+    fill-opacity: 1;
 }
 
 .turnbase-sea{
@@ -24,17 +25,11 @@ svg {
     fill-opacity: 1;
 }
 
-.turnbase-land{
-    fill: brown;
-    fill-opacity: 1;
-}
-
 .turnbase-unit{
-    fill: black;
+    stroke: black;
     fill-opacity: 1;
-    stroke:darkgrey;
     stroke-opacity: 1;
-    stroke-width:0.5;
+    stroke-width:1;
 }
 
 .turnbase-region.selected{

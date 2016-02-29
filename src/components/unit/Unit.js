@@ -30,7 +30,7 @@ class Unit {
 
         let pathEls = [];
         unitInfo.paths.forEach((path) => {
-            pathEls.push((<path  d={path.attributes.d} className='turnbase-unit'
+            pathEls.push((<path  d={path.attributes.d} className='turnbase-unit' fill={Constants.Players[unitInfo.owner].color}
                                  onClick={()=> onUnitClick(unitInfo)}></path>));
         });
         let pathEl, moveFill;
