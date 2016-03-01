@@ -17,11 +17,13 @@ export default {
             {type: 'tank', number: 1, owner: 'US', region: 'Normandy'},
             {type: 'tank', number: 1, owner: 'FR', region: 'CentralFrance'},
             {type: 'aaa', number: 1, owner: 'FR', region: 'CentralFrance'},
-            {type: 'fighter', number: 1, owner: 'UK', region: 'Normandy'},
-            {type: 'infantry', number: 6, owner: 'UK', region: 'Normandy'},
-            //{type: 'artillery', number: 6, owner: 'UK', region: 'CentralFrance'},
+            {type: 'fighter', number: 1, owner: 'FR', region: 'CentralFrance'},
+            {type: 'infantry', number: 6, owner: 'UK', region: 'CentralFrance'},
+            {type: 'artillery', number: 6, owner: 'UK', region: 'CentralFrance'},
             {type: 'tank', number: 6, owner: 'UK', region: 'CentralFrance'},
-            {type: 'majorIC', number: 1, owner: 'FR', region: 'CentralFrance'},
+            {type: 'fighter', number: 6, owner: 'UK', region: 'CentralFrance'},
+            {type: 'aaa', number: 6, owner: 'UK', region: 'CentralFrance'},
+            //{type: 'majorIC', number: 1, owner: 'FR', region: 'CentralFrance'},
             //{type: 'airfield', number: 1, owner: 'FR', region: 'CentralFrance'}
         ],
         infantry: {

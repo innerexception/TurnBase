@@ -16,14 +16,14 @@ class Unit {
                 regionTestPositions.forEach((playerPositions) => {
                     let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerPositions.player });
                     if(playerPositions.showRondel && measurementPass) els.push(Unit.getPlayerArmyRondelPath(playerPositions.roundelPosition, playerPositions.player, onArmyClick, region.attributes.id));
-                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(region, playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
+                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
                 });
             }
         });
         return els;
     };
 
-    static getRondelPlacementPositions = (unitsInRegion, regionCentroid, measurementPass) => {
+    static getRondelPlacementPositions = (unitsInRegion, regionCentroid, measurementPassDone) => {
 
         let players = [], numPlayers = 0;
         unitsInRegion.forEach((unit) => { if(players.indexOf(unit.owner) === -1) { players.push(unit.owner); numPlayers++; }});
@@ -42,43 +42,49 @@ class Unit {
                 if(playerUnitTypes.indexOf(unit.type) === -1) playerUnitTypes.push(unit.type);
             });
 
-            let playerUnitQuadrantDimensions = { width: availablePlayerDimensions.width / playerUnitTypes.length, height: availablePlayerDimensions.height / playerUnitTypes.length };
-            let remainingPlayerDimensions = {...availablePlayerDimensions};
-            let originalWidth = remainingPlayerDimensions.width;
             let fit = true;
+            let numRows = 0;
+            let numCols = 0;
+
+            //Construct unitPositions array as you go
+            let unitPositions = [];
+            let playerRect = {x:regionCentroid.x, y: regionCentroid.y + ((regionCentroid.height/(numPlayers))*i), width: regionCentroid.width, height: regionCentroid.height/numPlayers};
 
             playerUnitTypes.forEach((unitType) => {
-                if(fit){
+                if(fit || !(measurementPassDone)){
+
+                    let potentialPosition = { x: playerRect.x + (numCols*7), y: playerRect.y + 5*numRows };
+
                     let currentUnit =playerUnits.filter((unit) => {
                         return unit.type === unitType;
                     })[0];
 
-                    let unitWidth = currentUnit.bbox ? currentUnit.bbox.pxWidth : 0;
-                    let unitHeight = currentUnit.bbox? currentUnit.bbox.pxHeight : 0;
+                    let unitWidth = currentUnit.bbox ? currentUnit.bbox.width : 0;
+                    let unitHeight = currentUnit.bbox? currentUnit.bbox.height : 0;
 
                     //Will it fit into the player unit slots?
-                    fit = unitWidth < playerUnitQuadrantDimensions.width;
-                    fit = unitHeight < playerUnitQuadrantDimensions.height;
+                    let fitBeforeWrap = (potentialPosition.x + ((playerRect.width/unitWidth)*15)) < playerRect.width + playerRect.x;
 
-                    //Is there enough space remaining?
-                    fit = remainingPlayerDimensions.width > unitWidth;
-
-                    remainingPlayerDimensions.width -= unitWidth;
-                    if(remainingPlayerDimensions.width < unitWidth){
-                        fit = remainingPlayerDimensions.height > unitHeight;
-                        remainingPlayerDimensions.height -= unitHeight;
-                        remainingPlayerDimensions.width = originalWidth;
+                    if(!fitBeforeWrap){
+                        //We need to try wrapping before we give up
+                        numRows++;
+                        numCols = 0;
+                        potentialPosition.y += 5;
+                        potentialPosition.x = playerRect.x;
                     }
 
+                    //If we don't fit the height, we don't continue
+                    fit = potentialPosition.y < playerRect.height + playerRect.y + unitHeight;
+
+                    if(fit || !(measurementPassDone)) unitPositions.push(potentialPosition);
+                    numCols++;
                 }
             });
 
-            let playerRect = {x:regionCentroid.x, y: regionCentroid.y + ((regionCentroid.height/(numPlayers))*i), width: regionCentroid.width, height: regionCentroid.height/numPlayers};
-
             i++;
 
-            if(fit || !measurementPass){
-                return { player, availablePlayerDimensions, unitTypes: playerUnitTypes, rect: playerRect };
+            if(fit || !measurementPassDone){
+                return { player, availablePlayerDimensions, unitTypes: playerUnitTypes, rect: playerRect, unitPositions };
             }
             else{
                 return { player, showRondel: true, roundelPosition: { x: playerRect.x + (playerRect.width/2) - 2.5, y: playerRect.y + (playerRect.height/2) - 2.5 } };
@@ -93,17 +99,17 @@ class Unit {
         return (<image width={5} height={5} x={position.x} y={position.y} xlinkHref={Constants.Players[playerId].markerPath} onClick={() => onArmyClick(regionId, playerId)}></image>);
     };
 
-    static getPlayerUnitPathsForRegion = (region, playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
+    static getPlayerUnitPathsForRegion = (playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
         let els = [];
         let i = 0;
         playerUnitsInRegion.forEach((unitInfo) => {
-            els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i, viewState, region), unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
+            els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i, viewState), unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
             i++;
         });
         return els;
     };
 
-    static getPlacementPositionInRect = (unitInfo, playerPositions, i, viewState, region) => {
+    static getPlacementPositionInRect = (unitInfo, playerPositions, i, viewState) => {
         //TODO, modify position by number of different players and unit types in region
         //i is number of unit types placed in region for current player already
         //gets you playerPositions.xOffset * i etc...
@@ -111,12 +117,7 @@ class Unit {
             return unitInfo.dragPosition;
         }
         else{
-            let staticPosition = {x: playerPositions.rect.x, y: playerPositions.rect.y};
-            staticPosition.x += (i*5);
-            if(staticPosition.x + 20 > playerPositions.availablePlayerDimensions.width + playerPositions.rect.x){
-                staticPosition.x = playerPositions.rect.x;
-                staticPosition.y = playerPositions.rect.y;
-            }
+            let staticPosition = {x: playerPositions.unitPositions[i].x, y: playerPositions.unitPositions[i].y};
             unitInfo.staticPosition = staticPosition;
             return staticPosition;
         }
