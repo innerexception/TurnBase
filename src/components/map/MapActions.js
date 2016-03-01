@@ -99,6 +99,13 @@ export const fetchUnits = (units, centroidMap, regions) => {
     }
 };
 
+export const fetchUnitPaths = (unitPathMap) => {
+    return {
+        type: 'UNIT_PATH_MAP',
+        unitPathMap
+    }
+};
+
 export const fetchedUnits = (regionUnits, textResponseArray, centroidMap, regions) => {
     return {
         type: 'UNIT_LOAD',
@@ -134,7 +141,7 @@ export const mapFetched = (text) => {
 
 const updateRegionsWithCentroids = (regions, centroidMap) => {
     regions.forEach((region) => {
-        region.centroid = centroidMap.get(region.attributes.id);
+        region.bbox = centroidMap.get(region.attributes.id);
     });
     return regions;
 };

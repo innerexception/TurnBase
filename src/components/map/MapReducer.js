@@ -27,9 +27,19 @@ const mapReducer = (state = {}, action) => {
             return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units, state.regions), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart.unitInfo, state.viewState.regionOver, state.viewState.currentPathIsValid)};
         case 'UNIT_MOVE_CANCELLED':
             return { ...state, units: updateUnitRegionOnMoveCancelled(state.units, action.uniqueId, state.viewState), viewState: updateViewStateRemoveSavedMoveArrows(state.viewState, action.uniqueId)};
+        case 'UNIT_PATH_MAP':
+            return { ...state, units: updateUnitsPathMap(state.units, action.unitPathMap), unitPathDispatch: true};
         default:
             return state
     }
+};
+
+const updateUnitsPathMap = (units, unitPathMap) => {
+    let newUnits = Array.from(units);
+    newUnits.forEach((unit) => {
+        unit.bbox = unitPathMap.get(Utils.getUnitUniqueId(unit));
+    });
+    return newUnits;
 };
 
 const updateUnitRegionOnMoveCancelled = (units, uniqueId, viewState) => {
@@ -60,9 +70,7 @@ const initializeViewStateUnits = (units, centroidMap, viewState) => {
     let newState = {...viewState};
     units.forEach((unit) => {
             let bbox = centroidMap.get(unit.region);
-            var x = Math.floor(bbox.x + bbox.width / 4);
-            var y = Math.floor(bbox.y + bbox.height / 4);
-            unit.position = { x, y };
+            unit.position = { x:bbox.x, y:bbox.y };
         });
     return newState;
 };
@@ -158,10 +166,8 @@ const updateViewStateUnitDragEnd = (viewState, units, regions) => {
     let region = regions.filter((region) => { return region.attributes.id === targetRegionId})[0];
     units.forEach((unit) => {
         if(Utils.getUnitUniqueId(unit) === uniqueId){
-            let bbox = region.centroid;
-            var x = Math.floor(bbox.x + bbox.width / 4);
-            var y = Math.floor(bbox.y + bbox.height / 4);
-            unit.position = { x, y };
+            let bbox = region.bbox;
+            unit.position = { x:bbox.x, y:bbox.y };
             targetUnit = unit;
         }
     });

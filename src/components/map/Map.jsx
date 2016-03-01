@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react'
 import d3 from 'd3';
 import './Map.css';
-import { fetchUnits, fetchViewState, setAdjacencyMap } from './MapActions.js';
+import { fetchUnits, fetchViewState, setAdjacencyMap, fetchUnitPaths } from './MapActions.js';
 import Unit from '../unit/Unit.js';
 import Region from '../region/Region.js';
 import Constants from '../Constants.js';
@@ -34,9 +34,22 @@ class BaseMap extends React.Component {
         if(this.props.regions && !this.props.units){
             let centroidMap = new Map();
             d3.select('svg').selectAll('path')[0].forEach((path) => {
-                centroidMap.set(path.attributes.id.nodeValue, path.getBBox());
+                let bbox = path.getBBox();
+                let rect = path.getBoundingClientRect();
+                centroidMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, height: rect.height, width: rect.width});
             });
             this.props.store.dispatch(fetchUnits(Constants.Units.DefaultPositions, centroidMap, this.props.regions));
+        }
+        if(this.props.units && !this.props.unitPathDispatch){
+            let unitPathMap = new Map();
+            d3.select('svg').selectAll('path')[0].forEach((path) =>{
+                if(path.classList.contains('turnbase-unit')){
+                    let bbox = path.getBBox();
+                    let rect = path.getBoundingClientRect();
+                    unitPathMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, height: rect.height, width: rect.width});
+                }
+            });
+            this.props.store.dispatch(fetchUnitPaths(unitPathMap));
         }
     }
 
@@ -59,7 +72,7 @@ class BaseMap extends React.Component {
                             {Region.getRegionPaths(this.props.regions, this.props.onRegionClick, this.props.viewState)}
                             {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units, this.props.onUnitClick,
                                                                   this.props.onUnitStackClick, this.props.onUnitDragStart,
-                                                                  this.props.onUnitDragEnd, this.props.viewState, this.props.onMoveCancelClick) : null}
+                                                                  this.props.onUnitDragEnd, this.props.viewState, this.props.onMoveCancelClick, this.props.onArmyClick, this.props.unitPathDispatch) : null}
                         </g>
                     </svg>
                 </div>);

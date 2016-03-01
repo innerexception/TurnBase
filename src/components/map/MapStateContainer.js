@@ -8,7 +8,8 @@ const mapStateToProps = (state) => {
     return {
         regions: state.regions,
         units: state.units,
-        viewState: state.viewState
+        viewState: state.viewState,
+        unitPathDispatch : state.unitPathDispatch
     };
 };
 

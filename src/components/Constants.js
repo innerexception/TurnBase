@@ -14,9 +14,9 @@ export default {
         DefaultPositions: [
             {type: 'infantry', number: 6, owner: 'FR', region: 'CentralFrance'},
             {type: 'artillery', number: 1, owner: 'FR', region: 'CentralFrance'},
-            //{type: 'tank', number: 1, owner: 'FR', region: 'CentralFrance'},
-            //{type: 'aaa', number: 1, owner: 'FR', region: 'CentralFrance'},
-            //{type: 'fighter', number: 1, owner: 'UK', region: 'CentralFrance'},
+            {type: 'tank', number: 1, owner: 'FR', region: 'CentralFrance'},
+            {type: 'aaa', number: 1, owner: 'FR', region: 'CentralFrance'},
+            {type: 'fighter', number: 1, owner: 'UK', region: 'CentralFrance'},
             {type: 'infantry', number: 6, owner: 'UK', region: 'CentralFrance'},
             //{type: 'majorIC', number: 1, owner: 'FR', region: 'CentralFrance'},
             //{type: 'airfield', number: 1, owner: 'FR', region: 'CentralFrance'}
@@ -126,7 +126,8 @@ export default {
             attack: 0,
             defend: 1,
             cost: 8,
-            svgName: 'aaa.svg'
+            svgName: 'aaa.svg',
+            scaleFactor: 0.13
         },
         airfield: {
             width: 20,

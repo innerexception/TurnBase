@@ -26,7 +26,7 @@ let Utils = {
     updateUnitPath: (newState, e) => {
         //TODO: elementsFromPoint is hot but only supported on the latest FF/Chrome. Need cross-browser solution...
         let possibleNewRegion = document.elementsFromPoint(e.clientX, e.clientY).filter((element) => {
-            return element.attributes.id;
+            return element.classList.contains('turnbase-region');
         })[0].attributes.id.textContent;
 
         //If we entered a new region, save the last region.
