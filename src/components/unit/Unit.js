@@ -26,7 +26,7 @@ class Unit {
         let els = [];
         let i = 0;
         unitsInRegion.forEach((unitInfo) => {
-            if(unitInfo.owner === playerPositions.player) els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i, viewState), unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
+            if(unitInfo.owner === playerPositions.player) els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i, viewState, region), unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
             i++;
         });
         return els;
@@ -37,7 +37,7 @@ class Unit {
         let players = [], numPlayers = 0;
         unitsInRegion.forEach((unit) => { if(players.indexOf(unit.owner) === -1) { players.push(unit.owner); numPlayers++; }});
 
-        let availablePlayerDimensions = { width: regionCentroid.width / numPlayers, height: regionCentroid.height / numPlayers };
+        let availablePlayerDimensions = { width: regionCentroid.pxWidth / numPlayers, height: regionCentroid.pxHeight / numPlayers };
 
         let i=0;
 
@@ -62,8 +62,8 @@ class Unit {
                         return unit.type === unitType;
                     })[0];
 
-                    let unitWidth = currentUnit.bbox ? currentUnit.bbox.width : 0;
-                    let unitHeight = currentUnit.bbox? currentUnit.bbox.height : 0;
+                    let unitWidth = currentUnit.bbox ? currentUnit.bbox.pxWidth : 0;
+                    let unitHeight = currentUnit.bbox? currentUnit.bbox.pxHeight : 0;
 
                     //Will it fit into the player unit slots?
                     fit = unitWidth < playerUnitQuadrantDimensions.width;
@@ -82,7 +82,7 @@ class Unit {
                 }
             });
 
-            let playerRect = {x:regionCentroid.x, y: regionCentroid.y + ((regionCentroid.height/(numPlayers+10))*i), width: regionCentroid.width, height: regionCentroid.height/numPlayers}
+            let playerRect = {x:regionCentroid.x, y: regionCentroid.y + ((regionCentroid.pxHeight/(numPlayers+10))*i), width: regionCentroid.pxWidth, height: regionCentroid.pxHeight/numPlayers}
 
             i++;
 
@@ -90,7 +90,7 @@ class Unit {
                 return { player, availablePlayerDimensions, unitTypes: playerUnitTypes, rect: playerRect };
             }
             else{
-                return { player, showRondel: true, roundelPosition: { x: regionCentroid.x + (availablePlayerDimensions.width/12), y: regionCentroid.y + (availablePlayerDimensions.height/12) } };
+                return { player, showRondel: true, roundelPosition: { x: regionCentroid.x + (availablePlayerDimensions.width/4), y: regionCentroid.y + (availablePlayerDimensions.height/4) } };
             }
         });
 
@@ -102,22 +102,22 @@ class Unit {
         return (<image width={5} height={5} x={position.x} y={position.y} xlinkHref={Constants.Players[playerId].markerPath} onClick={() => onArmyClick(regionId, playerId)}></image>);
     };
 
-    static getPlacementPositionInRect = (unitInfo, playerPositions, i, viewState) => {
+    static getPlacementPositionInRect = (unitInfo, playerPositions, i, viewState, region) => {
         //TODO, modify position by number of different players and unit types in region
         //i is number of unit types placed in region for current player already
         //gets you playerPositions.xOffset * i etc...
-        let position = {x: unitInfo.position.x, y: unitInfo.position.y};
-        //if(viewState.unitDragStart && viewState.unitDragStart.uniqueId === (Utils.getUnitUniqueId(unitInfo))){
-        //    return position;
-        //}
-        //else{
-        //    position.x += (i*5);
-        //    if(position.x + 30 > playerPositions.availablePlayerDimensions.width + playerPositions.rect.x){
-        //        position.x = playerPositions.rect.x;
-        //        position.y = playerPositions.rect.y;
-        //    }
-        //}
-        return position;
+        if(viewState.unitDragStart && viewState.unitDragStart.uniqueId === (Utils.getUnitUniqueId(unitInfo))){
+            return unitInfo.position;
+        }
+        else{
+            let position = {x: region.bbox.x, y: region.bbox.y};
+            position.x += (i*5);
+            if(position.x + 30 > playerPositions.availablePlayerDimensions.width + playerPositions.rect.x){
+                position.x = playerPositions.rect.x;
+                position.y = playerPositions.rect.y;
+            }
+            return position;
+        }
     };
 
     static getUnitImageGroup = (position, unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {

@@ -36,7 +36,7 @@ class BaseMap extends React.Component {
             d3.select('svg').selectAll('path')[0].forEach((path) => {
                 let bbox = path.getBBox();
                 let rect = path.getBoundingClientRect();
-                centroidMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, height: rect.height, width: rect.width});
+                centroidMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, px: rect.left, py: rect.top, pxHeight: rect.height, pxWidth: rect.width, width:bbox.width, height:bbox.height});
             });
             this.props.store.dispatch(fetchUnits(Constants.Units.DefaultPositions, centroidMap, this.props.regions));
         }
@@ -46,7 +46,7 @@ class BaseMap extends React.Component {
                 if(path.classList.contains('turnbase-unit')){
                     let bbox = path.getBBox();
                     let rect = path.getBoundingClientRect();
-                    unitPathMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, height: rect.height, width: rect.width});
+                    unitPathMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, px: rect.left, py: rect.top, pxHeight: rect.height, pxWidth: rect.width, width:bbox.width, height:bbox.height});
                 }
             });
             this.props.store.dispatch(fetchUnitPaths(unitPathMap));
@@ -63,11 +63,17 @@ class BaseMap extends React.Component {
         return null;
     };
 
+    _getMapMouseUpHandler = (viewState) => {
+        if(viewState.mapDragStart) return this.props.onMapDragEnd;
+        if(viewState.unitDragStart) return this.props.onUnitDragEnd;
+        return null;
+    };
+
     render() {
         if (this.props.regions) {
             return (
                 <div className='turnbase-map-outer'>
-                    <svg onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this.props.onMapDragEnd} onWheel={this.props.onMapZoom} >
+                    <svg onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this._getMapMouseUpHandler(this.props.viewState)} onWheel={this.props.onMapZoom} >
                         <g transform={this._getViewTransformString(this.props.viewState)}>
                             {Region.getRegionPaths(this.props.regions, this.props.onRegionClick, this.props.viewState)}
                             {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units, this.props.onUnitClick,

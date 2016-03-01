@@ -4,11 +4,11 @@ const mapReducer = (state = {}, action) => {
     switch (action.type) {
         case 'REGION_CLICKED':
             console.log('clicked on '+action.id);
-            return { ...state, viewState: updateViewStateSelectedRegion(state.viewState, action.id) };
+            return { ...state, viewState: updateViewStateSelectedRegion(state.viewState, action.id, state.units, state.regions), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart.unitInfo, state.viewState.regionOver, state.viewState.currentPathIsValid) };
         case 'MAP_LOAD':
             return { ...state, regions: action.regions };
         case 'UNIT_LOAD':
-            return { ...state, units: action.units, regions: action.regions, viewState: initializeViewStateUnits(action.units, action.centroidMap, state.viewState) };
+            return { ...state, units: action.units, regions: action.regions };
         case 'VIEW_STATE_CHANGED':
             return { ...state, viewState: action.viewState};
         case 'MAP_DRAGGED':
@@ -22,7 +22,7 @@ const mapReducer = (state = {}, action) => {
         case 'UNIT_MOVE':
             return { ...state, units: updateUnitsFromPanEvent(action.e, state.units, state.viewState), viewState: updateViewStateUnitPanFromEvent(state.viewState, action.e, state.regions)};
         case 'UNIT_DRAG_START':
-            return { ...state, viewState: updateViewStateUnitDragStart(state.viewState, action.e, action.unitInfo), units: updateUnitsDragStart(state.units, action.unitInfo)};
+            return { ...state, viewState: updateViewStateUnitDragStart(state.viewState, action.e, action.unitInfo, state.regions), units: updateUnitsDragStart(state.units, action.unitInfo, action.e, state.viewState, state.regions)};
         case 'UNIT_DRAG_END':
             return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units, state.regions), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart.unitInfo, state.viewState.regionOver, state.viewState.currentPathIsValid)};
         case 'UNIT_MOVE_CANCELLED':
@@ -60,18 +60,10 @@ const updateViewStateRemoveSavedMoveArrows = (viewState, uniqueId) => {
     return newState;
 };
 
-const updateViewStateSelectedRegion = (viewState, regionId) => {
+const updateViewStateSelectedRegion = (viewState, regionId, units, regions) => {
     let newState = {...viewState};
     newState.selectedRegionId = regionId;
-    return newState;
-};
-
-const initializeViewStateUnits = (units, centroidMap, viewState) => {
-    let newState = {...viewState};
-    units.forEach((unit) => {
-            let bbox = centroidMap.get(unit.region);
-            unit.position = { x:bbox.x, y:bbox.y };
-        });
+    if(newState.unitDragStart) updateViewStateUnitDragEnd(newState, units, regions);
     return newState;
 };
 
@@ -139,18 +131,29 @@ const updateUnitsFromPanEvent = (e, units, viewState) => {
     return newUnits;
 };
 
-const updateViewStateUnitDragStart = (viewState, e, unitInfo) => {
+const updateViewStateUnitDragStart = (viewState, e, unitInfo, regions) => {
     let newState = { ...viewState };
     let uniqueId = Utils.getUnitUniqueId(unitInfo);
     newState.unitDragStart = {x: e.clientX, y: e.clientY, uniqueId, unitInfo};
-    newState.unitOriginalStart = unitInfo.position;
+    console.log('starts at screen: '+e.clientX+' ,'+e.clientY);
+    let startbox = regions.filter((region) => region.attributes.id === unitInfo.region)[0].bbox;
+    newState.unitOriginalStart = {x: startbox.x + (startbox.width/2), y: startbox.y};
+    console.log('at svg: '+newState.unitOriginalStart.x+' ,'+newState.unitOriginalStart.y);
     return newState;
 };
 
-const updateUnitsDragStart = (units, unitInfo) => {
+const updateUnitsDragStart = (units, unitInfo, e, viewState, regions) => {
     let newUnits = Array.from(units);
     newUnits.forEach((unit) => {
-        if(Utils.getUnitUniqueId(unit) === Utils.getUnitUniqueId(unitInfo)) unit.queuedForMove = true;
+        if(Utils.getUnitUniqueId(unit) === Utils.getUnitUniqueId(unitInfo)){
+            unit.queuedForMove = true;
+
+            let bbox = regions.filter((region) => region.attributes.id === unitInfo.region)[0].bbox;
+
+            let offset = {x: ((e.clientX - bbox.px)/viewState.zoomLevel), y: ((e.clientY -  bbox.py)/viewState.zoomLevel)};
+
+            unit.position = {x: bbox.x + offset.x, y: bbox.y + offset.y };
+        }
     });
     return newUnits;
 };
@@ -167,7 +170,7 @@ const updateViewStateUnitDragEnd = (viewState, units, regions) => {
     units.forEach((unit) => {
         if(Utils.getUnitUniqueId(unit) === uniqueId){
             let bbox = region.bbox;
-            unit.position = { x:bbox.x, y:bbox.y };
+            unit.position = { x:bbox.x + (bbox.width/2), y:bbox.y+(bbox.height/2) };
             targetUnit = unit;
         }
     });
@@ -181,6 +184,7 @@ const updateViewStateUnitDragEnd = (viewState, units, regions) => {
     newState.unitOriginalStart = null;
     newState.unitPath = null;
     newState.regionOver = null;
+    newState.currentPathIsValid = null;
 
     return newState;
 };
