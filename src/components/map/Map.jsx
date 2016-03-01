@@ -27,7 +27,7 @@ class BaseMap extends React.Component {
 
     constructor(props) {
         super(props);
-        this.props.store.dispatch(fetchViewState({ zoomLevel: 4, pan: {x: -305, y:-246}}));
+        this.props.store.dispatch(fetchViewState({ zoomLevel: 4, pan: {x: -305, y:-306}}));
     }
 
     componentDidUpdate(){

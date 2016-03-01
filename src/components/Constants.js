@@ -14,11 +14,14 @@ export default {
         DefaultPositions: [
             {type: 'infantry', number: 6, owner: 'FR', region: 'CentralFrance'},
             {type: 'artillery', number: 1, owner: 'FR', region: 'CentralFrance'},
+            {type: 'tank', number: 1, owner: 'US', region: 'Normandy'},
             {type: 'tank', number: 1, owner: 'FR', region: 'CentralFrance'},
             {type: 'aaa', number: 1, owner: 'FR', region: 'CentralFrance'},
-            {type: 'fighter', number: 1, owner: 'UK', region: 'CentralFrance'},
-            {type: 'infantry', number: 6, owner: 'UK', region: 'CentralFrance'},
-            //{type: 'majorIC', number: 1, owner: 'FR', region: 'CentralFrance'},
+            {type: 'fighter', number: 1, owner: 'UK', region: 'Normandy'},
+            {type: 'infantry', number: 6, owner: 'UK', region: 'Normandy'},
+            //{type: 'artillery', number: 6, owner: 'UK', region: 'CentralFrance'},
+            {type: 'tank', number: 6, owner: 'UK', region: 'CentralFrance'},
+            {type: 'majorIC', number: 1, owner: 'FR', region: 'CentralFrance'},
             //{type: 'airfield', number: 1, owner: 'FR', region: 'CentralFrance'}
         ],
         infantry: {
@@ -49,7 +52,7 @@ export default {
             move: 4,
             cost: 8,
             svgName: 'fighter.svg',
-            scaleFactor: 0.07
+            scaleFactor: 0.13
         },
         bomber: {
             width:40,
@@ -77,7 +80,8 @@ export default {
             defend: 2,
             move: 2,
             cost: 4,
-            svgName: 'mechinfantry.svg'
+            svgName: 'mechinfantry.svg',
+            scaleFactor: 0.07
         },
         destroyer: {
             width: 40,
@@ -86,7 +90,8 @@ export default {
             defend: 2,
             move: 3,
             cost: 8,
-            svgName: 'destroyer.svg'
+            svgName: 'destroyer.svg',
+            scaleFactor: 0.07
         },
         cruiser: {
             width: 50,
@@ -94,7 +99,8 @@ export default {
             attack: 3,
             defend: 3,
             cost: 12,
-            svgName: 'cruiser.svg'
+            svgName: 'cruiser.svg',
+            scaleFactor: 0.07
         },
         battleship: {
             width: 60,
@@ -102,7 +108,8 @@ export default {
             attack: 4,
             defend: 4,
             cost: 20,
-            svgName: 'battleship.svg'
+            svgName: 'battleship.svg',
+            scaleFactor: 0.07
         },
         transport: {
             width: 50,
@@ -110,7 +117,8 @@ export default {
             attack: 0,
             defend: 1,
             cost: 8,
-            svgName: 'transport.svg'
+            svgName: 'transport.svg',
+            scaleFactor: 0.07
         },
         submarine: {
             width: 30,
@@ -118,7 +126,8 @@ export default {
             attack: 2,
             defend: 2,
             cost: 8,
-            svgName: 'submarine.svg'
+            svgName: 'submarine.svg',
+            scaleFactor: 0.07
         },
         aaa: {
             width: 5,
@@ -133,13 +142,15 @@ export default {
             width: 20,
             height: 20,
             svgName: 'airfield.svg',
-            isBuilding: true
+            isBuilding: true,
+            scaleFactor: 0.07
         },
         majorIC: {
             width: 20,
             height: 20,
             svgName: 'majorIC.svg',
-            isBuilding: true
+            isBuilding: true,
+            scaleFactor: 0.07
         }
     },
     UI: {

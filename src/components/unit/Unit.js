@@ -14,20 +14,11 @@ class Unit {
             if(unitsInRegion.length > 0){
                 let regionTestPositions = Unit.getRondelPlacementPositions(unitsInRegion, region.bbox, measurementPass);
                 regionTestPositions.forEach((playerPositions) => {
+                    let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerPositions.player });
                     if(playerPositions.showRondel && measurementPass) els.push(Unit.getPlayerArmyRondelPath(playerPositions.roundelPosition, playerPositions.player, onArmyClick, region.attributes.id));
-                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(region, playerPositions, unitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
+                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(region, playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
                 });
             }
-        });
-        return els;
-    };
-
-    static getPlayerUnitPathsForRegion = (region, playerPositions, unitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
-        let els = [];
-        let i = 0;
-        unitsInRegion.forEach((unitInfo) => {
-            if(unitInfo.owner === playerPositions.player) els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i, viewState, region), unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
-            i++;
         });
         return els;
     };
@@ -82,7 +73,7 @@ class Unit {
                 }
             });
 
-            let playerRect = {x:regionCentroid.x, y: regionCentroid.y + ((regionCentroid.pxHeight/(numPlayers+10))*i), width: regionCentroid.pxWidth, height: regionCentroid.pxHeight/numPlayers}
+            let playerRect = {x:regionCentroid.x, y: regionCentroid.y + ((regionCentroid.height/(numPlayers))*i), width: regionCentroid.width, height: regionCentroid.height/numPlayers};
 
             i++;
 
@@ -90,7 +81,7 @@ class Unit {
                 return { player, availablePlayerDimensions, unitTypes: playerUnitTypes, rect: playerRect };
             }
             else{
-                return { player, showRondel: true, roundelPosition: { x: regionCentroid.x + (availablePlayerDimensions.width/4), y: regionCentroid.y + (availablePlayerDimensions.height/4) } };
+                return { player, showRondel: true, roundelPosition: { x: playerRect.x + (playerRect.width/2) - 2.5, y: playerRect.y + (playerRect.height/2) - 2.5 } };
             }
         });
 
@@ -102,21 +93,32 @@ class Unit {
         return (<image width={5} height={5} x={position.x} y={position.y} xlinkHref={Constants.Players[playerId].markerPath} onClick={() => onArmyClick(regionId, playerId)}></image>);
     };
 
+    static getPlayerUnitPathsForRegion = (region, playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
+        let els = [];
+        let i = 0;
+        playerUnitsInRegion.forEach((unitInfo) => {
+            els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i, viewState, region), unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
+            i++;
+        });
+        return els;
+    };
+
     static getPlacementPositionInRect = (unitInfo, playerPositions, i, viewState, region) => {
         //TODO, modify position by number of different players and unit types in region
         //i is number of unit types placed in region for current player already
         //gets you playerPositions.xOffset * i etc...
         if(viewState.unitDragStart && viewState.unitDragStart.uniqueId === (Utils.getUnitUniqueId(unitInfo))){
-            return unitInfo.position;
+            return unitInfo.dragPosition;
         }
         else{
-            let position = {x: region.bbox.x, y: region.bbox.y};
-            position.x += (i*5);
-            if(position.x + 30 > playerPositions.availablePlayerDimensions.width + playerPositions.rect.x){
-                position.x = playerPositions.rect.x;
-                position.y = playerPositions.rect.y;
+            let staticPosition = {x: playerPositions.rect.x, y: playerPositions.rect.y};
+            staticPosition.x += (i*5);
+            if(staticPosition.x + 20 > playerPositions.availablePlayerDimensions.width + playerPositions.rect.x){
+                staticPosition.x = playerPositions.rect.x;
+                staticPosition.y = playerPositions.rect.y;
             }
-            return position;
+            unitInfo.staticPosition = staticPosition;
+            return staticPosition;
         }
     };
 
