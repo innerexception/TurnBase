@@ -26,7 +26,8 @@ class Unit {
     static getRondelPlacementPositions = (unitsInRegion, regionCentroid, measurementPassDone) => {
 
         let players = [], numPlayers = 0;
-        unitsInRegion.forEach((unit) => { if(players.indexOf(unit.owner) === -1) { players.push(unit.owner); numPlayers++; }});
+        let regionId;
+        unitsInRegion.forEach((unit) => { if(players.indexOf(unit.owner) === -1) { players.push(unit.owner); numPlayers++; regionId=unit.region; }});
 
         let availablePlayerDimensions = { width: regionCentroid.pxWidth / numPlayers, height: regionCentroid.pxHeight / numPlayers };
 
@@ -48,7 +49,7 @@ class Unit {
 
             //Construct unitPositions array as you go
             let unitPositions = [];
-            let playerRect = {x:regionCentroid.x, y: regionCentroid.y + ((regionCentroid.height/(numPlayers))*i), width: regionCentroid.width, height: regionCentroid.height/numPlayers};
+            let playerRect = {x:regionCentroid.x, y: regionCentroid.y + ((regionCentroid.height/(numPlayers))*i), width: regionCentroid.width, height: regionCentroid.height/numPlayers, px: regionCentroid.px, py: regionCentroid.py + ((regionCentroid.pxHeight/(numPlayers))*i)};
 
             playerUnitTypes.forEach((unitType) => {
                 if(fit || !(measurementPassDone)){
@@ -62,19 +63,30 @@ class Unit {
                     let unitWidth = currentUnit.bbox ? currentUnit.bbox.width : 0;
                     let unitHeight = currentUnit.bbox? currentUnit.bbox.height : 0;
 
-                    //Will it fit into the player unit slots?
-                    let fitBeforeWrap = (potentialPosition.x + ((playerRect.width/unitWidth)*15)) < playerRect.width + playerRect.x;
+                    if(currentUnit.bbox){
+                        //test this point to see if it actually overlaps the region polygon
+                        let possibleNewRegion = document.elementsFromPoint(playerRect.px + (currentUnit.bbox.pxWidth/2), playerRect.py + (currentUnit.pxHeight/2)).filter((element) => {
+                            return element.attributes.id && element.attributes.id.nodeValue === regionId;
+                        });
 
-                    if(!fitBeforeWrap){
-                        //We need to try wrapping before we give up
-                        numRows++;
-                        numCols = 0;
-                        potentialPosition.y += 5;
-                        potentialPosition.x = playerRect.x;
+                        fit  = possibleNewRegion.length === 1;
                     }
 
-                    //If we don't fit the height, we don't continue
-                    fit = potentialPosition.y < playerRect.height + playerRect.y + unitHeight;
+                    if(fit){
+                        //Will it fit into the player unit slots?
+                        let fitBeforeWrap = (potentialPosition.x + ((playerRect.width/unitWidth)*15)) < playerRect.width + playerRect.x;
+
+                        if(!fitBeforeWrap){
+                            //We need to try wrapping before we give up
+                            numRows++;
+                            numCols = 0;
+                            potentialPosition.y += 5;
+                            potentialPosition.x = playerRect.x;
+                        }
+
+                        //If we don't fit the height, we don't continue
+                        fit = (potentialPosition.y + ((playerRect.height/unitHeight)*15)) < playerRect.height + playerRect.y;
+                    }
 
                     if(fit || !(measurementPassDone)) unitPositions.push(potentialPosition);
                     numCols++;
