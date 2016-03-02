@@ -2,6 +2,11 @@ import Constants from '../Constants.js';
 
 let Utils = {
 
+    getPathBoundingRectById: (pathId) => {
+        let pathEl = d3.select('path#'+pathId)[0][0];
+        return pathEl && pathEl.getBoundingClientRect();
+    },
+
     getValidMove: (originRegionId, targetRegionId, unitInfo, adjacencyMap, unitPath) => {
         // for unit move value, get adjacent regions of origin and return true if target region is one of them.
 

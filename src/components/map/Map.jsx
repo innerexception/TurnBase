@@ -35,8 +35,7 @@ class BaseMap extends React.Component {
             let centroidMap = new Map();
             d3.select('svg').selectAll('path')[0].forEach((path) => {
                 let bbox = path.getBBox();
-                let rect = path.getBoundingClientRect();
-                centroidMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, px: rect.left, py: rect.top, pxHeight: rect.height, pxWidth: rect.width, width:bbox.width, height:bbox.height});
+                centroidMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, width:bbox.width, height:bbox.height});
             });
             this.props.store.dispatch(fetchUnits(Constants.Units.DefaultPositions, centroidMap, this.props.regions));
         }
@@ -45,8 +44,7 @@ class BaseMap extends React.Component {
             d3.select('svg').selectAll('path')[0].forEach((path) =>{
                 if(path.classList.contains('turnbase-unit')){
                     let bbox = path.getBBox();
-                    let rect = path.getBoundingClientRect();
-                    unitPathMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, px: rect.left, py: rect.top, pxHeight: rect.height, pxWidth: rect.width, width:bbox.width, height:bbox.height});
+                    unitPathMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, width:bbox.width, height:bbox.height});
                 }
             });
             this.props.store.dispatch(fetchUnitPaths(unitPathMap));

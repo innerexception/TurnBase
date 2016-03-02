@@ -12,6 +12,12 @@ class Unit {
                 return unitInfo.region === region.attributes.id;
             });
             if(unitsInRegion.length > 0){
+                let regionBbox = Utils.getPathBoundingRectById(region.attributes.id);
+                region.bbox.pxWidth = regionBbox.width;
+                region.bbox.pxHeight = regionBbox.height;
+                region.bbox.px = regionBbox.left;
+                region.bbox.py = regionBbox.top;
+
                 let regionTestPositions = Unit.getRondelPlacementPositions(unitsInRegion, region.bbox, measurementPass);
                 regionTestPositions.forEach((playerPositions) => {
                     let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerPositions.player });
@@ -61,15 +67,31 @@ class Unit {
                     })[0];
 
                     let unitWidth = currentUnit.bbox ? currentUnit.bbox.width : 0;
-                    let unitHeight = currentUnit.bbox? currentUnit.bbox.height : 0;
+                    let unitHeight = currentUnit.bbox ? currentUnit.bbox.height : 0;
 
                     if(currentUnit.bbox){
-                        //test this point to see if it actually overlaps the region polygon
-                        let possibleNewRegion = document.elementsFromPoint(playerRect.px + (currentUnit.bbox.pxWidth/2), playerRect.py + (currentUnit.pxHeight/2)).filter((element) => {
-                            return element.attributes.id && element.attributes.id.nodeValue === regionId;
-                        });
+                        //test this point to see if it actually overlaps the region polygon.
+                        let unitBoundingRect = Utils.getPathBoundingRectById(Utils.getUnitUniqueId(currentUnit));
+                        if(unitBoundingRect){
+                            //Is it in the viewport?
+                            let isInViewport = (
+                                unitBoundingRect.top >= 0 &&
+                                unitBoundingRect.left >= 0 &&
+                                unitBoundingRect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                                unitBoundingRect.right <= (window.innerWidth || document.documentElement.clientWidth)
+                            );
+                            if(isInViewport){
+                                let possibleNewRegion = document.elementsFromPoint(playerRect.px + (unitBoundingRect.width), playerRect.py + (unitBoundingRect.height)).filter((element) => {
+                                    return element.attributes.id && element.attributes.id.nodeValue === regionId;
+                                });
 
-                        fit  = possibleNewRegion.length === 1;
+                                fit  = possibleNewRegion.length === 1;
+                            }
+                        }
+                        else{
+                            //Rondel is being rendered for this unit so it is not in the DOM
+                            fit = false;
+                        }
                     }
 
                     if(fit){
