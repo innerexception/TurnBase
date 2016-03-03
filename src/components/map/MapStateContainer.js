@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import { regionClicked, regionMouseEnter, mapDragged,
     mapDragEnd, mapDragStart, mapZoom, unitDragStart,
-    unitDragEnd, unitMove, moveCancel } from './MapActions.js';
+    unitDragEnd, unitMove, moveCancel, chipOut, chipOver } from './MapActions.js';
 import Map from './Map.jsx'
 
 const mapStateToProps = (state) => {
@@ -47,6 +47,12 @@ const mapDispatchToProps = (dispatch) => {
         },
         onMoveCancelClick: (uniqueId) => {
             dispatch(moveCancel(uniqueId))
+        },
+        onChipMouseOver: (unitInfo) => {
+            dispatch(chipOver(unitInfo));
+        },
+        onChipMouseOut: (unitInfo) => {
+            dispatch(chipOut(unitInfo));
         }
     }
 };

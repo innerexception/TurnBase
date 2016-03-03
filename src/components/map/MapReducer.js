@@ -1,9 +1,9 @@
 import Utils from './MapUtils.js';
 
 const mapReducer = (state = {}, action) => {
+    console.log('update cycle');
     switch (action.type) {
         case 'REGION_CLICKED':
-            console.log('clicked on '+action.id);
             return { ...state, viewState: updateViewStateSelectedRegion(state.viewState, action.id, state.units, state.regions), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart, state.viewState.regionOver, state.viewState.currentPathIsValid) };
         case 'MAP_LOAD':
             return { ...state, regions: action.regions };
@@ -11,6 +11,10 @@ const mapReducer = (state = {}, action) => {
             return { ...state, units: action.units, regions: action.regions };
         case 'VIEW_STATE_CHANGED':
             return { ...state, viewState: action.viewState};
+        case 'CHIP_MOUSE_OVER':
+            return { ...state, units: updateUnitsCountDisplay(state.units, action.unitInfo)};
+        case 'CHIP_MOUSE_OUT':
+            return { ...state, units: updateUnitsCountHide(state.units, action.unitInfo)};
         case 'MAP_DRAGGED':
             return { ...state, viewState: updateViewStatePanFromEvent(state.viewState, action.e)};
         case 'MAP_DRAG_START':
@@ -34,6 +38,26 @@ const mapReducer = (state = {}, action) => {
     }
 };
 
+const updateUnitsCountDisplay = (units, unitInfo) => {
+    let newUnits = Array.from(units);
+    newUnits.forEach((unit) => {
+        if(unitInfo.id === unit.id){
+            unit.showUnitCount = !unit.showUnitCount;
+        }
+    });
+    return newUnits;
+};
+
+const updateUnitsCountHide = (units, unitInfo) => {
+    let newUnits = Array.from(units);
+    newUnits.forEach((unit) => {
+        if(unitInfo.id === unit.id){
+            delete unit.showUnitCount;
+        }
+    });
+    return newUnits;
+};
+
 const updateUnitsPathMap = (units, unitPathMap) => {
     let newUnits = Array.from(units);
     newUnits.forEach((unit) => {
@@ -45,7 +69,7 @@ const updateUnitsPathMap = (units, unitPathMap) => {
 const updateUnitRegionOnMoveCancelled = (units, uniqueId, viewState) => {
     let newUnits = Array.from(units);
     newUnits.forEach((unit) => {
-        if(unit.queuedForMove && unit.id === uniqueId){
+        if(unit.id === uniqueId){
             unit.region = viewState.savedMoveArrows.get(uniqueId).originalRegionId;
             delete unit.queuedForMove;
         }
@@ -190,7 +214,12 @@ const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath) => {
             if(unit.id === unitInfo.id){
                 if(isValidPath) unit.region = regionOver;
                 else{
-                    unit.dragPosition = unit.lastGoodPosition;
+                    if(regionOver === unitInfo.region){
+                        unit.lastGoodPosition = unit.dragPosition;
+                    }
+                    else{
+                        unit.dragPosition = unit.lastGoodPosition;
+                    }
                     delete unit.queuedForMove;
                 }
 

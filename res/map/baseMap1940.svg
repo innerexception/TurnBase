@@ -746,6 +746,7 @@
        style="fill:#cccccc;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        defaultOwner="UK" />
     <path
+            defaultOwner="FR"
        id="MOR"
        d="m 450.36961,377.61631 2.47708,2.66056 2.56882,1.10093 3.57801,1.37615 2.84405,-0.55046 1.10092,1.28441 1.74313,-0.27523 1.19267,-1.28441 3.578,-0.45872 0.73395,-1.37616 -0.73395,-0.73394 -1.10092,-3.30278 -0.0917,-2.38533 -1.28442,-2.38534 -1.19266,0.0917 -2.56883,-0.64221 -2.93579,0.18349 -1.4679,-1.37616 -2.38534,0 -2.56882,5.59637 z"
        style="fill:#cccccc;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />

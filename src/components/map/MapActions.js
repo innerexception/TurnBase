@@ -65,6 +65,20 @@ export const moveCancel = (uniqueId) => {
     }
 };
 
+export const chipOver = (unitInfo) => {
+    return {
+        type: 'CHIP_MOUSE_OVER',
+        unitInfo
+    }
+};
+
+export const chipOut = (unitInfo) => {
+    return {
+        type: 'CHIP_MOUSE_OUT',
+        unitInfo
+    }
+};
+
 export const unitMove = (e) => {
     return {
         type: 'UNIT_MOVE',

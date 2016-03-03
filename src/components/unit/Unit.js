@@ -5,7 +5,7 @@ import d3 from 'd3';
 
 class Unit {
 
-    static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onArmyClick, measurementPassDone) => {
+    static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onArmyClick, measurementPassDone, onChipMouseOver, onChipMouseOut) => {
         let els = [];
         regions.forEach((region) => {
             let unitsInRegion = unitList.filter((unitInfo) => {
@@ -22,7 +22,7 @@ class Unit {
                 regionTestPositions.forEach((playerPositions) => {
                     let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerPositions.player });
                     if(playerPositions.showRondel && measurementPassDone) els.push(Unit.getPlayerArmyRondelPath(playerPositions.roundelPosition, playerPositions.player, onArmyClick, region.attributes.id));
-                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
+                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, onChipMouseOut));
                 });
             }
         });
@@ -114,11 +114,11 @@ class Unit {
         return (<image width={5} height={5} x={position.x} y={position.y} xlinkHref={Constants.Players[playerId].markerPath} onClick={() => onArmyClick(regionId, playerId)}></image>);
     };
 
-    static getPlayerUnitPathsForRegion = (playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
+    static getPlayerUnitPathsForRegion = (playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, onChipMouseOut) => {
         let els = [];
         let i = 0;
         playerUnitsInRegion.forEach((unitInfo) => {
-            els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i), unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
+            els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i), unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, onChipMouseOut));
             i++;
         });
         return els;
@@ -144,13 +144,16 @@ class Unit {
         }
     };
 
-    static getUnitImageGroup = (position, unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick) => {
+    static getUnitImageGroup = (position, unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, onChipMouseOut) => {
 
         let pathEls = [];
+
         unitInfo.paths.forEach((path) => {
             pathEls.push((<path  d={path.attributes.d} className='turnbase-unit' id={unitInfo.id} fill={Constants.Players[unitInfo.owner].color}
                                  onClick={()=> onUnitClick(unitInfo)}></path>));
         });
+
+
         let pathEl, moveFill;
 
         //Drawing move arrows
@@ -186,12 +189,40 @@ class Unit {
             }
         }
 
-        return (<svg>
-                    {pathEl ? <svg x={viewState.unitOriginalStart ? viewState.unitOriginalStart.x : savedMoveArrowInfo.unitOriginalStart.x} y={viewState.unitOriginalStart ? viewState.unitOriginalStart.y : savedMoveArrowInfo.unitOriginalStart.y}>
+        let num = unitInfo.number;
+        let numTens = Math.floor(num/10);
+        num -= numTens*10;
+        let numFives = Math.floor(num/5);
+        num -= numFives*5;
+        let numOnes = num;
+
+        let chipEls = [], startY=3.5;
+        for(var i=0; i<numTens; i++){
+            chipEls.push(<image width={6} height={6} x={1} y={startY-(0.3*chipEls.length)} xlinkHref={Constants.UI.Chip10.markerPath}></image>);
+        }
+        for(i=0; i<numFives; i++){
+            chipEls.push(<image width={5.5} height={5.5} x={1.25} y={startY-(0.5*chipEls.length)} xlinkHref={Constants.UI.Chip5.markerPath}></image>);
+        }
+        for(i=0; i<numOnes-1; i++){
+            chipEls.push(<image width={5} height={5} x={1.5} y={startY-(0.7*chipEls.length)} xlinkHref={Constants.UI.Chip1.markerPath}></image>);
+        }
+
+        if(unitInfo.showUnitCount) chipEls.push(<text x={0} y={0} width={1} height={1} fontSize="3">{unitInfo.number}</text>);
+
+        return (<svg onContextMenu={(e) => {e.preventDefault(); onChipMouseOver(unitInfo)}} >
+            {pathEl ? <svg x={viewState.unitOriginalStart ? viewState.unitOriginalStart.x : savedMoveArrowInfo.unitOriginalStart.x} y={viewState.unitOriginalStart ? viewState.unitOriginalStart.y : savedMoveArrowInfo.unitOriginalStart.y}>
                         <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="'+moveFill+'" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
-                    <svg className={unitInfo.queuedForMove ? 'no-events' : null} x={position.x} y={position.y}><g onMouseDown={(e) => onUnitDragStart(e, unitInfo)}
-                               onMouseUp={onUnitDragEnd}
-                               transform={'scale('+Constants.Units[unitInfo.type].scaleFactor+')'}>{pathEls}</g></svg>
+
+                    <svg x={position.x} y={position.y + (unitInfo.number > 3 ? unitInfo.number*0.2 : 0)}>
+                        <g>{chipEls}</g>
+                    </svg>
+
+                    <svg className={unitInfo.queuedForMove ? 'no-events' : null} x={position.x} y={position.y}>
+                        <g onMouseDown={(e) => { if(e.button!==2) onUnitDragStart(e, unitInfo);}}
+                           onMouseUp={()=>{onUnitDragEnd()}}
+                           transform={'scale('+Constants.Units[unitInfo.type].scaleFactor+')'}>{pathEls}</g>
+                    </svg>
+
                 </svg>);
     };
 }

@@ -12,7 +12,7 @@ export default {
     },
     Units: {
         DefaultPositions: [
-            {type: 'infantry', number: 6, owner: 'FR', region: 'CentralFrance', id:Math.random()},
+            {type: 'infantry', number: 8, owner: 'FR', region: 'CentralFrance', id:Math.random()},
             {type: 'artillery', number: 1, owner: 'FR', region: 'CentralFrance', id:Math.random()},
             {type: 'tank', number: 1, owner: 'FR', region: 'CentralFrance', id:Math.random()},
             {type: 'aaa', number: 1, owner: 'FR', region: 'CentralFrance', id:Math.random()},
@@ -170,5 +170,8 @@ export default {
         }
     },
     UI: {
+        Chip1: {markerPath: './res/chip.png'},
+        Chip10: {markerPath: './res/chip10.png'},
+        Chip5: {markerPath: './res/chip5.png'}
     }
 }
