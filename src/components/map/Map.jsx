@@ -41,11 +41,9 @@ class BaseMap extends React.Component {
         }
         if(this.props.units && !this.props.unitPathDispatch){
             let unitPathMap = new Map();
-            d3.select('svg').selectAll('path')[0].forEach((path) =>{
-                if(path.classList.contains('turnbase-unit')){
-                    let bbox = path.getBBox();
-                    unitPathMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, width:bbox.width, height:bbox.height});
-                }
+            d3.selectAll('.turnbase-unit')[0].forEach((path) =>{
+                let bbox = path.getBBox();
+                unitPathMap.set(+path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, width:bbox.width, height:bbox.height});
             });
             this.props.store.dispatch(fetchUnitPaths(unitPathMap));
         }

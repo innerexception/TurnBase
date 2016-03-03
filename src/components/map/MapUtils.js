@@ -68,10 +68,6 @@ let Utils = {
         }
 
         return newState;
-    },
-
-    getUnitUniqueId: (unitInfo) => {
-        return unitInfo.region + unitInfo.type + unitInfo.owner + unitInfo.number;
     }
 };
 

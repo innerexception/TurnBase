@@ -37,7 +37,7 @@ const mapReducer = (state = {}, action) => {
 const updateUnitsPathMap = (units, unitPathMap) => {
     let newUnits = Array.from(units);
     newUnits.forEach((unit) => {
-        unit.bbox = unitPathMap.get(Utils.getUnitUniqueId(unit));
+        unit.bbox = unitPathMap.get(unit.id);
     });
     return newUnits;
 };
@@ -45,7 +45,7 @@ const updateUnitsPathMap = (units, unitPathMap) => {
 const updateUnitRegionOnMoveCancelled = (units, uniqueId, viewState) => {
     let newUnits = Array.from(units);
     newUnits.forEach((unit) => {
-        if(unit.queuedForMove){
+        if(unit.queuedForMove && unit.id === uniqueId){
             unit.region = viewState.savedMoveArrows.get(uniqueId).originalRegionId;
             delete unit.queuedForMove;
         }
@@ -94,6 +94,8 @@ const updateViewStateDragEnd = (viewState) => {
     return newState;
 };
 
+//////////////////UNIT_MOVE
+
 const updateViewStateUnitPanFromEvent = (viewState, e, regions) => {
     let newState = { ...viewState };
 
@@ -115,14 +117,13 @@ const updateViewStateUnitPanFromEvent = (viewState, e, regions) => {
 const updateUnitsFromPanEvent = (e, units, viewState) => {
     let newUnits = Array.from(units);
 
-    let uniqueId = viewState.unitDragStart.uniqueId;
     //Update unit position
     let currentX = viewState.unitDragStart.x;
     let currentY = viewState.unitDragStart.y;
     let offset = {x: ((e.clientX - currentX)/viewState.zoomLevel), y: ((e.clientY -  currentY)/viewState.zoomLevel)};
 
     newUnits.forEach((unit) => {
-        if(Utils.getUnitUniqueId(unit) === uniqueId){
+        if(unit.id === viewState.unitDragStart.unitInfo.id){
             unit.dragPosition = {x: unit.dragPosition.x + offset.x, y: unit.dragPosition.y + offset.y };
         }
     });
@@ -130,47 +131,45 @@ const updateUnitsFromPanEvent = (e, units, viewState) => {
     return newUnits;
 };
 
+
+////////////UNIT_DRAG_START
+
 const updateViewStateUnitDragStart = (viewState, e, unitInfo, regions) => {
     let newState = { ...viewState };
-    let uniqueId = Utils.getUnitUniqueId(unitInfo);
-    newState.unitDragStart = {x: e.clientX, y: e.clientY, uniqueId, unitInfo};
+    newState.unitDragStart = {x: e.clientX, y: e.clientY, unitInfo};
     let startbox = regions.filter((region) => region.attributes.id === unitInfo.region)[0].bbox;
     newState.unitOriginalStart = {x: startbox.x + (startbox.width/2), y: startbox.y};
     return newState;
 };
 
-const updateUnitsDragStart = (units, unitInfo, e, viewState, regions) => {
+const updateUnitsDragStart = (units, unitInfo) => {
     let newUnits = Array.from(units);
     newUnits.forEach((unit) => {
-        if(Utils.getUnitUniqueId(unit) === Utils.getUnitUniqueId(unitInfo)){
+        if(unit.id === unitInfo.id){
             unit.queuedForMove = true;
-            unit.dragPosition = {x: unit.staticPosition.x, y: unit.staticPosition.y };
+            unit.dragPosition = {x: unit.lastGoodPosition.x, y: unit.lastGoodPosition.y };
         }
     });
     return newUnits;
 };
 
-const updateViewStateUnitDragEnd = (viewState, units, regions) => {
+//////////////UNIT_DRAG_END
+
+const updateViewStateUnitDragEnd = (viewState, units) => {
     let newState = { ...viewState };
     if(viewState.unitDragStart){
         let unitInfo = viewState.unitDragStart.unitInfo;
 
-        let uniqueId = Utils.getUnitUniqueId(unitInfo);
-        let targetRegionId = newState.currentPathIsValid ? viewState.regionOver : unitInfo.region;
-        let targetUniqueId = targetRegionId + unitInfo.type + unitInfo.owner + unitInfo.number + '_queued';
         let targetUnit;
-        let region = regions.filter((region) => { return region.attributes.id === targetRegionId})[0];
         units.forEach((unit) => {
-            if(Utils.getUnitUniqueId(unit) === uniqueId){
-                let bbox = region.bbox;
-                unit.dragPosition = { x:bbox.x + (bbox.width/2), y:bbox.y+(bbox.height/2) };
+            if(unit.id === unitInfo.id){
                 targetUnit = unit;
             }
         });
 
         if(newState.currentPathIsValid){
             if(!newState.savedMoveArrows) newState.savedMoveArrows = new Map();
-            newState.savedMoveArrows.set(targetUniqueId, {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region, originalUniqueId: uniqueId})
+            newState.savedMoveArrows.set(unitInfo.id, {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region})
         }
     }
 
@@ -186,12 +185,11 @@ const updateViewStateUnitDragEnd = (viewState, units, regions) => {
 const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath) => {
     let newUnits = Array.from(units);
     let unitInfo = unitDragStart && unitDragStart.unitInfo;
-    if(isValidPath && unitInfo){
-        let uniqueId = Utils.getUnitUniqueId(unitInfo);
+    if(unitInfo){
         newUnits.forEach((unit) => {
-            if((Utils.getUnitUniqueId(unit)) === uniqueId){
-                unit.region = regionOver;
-                delete unit.dragPosition;
+            if(unit.id === unitInfo.id){
+                if(isValidPath) unit.region = regionOver;
+                else unit.dragPosition = unit.lastGoodPosition;
             }
         });
     }

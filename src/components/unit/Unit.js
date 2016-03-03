@@ -5,7 +5,7 @@ import d3 from 'd3';
 
 class Unit {
 
-    static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onArmyClick, measurementPass) => {
+    static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onArmyClick, measurementPassDone) => {
         let els = [];
         regions.forEach((region) => {
             let unitsInRegion = unitList.filter((unitInfo) => {
@@ -18,24 +18,23 @@ class Unit {
                 region.bbox.px = regionBbox.left;
                 region.bbox.py = regionBbox.top;
 
-                let regionTestPositions = Unit.getRondelPlacementPositions(unitsInRegion, region.bbox, measurementPass);
+                let regionTestPositions = Unit.getPlacementPositions(unitsInRegion, region.bbox, measurementPassDone);
                 regionTestPositions.forEach((playerPositions) => {
                     let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerPositions.player });
-                    if(playerPositions.showRondel && measurementPass) els.push(Unit.getPlayerArmyRondelPath(playerPositions.roundelPosition, playerPositions.player, onArmyClick, region.attributes.id));
+                    if(playerPositions.showRondel && measurementPassDone) els.push(Unit.getPlayerArmyRondelPath(playerPositions.roundelPosition, playerPositions.player, onArmyClick, region.attributes.id));
                     else els = els.concat(Unit.getPlayerUnitPathsForRegion(playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
                 });
             }
         });
+
         return els;
     };
 
-    static getRondelPlacementPositions = (unitsInRegion, regionCentroid, measurementPassDone) => {
+    static getPlacementPositions = (unitsInRegion, regionCentroid, measurementPassDone) => {
 
         let players = [], numPlayers = 0;
         let regionId;
         unitsInRegion.forEach((unit) => { if(players.indexOf(unit.owner) === -1) { players.push(unit.owner); numPlayers++; regionId=unit.region; }});
-
-        let availablePlayerDimensions = { width: regionCentroid.pxWidth / numPlayers, height: regionCentroid.pxHeight / numPlayers };
 
         let i=0;
 
@@ -53,48 +52,29 @@ class Unit {
             let numRows = 0;
             let numCols = 0;
 
-            //Construct unitPositions array as you go
             let unitPositions = [];
-            let playerRect = {x:regionCentroid.x, y: regionCentroid.y + ((regionCentroid.height/(numPlayers))*i), width: regionCentroid.width, height: regionCentroid.height/numPlayers, px: regionCentroid.px, py: regionCentroid.py + ((regionCentroid.pxHeight/(numPlayers))*i)};
+            let playerRect = {x: regionCentroid.x, y: regionCentroid.y + ((regionCentroid.height/(numPlayers))*i), width: regionCentroid.width, height: regionCentroid.height/numPlayers, px: regionCentroid.px, py: regionCentroid.py + ((regionCentroid.pxHeight/(numPlayers))*i)};
 
             playerUnitTypes.forEach((unitType) => {
                 if(fit || !(measurementPassDone)){
 
-                    let potentialPosition = { x: playerRect.x + (numCols*7), y: playerRect.y + 5*numRows };
-
-                    let currentUnit =playerUnits.filter((unit) => {
-                        return unit.type === unitType;
+                    let defaultUnitPosition = Constants.Units.DefaultPositions.filter((unitPosition) => {
+                        return unitPosition.region + unitPosition.type + unitPosition.owner === regionId + unitType + player;
                     })[0];
 
-                    let unitWidth = currentUnit.bbox ? currentUnit.bbox.width : 0;
-                    let unitHeight = currentUnit.bbox ? currentUnit.bbox.height : 0;
-
-                    if(currentUnit.bbox){
-                        //test this point to see if it actually overlaps the region polygon.
-                        let unitBoundingRect = Utils.getPathBoundingRectById(Utils.getUnitUniqueId(currentUnit));
-                        if(unitBoundingRect){
-                            //Is it in the viewport?
-                            let isInViewport = (
-                                unitBoundingRect.top >= 0 &&
-                                unitBoundingRect.left >= 0 &&
-                                unitBoundingRect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-                                unitBoundingRect.right <= (window.innerWidth || document.documentElement.clientWidth)
-                            );
-                            if(isInViewport){
-                                let possibleNewRegion = document.elementsFromPoint(playerRect.px + (unitBoundingRect.width), playerRect.py + (unitBoundingRect.height)).filter((element) => {
-                                    return element.attributes.id && element.attributes.id.nodeValue === regionId;
-                                });
-
-                                fit  = possibleNewRegion.length === 1;
-                            }
-                        }
-                        else{
-                            //Rondel is being rendered for this unit so it is not in the DOM
-                            fit = false;
-                        }
+                    if(defaultUnitPosition.initialX){
+                        unitPositions.push({ x: defaultUnitPosition.initialX, y:defaultUnitPosition.initialY});
                     }
+                    else{
+                        let potentialPosition = { x: playerRect.x + (numCols*7), y: playerRect.y + (5*numRows) };
 
-                    if(fit){
+                        let currentUnit =playerUnits.filter((unit) => {
+                            return unit.type === unitType;
+                        })[0];
+
+                        let unitWidth = currentUnit.bbox ? currentUnit.bbox.width : 0;
+                        let unitHeight = currentUnit.bbox ? currentUnit.bbox.height : 0;
+
                         //Will it fit into the player unit slots?
                         let fitBeforeWrap = (potentialPosition.x + ((playerRect.width/unitWidth)*15)) < playerRect.width + playerRect.x;
 
@@ -108,9 +88,10 @@ class Unit {
 
                         //If we don't fit the height, we don't continue
                         fit = (potentialPosition.y + ((playerRect.height/unitHeight)*15)) < playerRect.height + playerRect.y;
-                    }
 
-                    if(fit || !(measurementPassDone)) unitPositions.push(potentialPosition);
+
+                        unitPositions.push(potentialPosition);
+                    }
                     numCols++;
                 }
             });
@@ -118,7 +99,7 @@ class Unit {
             i++;
 
             if(fit || !measurementPassDone){
-                return { player, availablePlayerDimensions, unitTypes: playerUnitTypes, rect: playerRect, unitPositions };
+                return { player, unitTypes: playerUnitTypes, rect: playerRect, unitPositions };
             }
             else{
                 return { player, showRondel: true, roundelPosition: { x: playerRect.x + (playerRect.width/2) - 2.5, y: playerRect.y + (playerRect.height/2) - 2.5 } };
@@ -137,23 +118,29 @@ class Unit {
         let els = [];
         let i = 0;
         playerUnitsInRegion.forEach((unitInfo) => {
-            els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i, viewState), unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
+            els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i), unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick));
             i++;
         });
         return els;
     };
 
-    static getPlacementPositionInRect = (unitInfo, playerPositions, i, viewState) => {
-        //TODO, modify position by number of different players and unit types in region
-        //i is number of unit types placed in region for current player already
-        //gets you playerPositions.xOffset * i etc...
-        if(viewState.unitDragStart && viewState.unitDragStart.uniqueId === (Utils.getUnitUniqueId(unitInfo))){
+    static getPlacementPositionInRect = (unitInfo, playerPositions, i) => {
+        if(unitInfo.dragPosition && unitInfo.queuedForMove){
+            return unitInfo.dragPosition;
+        }
+        else if(unitInfo.dragPosition && !unitInfo.queuedForMove){
+            unitInfo.dragPosition = unitInfo.lastGoodPosition;
             return unitInfo.dragPosition;
         }
         else{
-            let staticPosition = {x: playerPositions.unitPositions[i].x, y: playerPositions.unitPositions[i].y};
-            unitInfo.staticPosition = staticPosition;
-            return staticPosition;
+            if(playerPositions.unitPositions[i]) {
+                let initialPosition = {x: playerPositions.unitPositions[i].x, y: playerPositions.unitPositions[i].y};
+                unitInfo.lastGoodPosition = initialPosition;
+                return unitInfo.lastGoodPosition;
+            }
+            else{
+                return unitInfo.lastGoodPosition;
+            }
         }
     };
 
@@ -161,13 +148,13 @@ class Unit {
 
         let pathEls = [];
         unitInfo.paths.forEach((path) => {
-            pathEls.push((<path  d={path.attributes.d} className='turnbase-unit' id={Utils.getUnitUniqueId(unitInfo)} fill={Constants.Players[unitInfo.owner].color}
+            pathEls.push((<path  d={path.attributes.d} className='turnbase-unit' id={unitInfo.id} fill={Constants.Players[unitInfo.owner].color}
                                  onClick={()=> onUnitClick(unitInfo)}></path>));
         });
         let pathEl, moveFill;
 
         //Drawing move arrows
-        if(viewState.unitDragStart && viewState.unitDragStart.uniqueId === (Utils.getUnitUniqueId(unitInfo))){
+        if(viewState.unitDragStart && (viewState.unitDragStart.unitInfo.id) === unitInfo.id && unitInfo.queuedForMove){
             //let angleToMouse = (Math.atan2(position.x - viewState.unitOriginalStart.x, position.y - viewState.unitOriginalStart.y )*(180/Math.PI));
             let dist = Math.sqrt( ((viewState.unitOriginalStart.x-position.x)*(viewState.unitOriginalStart.x - position.x)) + ((viewState.unitOriginalStart.y-position.y)*(viewState.unitOriginalStart.y-position.y)) );
 
@@ -183,9 +170,8 @@ class Unit {
         }
         let savedMoveArrowInfo;
         if((!viewState.unitDragStart) && viewState.savedMoveArrows){
-            let uniqueId = Utils.getUnitUniqueId(unitInfo) + '_queued';
-            savedMoveArrowInfo = viewState.savedMoveArrows.get(uniqueId);
-            if(savedMoveArrowInfo){
+            savedMoveArrowInfo = viewState.savedMoveArrows.get(unitInfo.id);
+            if(savedMoveArrowInfo && unitInfo.queuedForMove){
                 let dist = Math.sqrt( ((savedMoveArrowInfo.unitOriginalStart.x-savedMoveArrowInfo.newPosition.x)*(savedMoveArrowInfo.unitOriginalStart.x - savedMoveArrowInfo.newPosition.x))
                     + ((savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)*(savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)) );
 
@@ -195,7 +181,7 @@ class Unit {
                 let y2 = -(savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y);
 
                 pathEl=(<g transform={'scale('+Math.min(Math.max(dist/20, 0.6), 0.9)+')translate(0,5)'}>
-                    <line onClick={()=>onMoveCancelClick(uniqueId)} markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill} strokeWidth={1.5}/>
+                    <line onClick={()=>onMoveCancelClick(unitInfo.id)} markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill} strokeWidth={1.5}/>
                 </g>);
             }
         }
@@ -203,7 +189,7 @@ class Unit {
         return (<svg>
                     {pathEl ? <svg x={viewState.unitOriginalStart ? viewState.unitOriginalStart.x : savedMoveArrowInfo.unitOriginalStart.x} y={viewState.unitOriginalStart ? viewState.unitOriginalStart.y : savedMoveArrowInfo.unitOriginalStart.y}>
                         <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="'+moveFill+'" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
-                    <svg className={savedMoveArrowInfo ? 'no-events' : null} x={position.x} y={position.y}><g onMouseDown={(e) => onUnitDragStart(e, unitInfo)}
+                    <svg className={unitInfo.queuedForMove ? 'no-events' : null} x={position.x} y={position.y}><g onMouseDown={(e) => onUnitDragStart(e, unitInfo)}
                                onMouseUp={onUnitDragEnd}
                                transform={'scale('+Constants.Units[unitInfo.type].scaleFactor+')'}>{pathEls}</g></svg>
                 </svg>);
