@@ -189,7 +189,11 @@ const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath) => {
         newUnits.forEach((unit) => {
             if(unit.id === unitInfo.id){
                 if(isValidPath) unit.region = regionOver;
-                else unit.dragPosition = unit.lastGoodPosition;
+                else{
+                    unit.dragPosition = unit.lastGoodPosition;
+                    delete unit.queuedForMove;
+                }
+
             }
         });
     }
