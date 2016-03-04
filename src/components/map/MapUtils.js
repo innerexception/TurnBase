@@ -7,6 +7,12 @@ let Utils = {
         return pathEl && pathEl.getBoundingClientRect();
     },
 
+    getNextActivePhase: (phaseName) => {
+        let index = Constants.UI.Phases.indexOf(phaseName)+1;
+        if(index >= Constants.UI.Phases.length) index = 0;
+        return Constants.UI.Phases[index];
+    },
+
     getValidMove: (originRegionId, targetRegionId, unitInfo, adjacencyMap, unitPath) => {
         // for unit move value, get adjacent regions of origin and return true if target region is one of them.
 

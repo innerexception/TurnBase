@@ -9,6 +9,11 @@ svg {
     overflow: visible;
 }
 
+input[type=range]{
+    width: 20px;
+    height: 10px;
+}
+
 .no-events{
     pointer-events: none;
 }

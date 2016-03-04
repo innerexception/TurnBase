@@ -1,7 +1,7 @@
 import Utils from './MapUtils.js';
+import Constants from '../Constants.js';
 
 const mapReducer = (state = {}, action) => {
-    console.log('update cycle');
     switch (action.type) {
         case 'REGION_CLICKED':
             return { ...state, viewState: updateViewStateSelectedRegion(state.viewState, action.id, state.units, state.regions), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart, state.viewState.regionOver, state.viewState.currentPathIsValid) };
@@ -13,8 +13,6 @@ const mapReducer = (state = {}, action) => {
             return { ...state, viewState: action.viewState};
         case 'CHIP_MOUSE_OVER':
             return { ...state, units: updateUnitsCountDisplay(state.units, action.unitInfo)};
-        case 'CHIP_MOUSE_OUT':
-            return { ...state, units: updateUnitsCountHide(state.units, action.unitInfo)};
         case 'MAP_DRAGGED':
             return { ...state, viewState: updateViewStatePanFromEvent(state.viewState, action.e)};
         case 'MAP_DRAG_START':
@@ -30,12 +28,92 @@ const mapReducer = (state = {}, action) => {
         case 'UNIT_DRAG_END':
             return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units, state.regions), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart, state.viewState.regionOver, state.viewState.currentPathIsValid)};
         case 'UNIT_MOVE_CANCELLED':
-            return { ...state, units: updateUnitRegionOnMoveCancelled(state.units, action.uniqueId, state.viewState), viewState: updateViewStateRemoveSavedMoveArrows(state.viewState, action.uniqueId)};
+            return { ...state, units: updateUnitRegionOnMoveCancelled(state.units, action.unitInfo), viewState: updateViewStateRemoveSavedMoveArrows(state.viewState, action.uniqueId)};
         case 'UNIT_PATH_MAP':
             return { ...state, units: updateUnitsPathMap(state.units, action.unitPathMap), unitPathDispatch: true};
+        case 'SEND_UNIT_TO_ORIGIN':
+            return {...state, units: updateUnitsSendToOrigin(action.unitInfo, state.units)};
+        case 'END_PHASE':
+            return {...state, playerInfo: updatePlayerInfoPhase(state.playerInfo, action.phaseName), units: updateUnitsPhaseEnd(state.units, action.phaseName, state.regions),  viewState: updateViewStatePhaseEnd(state.viewState, action.phaseName, state.units, state.regions, state.playerInfo)};
+        case 'PLAYER_INFO_LOAD':
+            return {...state, playerInfo: action.playerInfo};
         default:
             return state
     }
+};
+
+const updatePlayerInfoPhase = (playerInfo, phaseName) => {
+    let newPlayerInfo = {...playerInfo};
+    newPlayerInfo.activePhase = Utils.getNextActivePhase(phaseName);
+    return newPlayerInfo;
+};
+
+const updateUnitsPhaseEnd = (units, phaseName, regions) => {
+    let phase = Utils.getNextActivePhase(phaseName);
+    switch(phase){
+        case 'Purchase': break;
+        case 'Research': break;
+        case 'Combat':
+            regions.forEach((region) => {
+
+            });
+            break;
+        case 'Move':
+            units.forEach((unit) => {
+                delete unit.queuedForMove;
+            });
+            break;
+        case 'Placement': break;
+    }
+};
+
+const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInfo) => {
+    let newState = {...viewState};
+    let phase = Utils.getNextActivePhase(phaseName);
+    switch(phase){
+        case 'Purchase': break;
+        case 'Research': break;
+        case 'Combat':
+            regions.forEach((region) => {
+                let unitsInRegion = units.filter((unit) => { return unit.region === region.attributes.id});
+                let combat = false;
+                unitsInRegion.forEach((unit) => { if(Constants.Players[unit.owner].team !== playerInfo.team) combat = true; });
+                if(combat){
+                    let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id});
+                    let otherTeamUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team});
+                    if(region.attributes.defaultOwner === playerInfo.id) newState.combatInfo = { defenderUnits: playerUnitsInRegion, attackerUnits: otherTeamUnitsInRegion };
+                    else newState.combatInfo = { attackerUnits: playerUnitsInRegion, defenderUnits: otherTeamUnitsInRegion };
+                }
+            });
+            break;
+        case 'Move':
+            units.forEach((unit) => {
+                newState.savedMoveArrows.delete(unit.id);
+            });
+            break;
+        case 'Placement': break;
+    }
+    return newState;
+};
+
+const updateUnitsSendToOrigin = (unitInfo, units) => {
+    let newUnits = Array.from(units);
+    newUnits.forEach((unit)=>{
+        if(unit.id === unitInfo.id){
+            if(unit.number > 1){
+                unit.number -= 1;
+            }
+            let regionTypeUnits = newUnits.filter((unit) => {return unit.region === unitInfo.lastRegion && unit.type === unitInfo.type;});
+            if(regionTypeUnits.length > 0){
+                regionTypeUnits[0].number++;
+            }
+            else{
+                let newUnit = {...unit, number:1, region:unit.lastRegion, queuedForMove:false, id:Math.random(), dragPosition:null, showUnitCount:false};
+                newUnits.push(newUnit);
+            }
+        }
+    });
+    return newUnits
 };
 
 const updateUnitsCountDisplay = (units, unitInfo) => {
@@ -43,16 +121,6 @@ const updateUnitsCountDisplay = (units, unitInfo) => {
     newUnits.forEach((unit) => {
         if(unitInfo.id === unit.id){
             unit.showUnitCount = !unit.showUnitCount;
-        }
-    });
-    return newUnits;
-};
-
-const updateUnitsCountHide = (units, unitInfo) => {
-    let newUnits = Array.from(units);
-    newUnits.forEach((unit) => {
-        if(unitInfo.id === unit.id){
-            delete unit.showUnitCount;
         }
     });
     return newUnits;
@@ -66,14 +134,25 @@ const updateUnitsPathMap = (units, unitPathMap) => {
     return newUnits;
 };
 
-const updateUnitRegionOnMoveCancelled = (units, uniqueId, viewState) => {
+const updateUnitRegionOnMoveCancelled = (units, unitInfo) => {
     let newUnits = Array.from(units);
+    let deleteId;
     newUnits.forEach((unit) => {
-        if(unit.id === uniqueId){
-            unit.region = viewState.savedMoveArrows.get(uniqueId).originalRegionId;
+        if(unit.id === unitInfo.id){
+            let regionTypeUnits = newUnits.filter((unit) => {return unit.region === unitInfo.lastRegion && unit.type === unitInfo.type;});
+            if(regionTypeUnits.length > 0){
+                regionTypeUnits[0].number += unitInfo.number;
+                deleteId = unit.id;
+            }
+            unit.region = unitInfo.lastRegion;
             delete unit.queuedForMove;
+
+
         }
     });
+
+    if(deleteId) return newUnits.filter((unit) => { return unit.id !== deleteId});
+
     return newUnits;
 };
 
@@ -212,6 +291,7 @@ const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath) => {
     if(unitInfo){
         newUnits.forEach((unit) => {
             if(unit.id === unitInfo.id){
+                unit.lastRegion = unit.region;
                 if(isValidPath) unit.region = regionOver;
                 else{
                     if(regionOver === unitInfo.region){

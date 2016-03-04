@@ -1,15 +1,17 @@
 import { connect } from 'react-redux'
 import { regionClicked, regionMouseEnter, mapDragged,
     mapDragEnd, mapDragStart, mapZoom, unitDragStart,
-    unitDragEnd, unitMove, moveCancel, chipOut, chipOver } from './MapActions.js';
+    unitDragEnd, unitMove, moveCancel, chipOut, chipOver,
+    sendOneUnitToOrigin, endPhase } from './MapActions.js';
 import Map from './Map.jsx'
 
 const mapStateToProps = (state) => {
     return {
-        regions: state.regions,
-        units: state.units,
-        viewState: state.viewState,
-        unitPathDispatch : state.unitPathDispatch
+        regions: state.mapReducer.regions,
+        units: state.mapReducer.units,
+        viewState: state.mapReducer.viewState,
+        unitPathDispatch : state.mapReducer.unitPathDispatch,
+        playerInfo: state.mapReducer.playerInfo
     };
 };
 
@@ -45,14 +47,17 @@ const mapDispatchToProps = (dispatch) => {
         onUnitDragEnd: (e) => {
             dispatch(unitDragEnd(e))
         },
-        onMoveCancelClick: (uniqueId) => {
-            dispatch(moveCancel(uniqueId))
+        onMoveCancelClick: (unitInfo) => {
+            dispatch(moveCancel(unitInfo))
         },
         onChipMouseOver: (unitInfo) => {
             dispatch(chipOver(unitInfo));
         },
-        onChipMouseOut: (unitInfo) => {
-            dispatch(chipOut(unitInfo));
+        sendOneUnitToOrigin: (unitInfo) => {
+            dispatch(sendOneUnitToOrigin(unitInfo));
+        },
+        onEndPhaseClick: (phaseName) => {
+            dispatch(endPhase(phaseName));
         }
     }
 };

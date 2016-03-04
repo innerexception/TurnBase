@@ -6,11 +6,10 @@ import './App.css';
 class App extends React.Component {
     constructor(props){
         super(props);
-
     };
 
     componentDidMount(){
-        this.props.store.dispatch(fetchMap('./res/map/baseMap1940.svg'));
+        this.props.store.dispatch(fetchMap('./res/map/baseMap1940Large.svg'));
     }
 
     render(){

@@ -1,0 +1,18 @@
+.turnbase-ui-outer{
+    position: absolute;
+    z-index: 1;
+    width: 10%;
+    height: 30%;
+}
+
+.turnbase-ui-outer img{
+    width: 33%;
+}
+
+.turnbase-ui-outer.player-phase{
+
+}
+
+.turnbase-ui-outer.endphase-button{
+
+}

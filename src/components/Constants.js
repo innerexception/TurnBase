@@ -1,19 +1,19 @@
 export default {
     Players: {
-        UK: { markerPath: './res/uk_round.png', color: 'beige'},
-        US: { markerPath: './res/us_round.png', color: 'green'},
-        DE: { markerPath: './res/german_round.png', color: 'darkbrown'},
-        FR: { markerPath: './res/france_round.png', color: 'blue'},
-        JP: { markerPng: 'japan_round.png', color: 'orange'},
-        IT: { markerPng: 'italy_round.png', color: 'darkgoldenrod'},
-        CH: { markerPng: 'china_round.png', color: 'yellow'},
+        UK: { markerPath: './res/uk_round.png', color: 'beige', team: 'AL'},
+        US: { markerPath: './res/us_round.png', color: 'green', team: 'AL'},
+        DE: { markerPath: './res/german_round.png', color: 'darkbrown', team: 'AX'},
+        FR: { markerPath: './res/france_round.png', color: 'blue', id: 'FR', income: 17, activePhase: 'Purchase', team: 'AL'},
+        JP: { markerPng: 'japan_round.png', color: 'orange', team: 'AX'},
+        IT: { markerPng: 'italy_round.png', color: 'darkgoldenrod', team: 'AX'},
+        CH: { markerPng: 'china_round.png', color: 'yellow', team: 'AL'},
         N: { color: 'gray'},
-        RU: { markerPng: 'cccp_round.png', color: 'darkred'}
+        RU: { markerPng: 'cccp_round.png', color: 'darkred', team: 'AL'}
     },
     Units: {
         DefaultPositions: [
             {type: 'infantry', number: 8, owner: 'FR', region: 'CentralFrance', id:Math.random()},
-            {type: 'artillery', number: 1, owner: 'FR', region: 'CentralFrance', id:Math.random()},
+            {type: 'tank', number: 3, owner: 'DE', region: 'CentralFrance', id:Math.random()},
             {type: 'tank', number: 1, owner: 'FR', region: 'CentralFrance', id:Math.random()},
             {type: 'aaa', number: 1, owner: 'FR', region: 'CentralFrance', id:Math.random()},
             {type: 'fighter', number: 1, owner: 'FR', region: 'CentralFrance', id:Math.random()},
@@ -172,6 +172,8 @@ export default {
     UI: {
         Chip1: {markerPath: './res/chip.png'},
         Chip10: {markerPath: './res/chip10.png'},
-        Chip5: {markerPath: './res/chip5.png'}
-    }
+        Chip5: {markerPath: './res/chip5.png'},
+        Phases: ['Purchase', 'Research', 'Combat', 'Move', 'Income', 'Placement']
+    },
+
 }

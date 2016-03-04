@@ -1,0 +1,31 @@
+.turnbase-combat-outer{
+    position: absolute;
+    top: 20%;
+    width: 60%;
+    height: 60%;
+    transition: 1s all;
+    z-index:10;
+    pointer-events: none;
+    background-color: burlywood;
+    border-radius: 10px;
+}
+
+.turnbase-combat-outer.out{
+    left: -80%;
+}
+
+.turnbase-combat-outer.in{
+    left: 20%;
+}
+
+.turnbase-fields{
+    width: 100%;
+    height: 100%;
+}
+
+.turnbase-field{
+    height: 46%;
+    border: 1px solid brown;
+    margin: 4px;
+    border-radius: 5px;
+}

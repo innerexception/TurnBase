@@ -58,10 +58,10 @@ export const unitDragEnd = (e) => {
     }
 };
 
-export const moveCancel = (uniqueId) => {
+export const moveCancel = (unitInfo) => {
     return {
         type: 'UNIT_MOVE_CANCELLED',
-        uniqueId
+        unitInfo
     }
 };
 
@@ -72,10 +72,17 @@ export const chipOver = (unitInfo) => {
     }
 };
 
-export const chipOut = (unitInfo) => {
+export const sendOneUnitToOrigin = (unitInfo) => {
     return {
-        type: 'CHIP_MOUSE_OUT',
+        type: 'SEND_UNIT_TO_ORIGIN',
         unitInfo
+    }
+};
+
+export const endPhase = (phaseName) => {
+    return {
+        type: 'END_PHASE',
+        phaseName
     }
 };
 
@@ -133,6 +140,13 @@ export const fetchViewState = (viewState) => {
     return {
         type: 'VIEW_STATE_CHANGED',
         viewState
+    };
+};
+
+export const fetchPlayerState = (playerInfo) => {
+    return {
+        type: 'PLAYER_INFO_LOAD',
+        playerInfo
     };
 };
 
