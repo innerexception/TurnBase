@@ -57,11 +57,18 @@ const updateUnitsPhaseEnd = (units, phaseName) => {
         case 'Purchase': break;
         case 'Research': break;
         case 'Move':
-
-            break;
-        case 'Placement':
+            //Combat moves...
             newUnits.forEach((unit) => {
                 unit.lastGoodPosition = unit.dragPosition;
+                if(unit.queuedForMove) unit.hasMoved = true;
+                delete unit.queuedForMove;
+            });
+            break;
+        case 'Placement':
+            //Move phase moves...
+            newUnits.forEach((unit) => {
+                unit.lastGoodPosition = unit.dragPosition;
+                if(unit.queuedForMove) unit.hasMoved = true;
                 delete unit.queuedForMove;
             });
             break;
@@ -77,6 +84,17 @@ const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInf
         case 'Research': break;
         case 'Combat':
             //TODO: show flaire for combat phase start
+            //Player performs combat moves...
+            break;
+        case 'Move':
+            //Resolve player combat moves...
+            if(newState.savedMoveArrows){
+                units.forEach((unit) => {
+                    newState.savedMoveArrows.delete(unit.id);
+                });
+            }
+
+            //Check for combats...
             regions.forEach((region) => {
                 let unitsInRegion = units.filter((unit) => { return unit.region === region.attributes.id});
                 let combat = false;
@@ -91,8 +109,6 @@ const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInf
             });
             //Load first combat
             newState.combatInfo = newState.combatQueue && newState.combatQueue.pop();
-            break;
-        case 'Move':
             //TODO: show flaire for move phase
             break;
         case 'Placement':

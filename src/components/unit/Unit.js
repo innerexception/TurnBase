@@ -145,10 +145,12 @@ class Unit {
         }
     };
 
-    static getUnitClickHandler = (playerInfo, func) => {
+    static getUnitClickHandler = (playerInfo, func, unitInfo) => {
         if(playerInfo){
             if(playerInfo.activePhase === 'Move' || playerInfo.activePhase === 'Combat') {
-                return func;
+                if(!unitInfo.hasMoved && unitInfo.owner === playerInfo.id){
+                    return func;
+                }
             }
         }
         return null;
@@ -159,8 +161,7 @@ class Unit {
         let pathEls = [];
 
         unitInfo.paths.forEach((path) => {
-            pathEls.push((<path  d={path.attributes.d} className='turnbase-unit' id={unitInfo.id} fill={Constants.Players[unitInfo.owner].color}
-                                 onClick={Unit.getUnitClickHandler(playerInfo, ()=>onUnitClick(unitInfo))}></path>));
+            pathEls.push((<path  d={path.attributes.d} className='turnbase-unit' id={unitInfo.id} fill={Constants.Players[unitInfo.owner].color}></path>));
         });
 
 
@@ -228,7 +229,7 @@ class Unit {
                     </svg>
 
                     <svg className={unitInfo.queuedForMove ? 'no-events' : null} x={position.x} y={position.y}>
-                        <g onMouseDown={Unit.getUnitClickHandler(playerInfo, (e) => { if(e.button!==2) onUnitDragStart(e, unitInfo);})}
+                        <g onMouseDown={Unit.getUnitClickHandler(playerInfo, (e) => { if(e.button!==2) onUnitDragStart(e, unitInfo);}, unitInfo)}
                            onMouseUp={()=>{onUnitDragEnd()}}
                            transform={'scale('+Constants.Units[unitInfo.type].scaleFactor+')'}>{pathEls}</g>
                     </svg>

@@ -14,7 +14,7 @@ export default {
         DefaultPositions: [
             {type: 'infantry', number: 8, owner: 'FR', region: 'CentralFrance', id:Math.random()},
             //{type: 'tank', number: 3, owner: 'DE', region: 'CentralFrance', id:Math.random()},
-            {type: 'tank', number: 1, owner: 'FR', region: 'CentralFrance', id:Math.random()},
+            {type: 'tank', number: 1, owner: 'DE', region: 'Spain', id:Math.random()},
             {type: 'aaa', number: 1, owner: 'FR', region: 'CentralFrance', id:Math.random()},
             {type: 'fighter', number: 1, owner: 'FR', region: 'CentralFrance', id:Math.random()},
             //{type: 'majorIC', number: 1, owner: 'FR', region: 'CentralFrance'},
