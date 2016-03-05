@@ -98,8 +98,10 @@ const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInf
     let newState = {...viewState};
     let phase = Utils.getNextActivePhase(phaseName);
     switch(phase){
-        case 'Purchase': break;
-        case 'Research': break;
+        case 'Purchase':
+            break;
+        case 'Research':
+            break;
         case 'Combat':
             //TODO: show flaire for combat phase start
             //Player performs combat moves...
@@ -127,7 +129,7 @@ const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInf
             });
             //Load first combat
             newState.combatInfo = newState.combatQueue && newState.combatQueue.pop();
-            //TODO: show flaire for move phase
+            //TODO: show flaire for move phase start
             break;
         case 'Placement':
             //TODO: set state to show placement UI, clear moves
@@ -137,7 +139,8 @@ const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInf
                 });
             }
             break;
-        case 'Income': break;
+        case 'Income':
+            break;
     }
     return newState;
 };

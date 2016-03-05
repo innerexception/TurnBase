@@ -24,6 +24,7 @@ let Utils = {
 
             if(activePhase === 'Combat'){
                 //Must drop on a region with units from the other team in it
+                //TODO: OR an empty enemy region
                 let targetRegionUnitsOtherTeam = units.filter((unit) => {
                     return unit.region === targetRegionId && Constants.Players[unit.owner].team !== playerTeam;
                 });
@@ -33,6 +34,7 @@ let Utils = {
 
             if(activePhase === 'Move'){
                 //Must drop on a region with no units from the other team
+                //TODO: AND not an enemy region
                 let targetRegionUnitsOtherTeam = units.filter((unit) => {
                     return unit.region === targetRegionId && Constants.Players[unit.owner].team !== playerTeam;
                 });
