@@ -51,17 +51,22 @@ const updatePlayerInfoPhase = (playerInfo, phaseName) => {
 };
 
 const updateUnitsPhaseEnd = (units, phaseName) => {
+    let newUnits = Array.from(units);
     let phase = Utils.getNextActivePhase(phaseName);
     switch(phase){
         case 'Purchase': break;
         case 'Research': break;
         case 'Move':
-            units.forEach((unit) => {
+
+            break;
+        case 'Placement':
+            newUnits.forEach((unit) => {
+                unit.lastGoodPosition = unit.dragPosition;
                 delete unit.queuedForMove;
             });
             break;
-        case 'Placement': break;
     }
+    return newUnits;
 };
 
 const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInfo) => {
@@ -85,18 +90,21 @@ const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInf
                 }
             });
             //Load first combat
-            newState.combatInfo = newState.combatQueue.pop();
+            newState.combatInfo = newState.combatQueue && newState.combatQueue.pop();
             break;
         case 'Move':
             //TODO: show flaire for move phase
+
+            break;
+        case 'Placement':
+            //TODO: set state to show placement UI, clear moves
             if(newState.savedMoveArrows){
                 units.forEach((unit) => {
                     newState.savedMoveArrows.delete(unit.id);
                 });
             }
-            //TODO: set state to show placement UI
             break;
-        case 'Placement': break;
+        case 'Income': break;
     }
     return newState;
 };
