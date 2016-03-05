@@ -39,9 +39,26 @@ const mapReducer = (state = {}, action) => {
             return {...state, playerInfo: action.playerInfo};
         case 'NEXT_COMBAT':
             return {...state, viewState: updateViewStateLoadNextCombat(state.viewState), units: updateUnitsCombatEnd(state.units, action.combatInfo), regions: updateRegionsCombatEnd(state.regions, action.combatInfo)};
+        case 'HIGHLIGHT_NEXT_REGION':
+            return {...state, viewState: updateViewStateHighlightNextRegion(state.viewState), playerInfo: updatePlayerInfoIncome(state.playerInfo, state.viewState)};
         default:
             return state
     }
+};
+
+const updatePlayerInfoIncome = (playerInfo, viewState) => {
+    let newInfo = {...playerInfo};
+    if(!newInfo.income)newInfo.income=0;
+    let nextRegion = viewState.incomeRegions.pop();
+    if(nextRegion) newInfo.income += parseInt(nextRegion.attributes.value);
+    return newInfo;
+};
+
+const updateViewStateHighlightNextRegion = (viewState) => {
+    let newState = {...viewState};
+    newState.activeIncomeRegion = newState.incomeRegions.pop();
+    if(!newState.activeIncomeRegion) delete newState.incomeRegions;
+    return newState;
 };
 
 const updateRegionsCombatEnd = (regions, combatInfo) => {
@@ -140,6 +157,9 @@ const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInf
             }
             break;
         case 'Income':
+            newState.incomeRegions = regions.filter((region) => {
+                return region.attributes.defaultOwner === playerInfo.id;
+            });
             break;
     }
     return newState;

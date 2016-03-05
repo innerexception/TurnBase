@@ -3,16 +3,29 @@ import Constants from '../Constants.js';
 
 class Region {
 
-    static getRegionPaths = (regions, onRegionClick, viewState) => {
+    static getRegionPaths = (regions, onRegionClick, viewState, highlightNextIncomeRegion) => {
+
+        if(viewState.incomeRegions) setTimeout(highlightNextIncomeRegion, 500);
+
         return regions.map((region) => {
             return (
                 <path onClick={() => onRegionClick(region.attributes.id)}
                       d={region.attributes.d}
                       fill={Constants.Players[region.attributes.defaultOwner ? region.attributes.defaultOwner : 'N'].color}
+                      stroke={Region.getRegionStroke(viewState, region)}
                       id={region.attributes.id} title={region.attributes.title}
                       className={'turnbase-region ' + Region.getRegionClassNames(region, viewState)}></path>
             )
         });
+    };
+
+    static getRegionStroke = (viewState, region) => {
+        if(viewState.activeIncomeRegion){
+            if(viewState.activeIncomeRegion.attributes.id === region.attributes.id){
+                return 'red';
+            }
+        }
+        return 'darkgrey';
     };
 
     static getRegionClassNames = (region, viewState) => {

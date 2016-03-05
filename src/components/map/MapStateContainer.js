@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import { regionClicked, regionMouseEnter, mapDragged,
     mapDragEnd, mapDragStart, mapZoom, unitDragStart,
     unitDragEnd, unitMove, moveCancel, chipOut, chipOver,
-    sendOneUnitToOrigin, endPhase } from './MapActions.js';
+    sendOneUnitToOrigin, endPhase, highlightNextRegion } from './MapActions.js';
 import Map from './Map.jsx'
 
 const mapStateToProps = (state) => {
@@ -58,6 +58,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         onEndPhaseClick: (phaseName) => {
             dispatch(endPhase(phaseName));
+        },
+        highlightNextIncomeRegion: () => {
+            dispatch(highlightNextRegion());
         }
     }
 };

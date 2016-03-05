@@ -23,7 +23,6 @@ input[type=range]{
 }
 
 .turnbase-region{
-    stroke:darkgrey;
     stroke-opacity: 1;
     stroke-width:0.5;
     fill-opacity: 1;

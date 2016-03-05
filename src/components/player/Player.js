@@ -32,7 +32,11 @@ class Player {
     };
 
     static getIncomeEl = (playerInfo) => {
-
+        return (
+            <div className='turnbase-income-outer'>
+                <div>+{playerInfo.income ? playerInfo.income : 0}</div>
+            </div>
+        );
     };
 }
 

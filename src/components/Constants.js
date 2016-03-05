@@ -3,7 +3,7 @@ export default {
         UK: { markerPath: './res/uk_round.png', color: 'beige', team: 'AL'},
         US: { markerPath: './res/us_round.png', color: 'green', team: 'AL'},
         DE: { markerPath: './res/german_round.png', color: 'darkbrown', team: 'AX'},
-        FR: { markerPath: './res/france_round.png', color: 'blue', id: 'FR', income: 17, activePhase: 'Purchase', team: 'AL'},
+        FR: { markerPath: './res/france_round.png', color: 'blue', id: 'FR', lastIncome: 17, activePhase: 'Purchase', team: 'AL'},
         JP: { markerPng: 'japan_round.png', color: 'orange', team: 'AX'},
         IT: { markerPng: 'italy_round.png', color: 'darkgoldenrod', team: 'AX'},
         CH: { markerPng: 'china_round.png', color: 'yellow', team: 'AL'},
@@ -174,7 +174,7 @@ export default {
         Chip1: {markerPath: './res/chip.png'},
         Chip10: {markerPath: './res/chip10.png'},
         Chip5: {markerPath: './res/chip5.png'},
-        Phases: ['Purchase', 'Research', 'Combat', 'Move', 'Placement', 'Income' ]
+        Phases: ['Purchase', 'Income', 'Research', 'Combat', 'Move', 'Placement' ]
     },
 
 }

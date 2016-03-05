@@ -93,6 +93,12 @@ export const endPhase = (phaseName) => {
     }
 };
 
+export const highlightNextRegion = () => {
+    return {
+        type: 'HIGHLIGHT_NEXT_REGION'
+    }
+};
+
 export const unitMove = (e) => {
     return {
         type: 'UNIT_MOVE',
