@@ -9,6 +9,16 @@
     border-radius: 10px;
 }
 
+.turnbase-combat-outer h3{
+    text-align: center;
+}
+
+.turnbase-combat-outer .victor-holder{
+    width: 100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .turnbase-combat-outer.out{
     left: -80%;
 }
@@ -32,7 +42,7 @@
 .turnbase-dicefield{
     position: absolute;
     top: 38%;
-    left: 5%;
+    left: 10%;
     width: 90%;
     height: 25%;
 }
@@ -43,4 +53,5 @@
     position: absolute;
     top: 39%;
     left: 0;
+    background:darkslategray;
 }

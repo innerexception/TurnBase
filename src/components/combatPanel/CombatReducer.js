@@ -5,17 +5,17 @@ const combatReducer = (state = {}, action) => {
         case 'ROLL_THE_BONES':
             console.log('rolled');
             return { ...state, combatInfo: updateCombatInfo(action.combatInfo) };
-        case 'ROLLED_THE_BONES':
-            return { ...state, dice: action.dice };
-        case 'REMOVE_CASUALTIES':
-            return { ...state, units: updateUnits(action.casualties, state.attackerUnits, state.defenderUnits) };
+        case 'END_COMBAT':
+            return { ...state, combatInfo: updateCombatEnd(state.combatInfo) };
         default:
             return state
     }
 };
 
-const updateUnits = (casualtyUnits, attackerUnits, defenderUnits) => {
-
+const updateCombatEnd = (combatInfo) => {
+    let newInfo = {...combatInfo};
+    newInfo.endCombat = true;
+    return newInfo;
 };
 
 const updateCombatInfo = (combatInfo) => {
@@ -27,13 +27,13 @@ const updateCombatInfo = (combatInfo) => {
         //If all units on a side are marked casualty, end with appropriate result
     if(allDead(newCombatInfo.inactivePlayer.units)){
         //Active player wins
-        combatInfo.victor = newCombatInfo.activePlayer;
-        return combatInfo;
+        newCombatInfo.victor = newCombatInfo.activePlayer;
+        return newCombatInfo;
     }
     if(allDead(newCombatInfo.activePlayer.units)){
         //Active player wins
-        combatInfo.victor = newCombatInfo.inactivePlayer;
-        return combatInfo;
+        newCombatInfo.victor = newCombatInfo.inactivePlayer;
+        return newCombatInfo;
     }
 
     //Take the existing die rolls and mark casualties as needed
@@ -52,7 +52,7 @@ const updateCombatInfo = (combatInfo) => {
         //If a round is over, attacker will be able to retreat if wanted
         let temp = newCombatInfo.activePlayer;
         newCombatInfo.activePlayer = newCombatInfo.inactivePlayer;
-        newCombatInfo.activePlayer.activeUnitType = getNextUnitTypeForPlayer(newCombatInfo.activePlayer.unitTypes, newCombatInfo.activePlayer.activeUnitType);
+        newCombatInfo.activePlayer.activeUnitType = getNextUnitTypeForPlayer(newCombatInfo.activePlayer.units, newCombatInfo.activePlayer.activeUnitType);
         newCombatInfo.inactivePlayer = temp;
     }
     return newCombatInfo;
@@ -67,27 +67,29 @@ const rollIt = (numDice) => {
 };
 
 const allDead = (units) => {
-    return !(units.filter((unit) => {
-        return !unit.isCasualty;
-    }).length > 0);
+    return (units.filter((unit) => {
+        return unit.casualtyCount >= unit.number;
+    }).length === units.length);
 };
 
 const getNextUnitTypeForPlayer = (unitTypes, lastUnitType) => {
     //Next lowest unit type costwise
-    let unitCost = 200;
-    let lowestCostUnit = unitTypes.reduce((prevUnit, currUnit) => { if(Constants.Units[currUnit.type].cost < unitCost && currUnit.type !== lastUnitType){ unitCost = Constants.Units[currUnit.type].cost; return currUnit; } else return null; });
-    return lowestCostUnit && {number: lowestCostUnit.number, type: lowestCostUnit.type, unitDice: [] };
+    let unitCost = 200; let nextUnit;
+    unitTypes.forEach((currUnit) => {
+        if(Constants.Units[currUnit.type].cost < unitCost && currUnit.type !== lastUnitType){ unitCost = Constants.Units[currUnit.type].cost; nextUnit = currUnit; }
+    });
+    return nextUnit && {number: nextUnit.number, type: nextUnit.type, unitDice: [] };
 };
 
 const markLowestUnitAsCasualty = (units) => {
-    let lowestCost = 50, lowestAttackUnit;
+    let lowestCost = 50, lowestAttackUnit = units[0];
     units.forEach((unit) => {
         if(Constants.Units[unit.type].cost < lowestCost && !(lowestAttackUnit.isCasualty)){
             lowestCost = Constants.Units[unit.type].cost;
             lowestAttackUnit = unit;
         }
     });
-    lowestAttackUnit.isCasualty = true;
+    lowestAttackUnit.casualtyCount ? lowestAttackUnit.casualtyCount++: lowestAttackUnit.casualtyCount = 1;
     return units;
 };
 

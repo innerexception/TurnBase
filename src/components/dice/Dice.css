@@ -93,8 +93,9 @@
     transform: rotateX(130deg) rotateY(114deg) rotateZ(241deg) scale3d(0.1,0.1,0.1);
 }
 .roll6 {
-    width:200px;
-    height:200px;
+
+    width:50px;
+    /*height:200px;*/
     transform-style: preserve-3d;
     transform: rotateX(200deg) rotateY(8deg) rotateZ(42deg) scale3d(0.1,0.1,0.1);
     animation-name: roll6, spin, spin-duplicate;
@@ -103,8 +104,9 @@
     display: inline-block;
 }
 .roll5{
-    width:200px;
-    height:200px;
+
+    width:50px;
+    /*height:200px;*/
     transform-style: preserve-3d;
     transform: rotateX(80deg) rotateY(20deg) rotateZ(0deg) scale3d(0.1,0.1,0.1);
     animation-name: roll5, spin, spin-duplicate;
@@ -113,8 +115,8 @@
     display: inline-block;
 }
 .roll4 {
-    width:200px;
-    height:200px;
+    width:50px;
+    /*height:200px;*/
     transform-style: preserve-3d;
     transform: rotateX(130deg) rotateY(114deg) rotateZ(241deg) scale3d(0.1,0.1,0.1);
     animation-name: roll4, spin, spin-duplicate;
@@ -123,8 +125,9 @@
     display: inline-block;
 }
 .roll3{
-    width:200px;
-    height:200px;
+
+    width:50px;
+    /*height:200px;*/
     transform-style: preserve-3d;
     transform: rotateX(241deg) rotateY(51deg) rotateZ(-80deg) scale3d(0.1,0.1,0.1);
     animation-name: roll3, spin, spin-duplicate;
@@ -133,8 +136,9 @@
     display: inline-block;
 }
 .roll2 {
-    width:200px;
-    height:200px;
+
+    width:50px;
+    /*height:200px;*/
     transform-style: preserve-3d;
     transform: rotateX(280deg) rotateY(202deg) rotateZ(-7deg) scale3d(0.1,0.1,0.1);
     animation-name: roll2, spin, spin-duplicate;
@@ -143,8 +147,9 @@
     display: inline-block;
 }
 .roll1{
-    width:200px;
-    height:200px;
+
+    width:50px;
+    /*height:200px;*/
     transform-style: preserve-3d;
     transform: rotateX(180deg) rotateY(190deg) rotateZ(8deg) scale3d(0.1,0.1,0.1);
     animation-name: roll1, spin, spin-duplicate;

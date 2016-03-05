@@ -37,6 +37,8 @@ const mapReducer = (state = {}, action) => {
             return {...state, playerInfo: updatePlayerInfoPhase(state.playerInfo, action.phaseName), units: updateUnitsPhaseEnd(state.units, action.phaseName, state.regions),  viewState: updateViewStatePhaseEnd(state.viewState, action.phaseName, state.units, state.regions, state.playerInfo)};
         case 'PLAYER_INFO_LOAD':
             return {...state, playerInfo: action.playerInfo};
+        case 'NEXT_COMBAT':
+            return {...state, viewState: updateViewStateCombatEndLoadNextCombat(action.combatInfo)};
         default:
             return state
     }
@@ -83,6 +85,7 @@ const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInf
                     let otherTeamUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && unit.type !== 'aaa'});
                     if(region.attributes.defaultOwner === playerInfo.id) newState.combatInfo = { defenderUnits: playerUnitsInRegion, attackerUnits: otherTeamUnitsInRegion };
                     else newState.combatInfo = { attackerUnits: playerUnitsInRegion, defenderUnits: otherTeamUnitsInRegion };
+                    //TODO: combatInfo has an array of combats in it not just one...
                 }
             });
             break;

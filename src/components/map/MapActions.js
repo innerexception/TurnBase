@@ -16,6 +16,13 @@ export const unitClicked = (unitInfo) => {
     }
 };
 
+export const nextCombat = (combatInfo) => {
+    return {
+        type: 'NEXT_COMBAT',
+        combatInfo
+    }
+};
+
 export const unitStackClicked = (region) => {
     return {
         type: 'UNIT_STACK_CLICKED',

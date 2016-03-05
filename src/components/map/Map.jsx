@@ -75,7 +75,7 @@ class BaseMap extends React.Component {
         if (this.props.regions) {
             return (
                 <div className='turnbase-map-outer'>
-                    {Player.getPlayerUIEls(this.props.playerInfo, this.props.onEndPhaseClick)}
+                    {Player.getPlayerUIEls(this.props.playerInfo, this.props.onEndPhaseClick, this.props.viewState.combatInfo)}
                     <CombatStateContainer store={this.props.store}/>
                     <svg onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this._getMapMouseUpHandler(this.props.viewState)} onWheel={this.props.onMapZoom} >
                         <g transform={this._getViewTransformString(this.props.viewState)}>

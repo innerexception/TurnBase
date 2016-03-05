@@ -6,3 +6,9 @@ export const rollTheBones = (combatInfo) => {
         combatInfo
     }
 };
+
+export const endCombat = () => {
+    return {
+        type: 'END_COMBAT'
+    }
+};
