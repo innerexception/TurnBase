@@ -51,6 +51,7 @@ const updatePlayerInfoIncome = (playerInfo, viewState) => {
     if(!newInfo.income)newInfo.income=0;
     let nextRegion = viewState.incomeRegions.pop();
     if(nextRegion) newInfo.income += parseInt(nextRegion.attributes.value);
+    else newInfo.lastIncome += newInfo.income;
     return newInfo;
 };
 

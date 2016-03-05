@@ -9,6 +9,7 @@ class Player {
                 <div className='turnbase-ui-outer' style={{backgroundColor:Constants.Players[playerInfo.id].color}}>
                     <img className={combatInfo ? 'no-events' : null} onClick={() => onEndPhaseClick(playerInfo.activePhase)} src={Constants.Players[playerInfo.id].markerPath}/>
                     <div className='player-phase'>{playerInfo.activePhase}</div>
+                    <div className='player-bank'>{playerInfo.lastIncome}</div>
                 </div>
                 <div className={'turnbase-ui-panel ' + (playerInfo.activePhase === 'Income' ? 'in' : 'out')}>
                     {Player.getIncomeEl(playerInfo)}
