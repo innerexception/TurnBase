@@ -13,7 +13,7 @@ let Utils = {
         return Constants.UI.Phases[index];
     },
 
-    getValidMove: (originRegionId, targetRegionId, unitInfo, adjacencyMap, unitPath) => {
+    getValidMove: (originRegionId, targetRegionId, unitInfo, adjacencyMap, unitPath, activePhase, units, playerTeam) => {
         // for unit move value, get adjacent regions of origin and return true if target region is one of them.
 
         let isValid = false;
@@ -22,13 +22,31 @@ let Utils = {
 
             isValid = adjacencyMap.filter((adjObject) => { return targetRegionId === adjObject.name; }).length > 0;
 
+            if(activePhase === 'Combat'){
+                //Must drop on a region with units from the other team in it
+                let targetRegionUnitsOtherTeam = units.filter((unit) => {
+                    return unit.region === targetRegionId && Constants.Players[unit.owner].team !== playerTeam;
+                });
+                isValid = targetRegionUnitsOtherTeam.length > 0;
+                if(!isValid) console.debug('combat phase, moves only into spaces with enemies');
+            }
+
+            if(activePhase === 'Move'){
+                //Must drop on a region with no units from the other team
+                let targetRegionUnitsOtherTeam = units.filter((unit) => {
+                    return unit.region === targetRegionId && Constants.Players[unit.owner].team !== playerTeam;
+                });
+                isValid = targetRegionUnitsOtherTeam.length === 0;
+                if(!isValid) console.debug('move phase, moves only into spaces with no enemies');
+            }
+
             if(unitPath.length-1 > Constants.Units[unitInfo.type].move) isValid = false;
 
-            // land units can never move on water and vv
+            //TODO: land units can never move on water and vv
 
-            //A transport unit could be a valid move target
+            //TODO: A transport unit could be a valid move target
 
-            //Air units must end their move on a friendly region
+            //TODO: Air units must end their move on a friendly region (allow backtracking)
         }
 
         return isValid;

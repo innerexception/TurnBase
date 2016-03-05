@@ -83,7 +83,8 @@ class BaseMap extends React.Component {
                             {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units, this.props.onUnitClick,
                                                                   this.props.onUnitStackClick, this.props.onUnitDragStart,
                                                                   this.props.onUnitDragEnd, this.props.viewState, this.props.onMoveCancelClick,
-                                                                  this.props.onArmyClick, this.props.unitPathDispatch, this.props.onChipMouseOver, this.props.sendOneUnitToOrigin) : null}
+                                                                  this.props.onArmyClick, this.props.unitPathDispatch, this.props.onChipMouseOver,
+                                                                  this.props.sendOneUnitToOrigin, this.props.playerInfo) : null}
                         </g>
                     </svg>
                 </div>);

@@ -5,7 +5,7 @@ import d3 from 'd3';
 
 class Unit {
 
-    static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onArmyClick, measurementPassDone, onChipMouseOver, sendOneUnitToOrigin) => {
+    static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onArmyClick, measurementPassDone, onChipMouseOver, sendOneUnitToOrigin, playerInfo) => {
         let els = [];
         regions.forEach((region) => {
             let unitsInRegion = unitList.filter((unitInfo) => {
@@ -22,7 +22,7 @@ class Unit {
                 regionTestPositions.forEach((playerPositions) => {
                     let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerPositions.player });
                     if(playerPositions.showRondel && measurementPassDone) els.push(Unit.getPlayerArmyRondelPath(playerPositions.roundelPosition, playerPositions.player, onArmyClick, region.attributes.id));
-                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin));
+                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo));
                 });
             }
         });
@@ -114,12 +114,12 @@ class Unit {
         return (<image width={5} height={5} x={position.x} y={position.y} xlinkHref={Constants.Players[playerId].markerPath} onClick={() => onArmyClick(regionId, playerId)}></image>);
     };
 
-    static getPlayerUnitPathsForRegion = (playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin) => {
+    static getPlayerUnitPathsForRegion = (playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo) => {
         let els = [];
         let i = 0;
         playerUnitsInRegion.forEach((unitInfo) => {
             els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i),
-                unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin));
+                unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo));
             i++;
         });
         return els;
@@ -145,13 +145,22 @@ class Unit {
         }
     };
 
-    static getUnitImageGroup = (position, unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin) => {
+    static getUnitClickHandler = (playerInfo, func) => {
+        if(playerInfo){
+            if(playerInfo.activePhase === 'Move' || playerInfo.activePhase === 'Combat') {
+                return func;
+            }
+        }
+        return null;
+    };
+
+    static getUnitImageGroup = (position, unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo) => {
 
         let pathEls = [];
 
         unitInfo.paths.forEach((path) => {
             pathEls.push((<path  d={path.attributes.d} className='turnbase-unit' id={unitInfo.id} fill={Constants.Players[unitInfo.owner].color}
-                                 onClick={()=> onUnitClick(unitInfo)}></path>));
+                                 onClick={Unit.getUnitClickHandler(playerInfo, ()=>onUnitClick(unitInfo))}></path>));
         });
 
 
@@ -219,7 +228,7 @@ class Unit {
                     </svg>
 
                     <svg className={unitInfo.queuedForMove ? 'no-events' : null} x={position.x} y={position.y}>
-                        <g onMouseDown={(e) => { if(e.button!==2) onUnitDragStart(e, unitInfo);}}
+                        <g onMouseDown={Unit.getUnitClickHandler(playerInfo, (e) => { if(e.button!==2) onUnitDragStart(e, unitInfo);})}
                            onMouseUp={()=>{onUnitDragEnd()}}
                            transform={'scale('+Constants.Units[unitInfo.type].scaleFactor+')'}>{pathEls}</g>
                     </svg>

@@ -22,7 +22,7 @@ const mapReducer = (state = {}, action) => {
         case 'MAP_ZOOM':
             return { ...state, viewState: updateViewStateZoom(state.viewState, action.e)};
         case 'UNIT_MOVE':
-            return { ...state, units: updateUnitsFromPanEvent(action.e, state.units, state.viewState), viewState: updateViewStateUnitPanFromEvent(state.viewState, action.e, state.regions)};
+            return { ...state, units: updateUnitsFromPanEvent(action.e, state.units, state.viewState), viewState: updateViewStateUnitPanFromEvent(state.viewState, action.e, state.regions, state.playerInfo, state.units)};
         case 'UNIT_DRAG_START':
             return { ...state, viewState: updateViewStateUnitDragStart(state.viewState, action.e, action.unitInfo, state.regions), units: updateUnitsDragStart(state.units, action.unitInfo, action.e, state.viewState, state.regions)};
         case 'UNIT_DRAG_END':
@@ -94,7 +94,6 @@ const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInf
             break;
         case 'Move':
             //TODO: show flaire for move phase
-
             break;
         case 'Placement':
             //TODO: set state to show placement UI, clear moves
@@ -242,7 +241,7 @@ const updateViewStateDragEnd = (viewState) => {
 
 //////////////////UNIT_MOVE
 
-const updateViewStateUnitPanFromEvent = (viewState, e, regions) => {
+const updateViewStateUnitPanFromEvent = (viewState, e, regions, playerInfo, units) => {
     let newState = { ...viewState };
 
     newState.unitDragStart.x = e.clientX;
@@ -254,8 +253,10 @@ const updateViewStateUnitPanFromEvent = (viewState, e, regions) => {
     let region = regions.filter((regionItem) => {
         return regionItem.attributes.id === originRegionId;
     })[0];
+    let activePhase = playerInfo.activePhase;
+    let playerTeam = Constants.Players[playerInfo.id].team;
 
-    newState.currentPathIsValid = Utils.getValidMove(originRegionId, viewState.regionOver ? viewState.regionOver : viewState.unitDragStart.unitInfo.region, viewState.unitDragStart.unitInfo, region.adjacencyMap, newState.unitPath);
+    newState.currentPathIsValid = Utils.getValidMove(originRegionId, viewState.regionOver ? viewState.regionOver : viewState.unitDragStart.unitInfo.region, viewState.unitDragStart.unitInfo, region.adjacencyMap, newState.unitPath, activePhase, units, playerTeam);
 
     return newState;
 };
