@@ -1,8 +1,8 @@
 import Constants from '../Constants.js';
 
-export const unitClicked = (unitInfo) => {
+export const rollTheBones = (combatInfo) => {
     return {
-        type: 'UNIT_CLICKED',
-        unitInfo
+        type: 'ROLL_THE_BONES',
+        combatInfo
     }
 };

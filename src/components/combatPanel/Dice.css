@@ -1,0 +1,265 @@
+
+@keyframes spin {
+    0% { transform: translateZ(-100px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale3d(0.1,0.1,0.1); }
+    16% { transform: translateZ(-100px) rotateX(180deg) rotateY(180deg) rotateZ(0deg) scale3d(0.1,0.1,0.1); }
+    33% { transform: translateZ(-100px) rotateX(360deg) rotateY(90deg) rotateZ(180deg) scale3d(0.1,0.1,0.1); }
+    50% { transform: translateZ(-100px) rotateX(360deg) rotateY(360deg) rotateZ(360deg) scale3d(0.1,0.1,0.1); }
+    66% { transform: translateZ(-100px) rotateX(180deg) rotateY(360deg) rotateZ(270deg) scale3d(0.1,0.1,0.1); }
+    83% { transform: translateZ(-100px) rotateX(270deg) rotateY(180deg) rotateZ(180deg) scale3d(0.1,0.1,0.1); }
+    100% { transform: translateZ(-100px) rotateX(360deg) rotateY(360deg) rotateZ(360deg) scale3d(0.1,0.1,0.1); }
+}
+@keyframes spin-duplicate {
+    0% { transform: translateZ(-100px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale3d(0.1,0.1,0.1); }
+    16% { transform: translateZ(-100px) rotateX(180deg) rotateY(180deg) rotateZ(0deg) scale3d(0.1,0.1,0.1); }
+    33% { transform: translateZ(-100px) rotateX(360deg) rotateY(90deg) rotateZ(180deg) scale3d(0.1,0.1,0.1); }
+    50% { transform: translateZ(-100px) rotateX(360deg) rotateY(360deg) rotateZ(360deg) scale3d(0.1,0.1,0.1); }
+    66% { transform: translateZ(-100px) rotateX(180deg) rotateY(360deg) rotateZ(270deg) scale3d(0.1,0.1,0.1); }
+    83% { transform: translateZ(-100px) rotateX(270deg) rotateY(180deg) rotateZ(180deg) scale3d(0.1,0.1,0.1); }
+    100% { transform: translateZ(-100px) rotateX(360deg) rotateY(360deg) rotateZ(360deg) scale3d(0.1,0.1,0.1); }
+}
+@keyframes roll1 {
+    0% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    12% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    25% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    37% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    50% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    62% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    75% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    87% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    100% { transform: translate3d(-200px,-50px,-400px) rotateX(180deg) rotateY(190deg) rotateZ(8deg) scale3d(0.1,0.1,0.1) }
+}
+@keyframes roll2 {
+    0% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    12% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    25% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    37% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    50% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    62% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    75% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    87% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    100% { transform: translate3d(-200px,-50px,-400px) rotateX(280deg) rotateY(202deg) rotateZ(-7deg) scale3d(0.1,0.1,0.1)  }
+}
+@keyframes roll3 {
+    0% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    12% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    25% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    37% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    50% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    62% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    75% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    87% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    100% { transform: translate3d(-200px,-50px,-400px) rotateX(241deg) rotateY(51deg) rotateZ(-80deg) scale3d(0.1,0.1,0.1)  }
+}
+@keyframes roll4 {
+    0% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    12% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    25% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    37% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    50% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    62% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    75% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    87% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    100% { transform: translate3d(-200px,-50px,-400px) rotateX(130deg) rotateY(114deg) rotateZ(241deg) scale3d(0.1,0.1,0.1) }
+}
+@keyframes roll5 {
+    0% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    12% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    25% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    37% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    50% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    62% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    75% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    87% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    100% { transform: translate3d(-200px,-50px,-400px) rotateX(80deg) rotateY(20deg) rotateZ(0deg) }
+}
+@keyframes roll6 {
+    0% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    12% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    25% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    37% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    50% { transform: translate3d(-200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    62% { transform: translate3d(0px,0,-100px) scale3d(0.1,0.1,0.1) }
+    75% { transform: translate3d(200px,-50px,-400px) scale3d(0.1,0.1,0.1) }
+    87% { transform: translate3d(0px,-100px,-800px) scale3d(0.1,0.1,0.1) }
+    100% { transform: translate3d(-200px,-50px,-400px) rotateX(200deg) rotateY(8deg) rotateZ(42deg) scale3d(0.1,0.1,0.1) }
+}
+.static1{
+    transform-style: preserve-3d;
+    transform: rotateX(80deg) rotateY(20deg) rotateZ(0deg) scale3d(0.1,0.1,0.1);
+    margin-top: 28%;
+}
+.static2 {
+    transform-style: preserve-3d;
+    transform: rotateX(130deg) rotateY(114deg) rotateZ(241deg) scale3d(0.1,0.1,0.1);
+}
+.roll6 {
+    width:200px;
+    height:200px;
+    transform-style: preserve-3d;
+    transform: rotateX(200deg) rotateY(8deg) rotateZ(42deg) scale3d(0.1,0.1,0.1);
+    animation-name: roll6, spin, spin-duplicate;
+    animation-timing-function: linear;
+    animation-duration: 2s, 2s, 2s;
+    display: inline-block;
+}
+.roll5{
+    width:200px;
+    height:200px;
+    transform-style: preserve-3d;
+    transform: rotateX(80deg) rotateY(20deg) rotateZ(0deg) scale3d(0.1,0.1,0.1);
+    animation-name: roll5, spin, spin-duplicate;
+    animation-timing-function: linear;
+    animation-duration: 2s, 2s, 2s;
+    display: inline-block;
+}
+.roll4 {
+    width:200px;
+    height:200px;
+    transform-style: preserve-3d;
+    transform: rotateX(130deg) rotateY(114deg) rotateZ(241deg) scale3d(0.1,0.1,0.1);
+    animation-name: roll4, spin, spin-duplicate;
+    animation-timing-function: linear;
+    animation-duration: 2s, 2s, 2s;
+    display: inline-block;
+}
+.roll3{
+    width:200px;
+    height:200px;
+    transform-style: preserve-3d;
+    transform: rotateX(241deg) rotateY(51deg) rotateZ(-80deg) scale3d(0.1,0.1,0.1);
+    animation-name: roll3, spin, spin-duplicate;
+    animation-timing-function: linear;
+    animation-duration: 2s, 2s, 2s;
+    display: inline-block;
+}
+.roll2 {
+    width:200px;
+    height:200px;
+    transform-style: preserve-3d;
+    transform: rotateX(280deg) rotateY(202deg) rotateZ(-7deg) scale3d(0.1,0.1,0.1);
+    animation-name: roll2, spin, spin-duplicate;
+    animation-timing-function: linear;
+    animation-duration: 2s, 2s, 2s;
+    display: inline-block;
+}
+.roll1{
+    width:200px;
+    height:200px;
+    transform-style: preserve-3d;
+    transform: rotateX(180deg) rotateY(190deg) rotateZ(8deg) scale3d(0.1,0.1,0.1);
+    animation-name: roll1, spin, spin-duplicate;
+    animation-timing-function: linear;
+    animation-duration: 2s, 2s, 2s;
+    display: inline-block;
+}
+#wrapper {
+    /*position: relative;*/
+    /*width: 200px;*/
+    /*padding-top: 100px;*/
+    /*margin: 0 auto;*/
+    /*perspective: 1200px;*/
+}
+#platform {
+    /*margin-top:100px;*/
+}
+#dice span {
+    position:absolute;
+    margin:100px 0 0 100px;
+    display: block;
+    font-size: 2.5em;
+    padding: 10px;
+}
+#dice {
+    /*position: absolute;*/
+    /*width: 200px;*/
+    /*height: 200px;*/
+    transform-style: preserve-3d;
+    /*animation: spin 50s infinite linear;*/
+}
+.side {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: #fff;
+    box-shadow:inset 0 0 40px #ccc;
+    border-radius: 40px;
+}
+#dice .cover, #dice .inner {
+    background: #e0e0e0;
+    box-shadow: none;
+}
+#dice .cover {
+    border-radius: 0;
+    transform: translateZ(0px);
+}
+#dice .cover.x {
+    transform: rotateY(90deg);
+}
+#dice .cover.z {
+    transform: rotateX(90deg);
+}
+#dice .front  {
+    transform: translateZ(100px);
+}
+#dice .front.inner  {
+    transform: translateZ(98px);
+}
+#dice .back {
+    transform: rotateX(-180deg) translateZ(100px);
+}
+#dice .back.inner {
+    transform: rotateX(-180deg) translateZ(98px);
+}
+#dice .right {
+    transform: rotateY(90deg) translateZ(100px);
+}
+#dice .right.inner {
+    transform: rotateY(90deg) translateZ(98px);
+}
+#dice .left {
+    transform: rotateY(-90deg) translateZ(100px);
+}
+#dice .left.inner {
+    transform: rotateY(-90deg) translateZ(98px);
+}
+#dice .top {
+    transform: rotateX(90deg) translateZ(100px);
+}
+#dice .top.inner {
+    transform: rotateX(90deg) translateZ(98px);
+}
+#dice .bottom {
+    transform: rotateX(-90deg) translateZ(100px);
+}
+#dice .bottom.inner {
+    transform: rotateX(-90deg) translateZ(98px);
+}
+.dot {
+    position:absolute;
+    width:46px;
+    height:46px;
+    border-radius:23px;
+    background:#444;
+    box-shadow:inset 5px 0 10px #000;
+}
+.dot.center {
+    margin:77px 0 0 77px;
+}
+.dot.dtop {
+    margin-top:20px;
+}
+.dot.dleft {
+    margin-left:134px;
+}
+.dot.dright {
+    margin-left:20px;
+}
+.dot.dbottom {
+    margin-top:134px;
+}
+.dot.center.dleft {
+    margin:77px 0 0 20px;
+}
+.dot.center.dright {
+    margin:77px 0 0 134px;
+}

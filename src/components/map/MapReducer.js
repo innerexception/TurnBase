@@ -79,8 +79,8 @@ const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInf
                 let combat = false;
                 unitsInRegion.forEach((unit) => { if(Constants.Players[unit.owner].team !== playerInfo.team) combat = true; });
                 if(combat){
-                    let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id});
-                    let otherTeamUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team});
+                    let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id && unit.type !== 'aaa'});
+                    let otherTeamUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && unit.type !== 'aaa'});
                     if(region.attributes.defaultOwner === playerInfo.id) newState.combatInfo = { defenderUnits: playerUnitsInRegion, attackerUnits: otherTeamUnitsInRegion };
                     else newState.combatInfo = { attackerUnits: playerUnitsInRegion, defenderUnits: otherTeamUnitsInRegion };
                 }

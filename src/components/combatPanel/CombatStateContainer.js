@@ -1,19 +1,20 @@
 import { connect } from 'react-redux'
-import {  } from './CombatActions.js';
+import { rollTheBones } from './CombatActions.js';
 import CombatPanel from './CombatPanel.jsx'
 
 const mapStateToProps = (state) => {
     return {
-        combatInfo: state.mapReducer.viewState.combatInfo
+        combatInfo: state.combatReducer.combatInfo ? state.combatReducer.combatInfo : state.mapReducer.viewState.combatInfo,
+        startDiceRoll: state.combatReducer.startDiceRoll,
+        dice: state.combatReducer.dice
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        //
-        //sendOneUnitToOrigin: (unitInfo) => {
-        //    dispatch(sendOneUnitToOrigin(unitInfo));
-        //}
+        onRollClick: (combatInfo) => {
+            dispatch(rollTheBones(combatInfo));
+        }
     }
 };
 

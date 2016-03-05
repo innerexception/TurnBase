@@ -4,6 +4,7 @@ import './CombatPanel.css';
 import {  } from './CombatActions.js';
 import Unit from '../unit/Unit.js';
 import Region from '../region/Region.js';
+import Dice from './Dice.jsx';
 import Constants from '../Constants.js';
 
 class CombatPanel extends React.Component {
@@ -18,21 +19,45 @@ class CombatPanel extends React.Component {
 
     _getCombatContent = (combatInfo) => {
         let attackerEls = [];
+        let attackerUnitTypes = new Map();
         let i=0;
-        combatInfo.attackerUnits.forEach((unit) => { if(Constants.Units[unit.type].attack > 0){ attackerEls.push(this._getUnitPortrait(unit, i)); i++;}});
+        combatInfo.attackerUnits.forEach((unit) => {
+            attackerEls.push(this._getUnitPortrait(unit, i)); i++;
+            if(!attackerUnitTypes.get(unit.type)) attackerUnitTypes.set(unit.type, 1);
+            else attackerUnitTypes.set(unit.type, attackerUnitTypes.get(unit.type)+1);
+        });
         i=0;
         let defenderEls = [];
-        combatInfo.defenderUnits.forEach((unit) => { if(!unit.isBuilding && unit.type !== 'aaa'){defenderEls.push(this._getUnitPortrait(unit, i)); i++;} });
-        return (<div className='turnbase-fields'>
-                    <div className='turnbase-field'>
-                        <svg><g>
-                            { attackerEls }
-                        </g></svg>
+        combatInfo.defenderUnits.forEach((unit) => {defenderEls.push(this._getUnitPortrait(unit, i)); i++;});
+
+        //auto roll for later
+        //this.setTimeout(()=>this.props.unitTypeHasRolled(combatInfo.activePlayer.activeUnitType), 5000);
+
+
+        let diceEls = [];
+        combatInfo.activePlayer && combatInfo.activePlayer.activeUnitType.unitDice.forEach((dieRoll) => {
+            diceEls.push(<Dice className={'roll'+dieRoll}/>);
+        });
+
+        return (<div style={{height:'100%'}}>
+                    <div className='turnbase-rollbutton'>
+                        <Dice onClick={()=>{this.props.onRollClick(combatInfo)}} className='static1'/>
+                        <Dice onClick={()=>{this.props.onRollClick(combatInfo)}} className='static2'/>
                     </div>
-                    <div className='turnbase-field'>
-                        <svg><g>
-                            { defenderEls }
-                        </g></svg>
+                    <div className='turnbase-dicefield'>
+                        { diceEls }
+                    </div>
+                    <div className='turnbase-fields'>
+                        <div className='turnbase-field'>
+                            <svg><g>
+                                { attackerEls }
+                            </g></svg>
+                        </div>
+                        <div className='turnbase-field'>
+                            <svg><g>
+                                { defenderEls }
+                            </g></svg>
+                        </div>
                     </div>
                 </div>);
     };
@@ -40,7 +65,7 @@ class CombatPanel extends React.Component {
     _getUnitPortrait = (unit, i) => {
         let pathEls = [];
         unit.paths.forEach((path) => {
-            pathEls.push((<path d={path.attributes.d} id={'combat_'+unit.id} fill={Constants.Players[unit.owner].color}></path>));
+            pathEls.push((<path d={path.attributes.d} id={'combat_'+unit.id} fill={unit.isCasualty ? 'gray' : Constants.Players[unit.owner].color}></path>));
         });
         pathEls.push((<text x={10} y={50} fontSize="20">{unit.number + 'x'}</text>));
         return (<svg x={i*150} y={0}><g>{pathEls}</g></svg>);
