@@ -38,10 +38,23 @@ const mapReducer = (state = {}, action) => {
         case 'PLAYER_INFO_LOAD':
             return {...state, playerInfo: action.playerInfo};
         case 'NEXT_COMBAT':
-            return {...state, viewState: updateViewStateLoadNextCombat(state.viewState), units: updateUnitsCombatEnd(state.units, action.combatInfo)};
+            return {...state, viewState: updateViewStateLoadNextCombat(state.viewState), units: updateUnitsCombatEnd(state.units, action.combatInfo), regions: updateRegionsCombatEnd(state.regions, action.combatInfo)};
         default:
             return state
     }
+};
+
+const updateRegionsCombatEnd = (regions, combatInfo) => {
+    let newRegions = Array.from(regions);
+
+    let winnerId = combatInfo.victor.units[0].owner;
+    let regionId = combatInfo.defenderUnits[0].owner = winnerId ? combatInfo.defenderUnits[0].region : combatInfo.attackerUnits[0].region;
+
+    newRegions.forEach((region) => {
+        if(region.attributes.id === regionId) region.attributes.defaultOwner = winnerId;
+    });
+
+    return newRegions;
 };
 
 const updatePlayerInfoPhase = (playerInfo, phaseName) => {
@@ -55,7 +68,12 @@ const updateUnitsPhaseEnd = (units, phaseName) => {
     let phase = Utils.getNextActivePhase(phaseName);
     switch(phase){
         case 'Purchase': break;
-        case 'Research': break;
+        case 'Research':
+            //Reset unit mobility
+            newUnits.forEach((unit) => {
+                delete unit.hasMoved
+            });
+            break;
         case 'Move':
             //Combat moves...
             newUnits.forEach((unit) => {
