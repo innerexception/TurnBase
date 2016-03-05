@@ -34,11 +34,11 @@ const mapReducer = (state = {}, action) => {
         case 'SEND_UNIT_TO_ORIGIN':
             return {...state, units: updateUnitsSendToOrigin(action.unitInfo, state.units)};
         case 'END_PHASE':
-            return {...state, playerInfo: updatePlayerInfoPhase(state.playerInfo, action.phaseName), units: updateUnitsPhaseEnd(state.units, action.phaseName, state.regions),  viewState: updateViewStatePhaseEnd(state.viewState, action.phaseName, state.units, state.regions, state.playerInfo)};
+            return {...state, playerInfo: updatePlayerInfoPhase(state.playerInfo, action.phaseName), units: updateUnitsPhaseEnd(state.units, action.phaseName),  viewState: updateViewStatePhaseEnd(state.viewState, action.phaseName, state.units, state.regions, state.playerInfo)};
         case 'PLAYER_INFO_LOAD':
             return {...state, playerInfo: action.playerInfo};
         case 'NEXT_COMBAT':
-            return {...state, viewState: updateViewStateCombatEndLoadNextCombat(action.combatInfo)};
+            return {...state, viewState: updateViewStateLoadNextCombat(state.viewState), units: updateUnitsCombatEnd(state.units, action.combatInfo)};
         default:
             return state
     }
@@ -50,16 +50,11 @@ const updatePlayerInfoPhase = (playerInfo, phaseName) => {
     return newPlayerInfo;
 };
 
-const updateUnitsPhaseEnd = (units, phaseName, regions) => {
+const updateUnitsPhaseEnd = (units, phaseName) => {
     let phase = Utils.getNextActivePhase(phaseName);
     switch(phase){
         case 'Purchase': break;
         case 'Research': break;
-        case 'Combat':
-            regions.forEach((region) => {
-
-            });
-            break;
         case 'Move':
             units.forEach((unit) => {
                 delete unit.queuedForMove;
@@ -76,26 +71,63 @@ const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, playerInf
         case 'Purchase': break;
         case 'Research': break;
         case 'Combat':
+            //TODO: show flaire for combat phase start
             regions.forEach((region) => {
                 let unitsInRegion = units.filter((unit) => { return unit.region === region.attributes.id});
                 let combat = false;
                 unitsInRegion.forEach((unit) => { if(Constants.Players[unit.owner].team !== playerInfo.team) combat = true; });
                 if(combat){
+                    if(!newState.combatQueue) newState.combatQueue = [];
                     let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id && unit.type !== 'aaa'});
                     let otherTeamUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && unit.type !== 'aaa'});
-                    if(region.attributes.defaultOwner === playerInfo.id) newState.combatInfo = { defenderUnits: playerUnitsInRegion, attackerUnits: otherTeamUnitsInRegion };
-                    else newState.combatInfo = { attackerUnits: playerUnitsInRegion, defenderUnits: otherTeamUnitsInRegion };
-                    //TODO: combatInfo has an array of combats in it not just one...
+                    if(region.attributes.defaultOwner === playerInfo.id) newState.combatQueue.push({ defenderUnits: playerUnitsInRegion, attackerUnits: otherTeamUnitsInRegion });
+                    else newState.combatQueue.push({ attackerUnits: playerUnitsInRegion, defenderUnits: otherTeamUnitsInRegion });
                 }
             });
+            //Load first combat
+            newState.combatInfo = newState.combatQueue.pop();
             break;
         case 'Move':
-            units.forEach((unit) => {
-                newState.savedMoveArrows.delete(unit.id);
-            });
+            //TODO: show flaire for move phase
+            if(newState.savedMoveArrows){
+                units.forEach((unit) => {
+                    newState.savedMoveArrows.delete(unit.id);
+                });
+            }
+            //TODO: set state to show placement UI
             break;
         case 'Placement': break;
     }
+    return newState;
+};
+
+const updateUnitsCombatEnd = (units, combatInfo) => {
+    let newUnits = Array.from(units);
+    let deleteUnits = [];
+    newUnits.forEach((unit) => {
+        combatInfo.attackerUnits.forEach((aunit) => {
+            if(aunit.id === unit.id){
+                unit.number -= aunit.casualtyCount;
+                if(unit.number <= 0) deleteUnits.push(unit.id);
+            }
+        });
+        combatInfo.defenderUnits.forEach((dunit) => {
+            if(dunit.id === unit.id){
+                unit.number -= dunit.casualtyCount;
+                if(unit.number <= 0) deleteUnits.push(unit.id);
+            }
+        });
+    });
+
+    return newUnits.filter((unit) => {
+        return deleteUnits.indexOf(unit.id) === -1;
+    });
+};
+
+const updateViewStateLoadNextCombat = (viewState) => {
+    let newState = {...viewState};
+    newState.combatInfo = newState.combatQueue.pop();
+    if(newState.combatInfo) newState.combatInfo.combatTransition = true;
     return newState;
 };
 

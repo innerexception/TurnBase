@@ -33,6 +33,7 @@ class CombatPanel extends React.Component {
         //auto roll for later
         //this.setTimeout(()=>this.props.unitTypeHasRolled(combatInfo.activePlayer.activeUnitType), 5000);
 
+        if(combatInfo.combatTransition) setTimeout(()=>{this.props.onRollClick(combatInfo)}, 500);
 
         let diceEls = [];
         combatInfo.activePlayer && combatInfo.activePlayer.activeUnitType.unitDice.forEach((dieRoll) => {
@@ -82,9 +83,19 @@ class CombatPanel extends React.Component {
         return (<svg x={i*150} y={0}><g>{pathEls}</g></svg>);
     };
 
+    _getInOutState = (combatInfo) => {
+        if(combatInfo){
+            if(combatInfo.combatTransition) return ' out';
+            else return ' in';
+        }
+        else{
+            return ' out';
+        }
+    };
+
     render() {
         return (
-            <div className={'turnbase-combat-outer '+(this.props.combatInfo ? ' in' : ' out')}>
+            <div className={'turnbase-combat-outer '+(this._getInOutState(this.props.combatInfo))}>
                 {this.props.combatInfo ? this._getCombatContent(this.props.combatInfo) : null}
             </div>);
     };

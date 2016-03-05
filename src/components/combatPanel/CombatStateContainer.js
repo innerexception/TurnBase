@@ -6,7 +6,7 @@ import CombatPanel from './CombatPanel.jsx'
 const mapStateToProps = (state) => {
     let combatInfo = state.combatReducer.combatInfo ? state.combatReducer.combatInfo : state.mapReducer.viewState.combatInfo;
     return {
-        combatInfo: combatInfo && combatInfo.endCombat ? null : combatInfo
+        combatInfo
     };
 };
 

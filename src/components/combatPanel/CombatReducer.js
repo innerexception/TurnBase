@@ -6,21 +6,15 @@ const combatReducer = (state = {}, action) => {
             console.log('rolled');
             return { ...state, combatInfo: updateCombatInfo(action.combatInfo) };
         case 'END_COMBAT':
-            return { ...state, combatInfo: updateCombatEnd(state.combatInfo) };
+            return { ...state, combatInfo: null };
         default:
             return state
     }
 };
 
-const updateCombatEnd = (combatInfo) => {
-    let newInfo = {...combatInfo};
-    newInfo.endCombat = true;
-    return newInfo;
-};
-
 const updateCombatInfo = (combatInfo) => {
     let newCombatInfo = {...combatInfo};
-
+    newCombatInfo.combatTransition = false;
     if(!newCombatInfo.activePlayer) newCombatInfo.activePlayer = {units: combatInfo.attackerUnits, unitTypes: getUnitTypes(combatInfo.attackerUnits), activeUnitType: getNextUnitTypeForPlayer(combatInfo.attackerUnits, '')};
     if(!newCombatInfo.inactivePlayer) newCombatInfo.inactivePlayer = {units: combatInfo.defenderUnits, unitTypes: getUnitTypes(combatInfo.defenderUnits), activeUnitType: getNextUnitTypeForPlayer(combatInfo.defenderUnits, '')};
 

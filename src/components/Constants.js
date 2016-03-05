@@ -19,6 +19,7 @@ export default {
             {type: 'fighter', number: 1, owner: 'FR', region: 'CentralFrance', id:Math.random()},
             //{type: 'majorIC', number: 1, owner: 'FR', region: 'CentralFrance'},
             //{type: 'airfield', number: 1, owner: 'FR', region: 'CentralFrance'}
+            {type: 'artillery', number: 1, owner: 'IT', region: 'UnitedKingdom', id:Math.random()},
             {type: 'infantry', number: 2, owner: 'FR', region: 'UnitedKingdom', initialX:458, initialY:295, id:Math.random()},
             {type: 'fighter', number: 1, owner: 'FR', region: 'UnitedKingdom', id:Math.random()},
             {type: 'infantry', number: 1, owner: 'FR', region: 'Normandy', initialX:459, initialY:316, id:Math.random()},
