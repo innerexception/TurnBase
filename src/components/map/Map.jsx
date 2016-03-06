@@ -83,7 +83,7 @@ class BaseMap extends React.Component {
         }
 
         return (
-            <div style={{top:position.y, left:position.x, position:'absolute'}}>
+            <div style={{top:position.y, left:position.x, position:'absolute', pointerEvents:'none'}}>
                 <svg>
                     <g transform={'scale('+Constants.Units[unitType].staticScaleFactor+')'}>
                         {pathEls}
