@@ -9,6 +9,10 @@ const mapReducer = (state = {}, action) => {
             return { ...state, regions: action.regions };
         case 'UNIT_LOAD':
             return { ...state, units: action.units, regions: action.regions, staticUnitPaths: action.staticUnitPaths };
+        case 'UNIT_PURCHASED':
+            return { ...state, playerInfo: updatePlayerInfoUnitPurchased(action.unitType, state.playerInfo)};
+        case 'UNIT_UNPURCHASED':
+            return { ...state, playerInfo: updatePlayerInfoUnitUnPurchased(action.unitType, state.playerInfo)};
         case 'VIEW_STATE_CHANGED':
             return { ...state, viewState: action.viewState};
         case 'CHIP_MOUSE_OVER':
@@ -44,6 +48,27 @@ const mapReducer = (state = {}, action) => {
         default:
             return state
     }
+};
+
+const updatePlayerInfoUnitPurchased = (unitType, playerInfo) => {
+    let newInfo = {...playerInfo};
+    if(!newInfo.purchasedUnits) newInfo.purchasedUnits = [];
+    if(newInfo.lastIncome >= Constants.Units[unitType].cost){
+        newInfo.purchasedUnits.push(unitType);
+        newInfo.lastIncome -= Constants.Units[unitType].cost;
+    }
+    return newInfo;
+};
+
+const updatePlayerInfoUnitUnPurchased = (unitType, playerInfo) => {
+    let newInfo = {...playerInfo};
+    if(!newInfo.purchasedUnits) newInfo.purchasedUnits = [];
+    let index = newInfo.purchasedUnits.indexOf(unitType);
+    if(index !== -1){
+        newInfo.purchasedUnits.splice(index, 1);
+        newInfo.lastIncome += Constants.Units[unitType].cost;
+    }
+    return newInfo;
 };
 
 const updatePlayerInfoIncome = (playerInfo, viewState) => {

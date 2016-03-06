@@ -20,7 +20,6 @@ class BaseMap extends React.Component {
         onMapDragEnd: PropTypes.func.isRequired,
         onMapZoom: PropTypes.func.isRequired,
         onMoveCancelClick: PropTypes.func.isRequired,
-        onUnitClick: PropTypes.func.isRequired,
         onUnitStackClick: PropTypes.func.isRequired,
         onUnitDragStart: PropTypes.func.isRequired,
         onUnitDrag: PropTypes.func.isRequired,
@@ -78,12 +77,12 @@ class BaseMap extends React.Component {
         if (this.props.regions) {
             return (
                 <div className='turnbase-map-outer'>
-                    {Player.getPlayerUIEls(this.props.playerInfo, this.props.onEndPhaseClick, this.props.viewState.combatInfo, this.props.units, this.props.onUnitTypePurchased)}
+                    {Player.getPlayerUIEls(this.props.playerInfo, this.props.onEndPhaseClick, this.props.viewState.combatInfo, this.props.units, this.props.onUnitTypePurchased, this.props.unitTypeUnpurchased)}
                     <CombatStateContainer store={this.props.store}/>
                     <svg onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this._getMapMouseUpHandler(this.props.viewState)} onWheel={this.props.onMapZoom} >
                         <g transform={this._getViewTransformString(this.props.viewState)}>
                             {Region.getRegionPaths(this.props.regions, this.props.onRegionClick, this.props.viewState, this.props.highlightNextIncomeRegion)}
-                            {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units, this.props.onUnitClick,
+                            {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units,
                                                                   this.props.onUnitStackClick, this.props.onUnitDragStart,
                                                                   this.props.onUnitDragEnd, this.props.viewState, this.props.onMoveCancelClick,
                                                                   this.props.onArmyClick, this.props.unitPathDispatch, this.props.onChipMouseOver,

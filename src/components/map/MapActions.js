@@ -9,10 +9,17 @@ export const regionClicked = (id) => {
     }
 };
 
-export const unitClicked = (unitInfo) => {
+export const unitTypePurchased = (unitType) => {
     return {
-        type: 'UNIT_CLICKED',
-        unitInfo
+        type: 'UNIT_PURCHASED',
+        unitType
+    }
+};
+
+export const unitTypeUnpurchased = (unitType) => {
+    return {
+        type: 'UNIT_UNPURCHASED',
+        unitType
     }
 };
 

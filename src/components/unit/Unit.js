@@ -5,7 +5,7 @@ import d3 from 'd3';
 
 class Unit {
 
-    static getUnitPaths = (regions, unitList, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onArmyClick, measurementPassDone, onChipMouseOver, sendOneUnitToOrigin, playerInfo) => {
+    static getUnitPaths = (regions, unitList, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onArmyClick, measurementPassDone, onChipMouseOver, sendOneUnitToOrigin, playerInfo) => {
         let els = [];
         regions.forEach((region) => {
             let unitsInRegion = unitList.filter((unitInfo) => {
@@ -22,7 +22,7 @@ class Unit {
                 regionTestPositions.forEach((playerPositions) => {
                     let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerPositions.player });
                     if(playerPositions.showRondel && measurementPassDone) els.push(Unit.getPlayerArmyRondelPath(playerPositions.roundelPosition, playerPositions.player, onArmyClick, region.attributes.id));
-                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo));
+                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(playerPositions, playerUnitsInRegion, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo));
                 });
             }
         });
@@ -114,12 +114,12 @@ class Unit {
         return (<image width={5} height={5} x={position.x} y={position.y} xlinkHref={Constants.Players[playerId].markerPath} onClick={() => onArmyClick(regionId, playerId)}></image>);
     };
 
-    static getPlayerUnitPathsForRegion = (playerPositions, playerUnitsInRegion, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo) => {
+    static getPlayerUnitPathsForRegion = (playerPositions, playerUnitsInRegion, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo) => {
         let els = [];
         let i = 0;
         playerUnitsInRegion.forEach((unitInfo) => {
             els.push(Unit.getUnitImageGroup(Unit.getPlacementPositionInRect(unitInfo, playerPositions, i),
-                unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo));
+                unitInfo, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo));
             i++;
         });
         return els;
@@ -156,7 +156,7 @@ class Unit {
         return null;
     };
 
-    static getUnitImageGroup = (position, unitInfo, onUnitClick, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo) => {
+    static getUnitImageGroup = (position, unitInfo, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo) => {
 
         let pathEls = [];
 

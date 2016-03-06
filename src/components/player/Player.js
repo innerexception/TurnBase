@@ -3,7 +3,7 @@ import Constants from '../Constants.js';
 import './Player.css';
 
 class Player {
-    static getPlayerUIEls = (playerInfo, onEndPhaseClick, combatInfo, units, onUnitTypePurchased) => {
+    static getPlayerUIEls = (playerInfo, onEndPhaseClick, combatInfo, units, onUnitTypePurchased, unitTypeUnpurchased) => {
         return (
             <div className='turnbase-ui-frame'>
                 <div className='turnbase-ui-outer' style={{backgroundColor:Constants.Players[playerInfo.id].color}}>
@@ -15,7 +15,7 @@ class Player {
                     {Player.getIncomeEl(playerInfo)}
                 </div>
                 <div className={'turnbase-ui-panel ' + (playerInfo.activePhase === 'Purchase' || playerInfo.activePhase === 'Placement'? 'in' : 'out')}>
-                    {units ? Player.getPurchaseEl(playerInfo, units, onUnitTypePurchased) : null}
+                    {units ? Player.getPurchaseEl(playerInfo, units, onUnitTypePurchased, unitTypeUnpurchased) : null}
                 </div>
                 <div className={'turnbase-ui-panel ' + (playerInfo.activePhase === 'Research' ? 'in' : 'out')}>
                     {Player.getResearchEl(playerInfo)}
@@ -24,7 +24,7 @@ class Player {
         )
     };
 
-    static getPurchaseEl = (playerInfo, units, onUnitTypePurchased) => {
+    static getPurchaseEl = (playerInfo, units, onUnitTypePurchased, unitTypeUnpurchased) => {
         let unitTypePortraitEls = [];
 
         let playerUnits = units.filter((unit) => {
@@ -38,7 +38,7 @@ class Player {
         let i=0;
         if(hasAnyIC.length > 0){
             Constants.Units.LandUnitTypes.forEach((landUnitType) => {
-                unitTypePortraitEls.push(Player.getPortraitforUnitType(onUnitTypePurchased, landUnitType, i, playerInfo));
+                unitTypePortraitEls.push(Player.getPortraitforUnitType(onUnitTypePurchased, unitTypeUnpurchased, landUnitType, i, playerInfo));
                 i++;
             });
         }
@@ -50,7 +50,7 @@ class Player {
         i=0;
         if(hasAnyHarbor.length > 0){
             Constants.Units.SeaUnitTypes.forEach((seaUnitType) => {
-                unitTypePortraitEls.push(Player.getPortraitforUnitType(onUnitTypePurchased, seaUnitType, i, playerInfo, 100));
+                unitTypePortraitEls.push(Player.getPortraitforUnitType(onUnitTypePurchased, unitTypeUnpurchased, seaUnitType, i, playerInfo, 100));
                 i++;
                 if(i > 6) i=0;
             });
@@ -75,7 +75,7 @@ class Player {
         );
     };
 
-    static getPortraitforUnitType = (unitTypePurchased, unitType, i, playerInfo, y) => {
+    static getPortraitforUnitType = (unitTypePurchased, unitTypeUnpurchased, unitType, i, playerInfo, y) => {
         let pathEls = [];
         let unitInfo = Constants.Units[unitType];
         if(unitInfo.paths){
@@ -84,9 +84,9 @@ class Player {
             });
         }
         return (
-            <svg onClick={()=>unitTypePurchased(unitType)} x={i*150} y={ y?y:5}>
+            <svg onClick={()=>unitTypePurchased(unitType)} onContextMenu={(e)=>{e.preventDefault(); unitTypeUnpurchased(unitType)}} x={i*150} y={ y?y:5}>
                 <g>
-                    <text x={-20} y={20}>{Player.getTypeCount(playerInfo) + ' x'}</text>
+                    <text x={-20} y={20}>{Player.getTypeCount(playerInfo, unitType) + ' x'}</text>
                 </g>
                 <g transform={'scale('+Constants.Units[unitType].staticScaleFactor+')'}>
                     {pathEls}
@@ -95,9 +95,9 @@ class Player {
         );
     };
 
-    static getTypeCount = (playerInfo) => {
-        if(playerInfo.puchasedUnits){
-            if(playerInfo.puchasedUnits[unitType]) return playerInfo.puchasedUnits[unitType].number;
+    static getTypeCount = (playerInfo, unitType) => {
+        if(playerInfo.purchasedUnits){
+            return playerInfo.purchasedUnits.filter((unit) => { return unit === unitType}).length;
         }
         return 0;
     };

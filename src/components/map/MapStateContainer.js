@@ -2,7 +2,8 @@ import { connect } from 'react-redux'
 import { regionClicked, regionMouseEnter, mapDragged,
     mapDragEnd, mapDragStart, mapZoom, unitDragStart,
     unitDragEnd, unitMove, moveCancel, chipOut, chipOver,
-    sendOneUnitToOrigin, endPhase, highlightNextRegion } from './MapActions.js';
+    sendOneUnitToOrigin, endPhase, highlightNextRegion,
+    unitTypeUnpurchased, unitTypePurchased } from './MapActions.js';
 import Map from './Map.jsx'
 
 const mapStateToProps = (state) => {
@@ -20,9 +21,6 @@ const mapDispatchToProps = (dispatch) => {
     return {
         onRegionClick: (id) => {
             dispatch(regionClicked(id))
-        },
-        onUnitClick: (id) => {
-            dispatch(unitClicked(id))
         },
         onUnitStackClick: (region) => {
             dispatch(unitStackClicked(region))
@@ -65,6 +63,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         onUnitTypePurchased: (unitType) => {
             dispatch(unitTypePurchased(unitType));
+        },
+        unitTypeUnpurchased: (unitType) => {
+            dispatch(unitTypeUnpurchased(unitType));
         }
     }
 };
