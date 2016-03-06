@@ -19,6 +19,7 @@ export const updateUnitsPhaseEnd = (units, phaseName) => {
                 if(unit.queuedForMove) unit.hasMoved = true;
                 delete unit.queuedForMove;
             });
+            //TODO: consolidate owned unit type stacks in all regions
             break;
         case 'Placement':
             //Move phase moves...
@@ -27,6 +28,7 @@ export const updateUnitsPhaseEnd = (units, phaseName) => {
                 if(unit.queuedForMove) unit.hasMoved = true;
                 delete unit.queuedForMove;
             });
+            //TODO: consolidate owned unit type stacks in all regions
             break;
     }
     return newUnits;

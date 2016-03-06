@@ -71,7 +71,6 @@ export const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, pl
             //TODO: show flaire for move phase start
             break;
         case 'Placement':
-            //TODO: set state to show placement UI, clear moves
             if(newState.savedMoveArrows){
                 units.forEach((unit) => {
                     newState.savedMoveArrows.delete(unit.id);
