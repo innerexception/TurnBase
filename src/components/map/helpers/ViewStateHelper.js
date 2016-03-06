@@ -53,14 +53,17 @@ export const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, pl
             //Check for combats...
             regions.forEach((region) => {
                 let unitsInRegion = units.filter((unit) => { return unit.region === region.attributes.id});
-                let combat = false;
-                unitsInRegion.forEach((unit) => { if(Constants.Players[unit.owner].team !== playerInfo.team) combat = true; });
-                if(combat){
-                    if(!newState.combatQueue) newState.combatQueue = [];
-                    let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id && unit.type !== 'aaa'});
-                    let otherTeamUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && unit.type !== 'aaa'});
-                    if(region.attributes.defaultOwner === playerInfo.id) newState.combatQueue.push({ defenderUnits: playerUnitsInRegion, attackerUnits: otherTeamUnitsInRegion });
-                    else newState.combatQueue.push({ attackerUnits: playerUnitsInRegion, defenderUnits: otherTeamUnitsInRegion });
+                let myUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id});
+                if(myUnitsInRegion.length > 0){
+                    let combat = false;
+                    unitsInRegion.forEach((unit) => { if(Constants.Players[unit.owner].team !== playerInfo.team) combat = true; });
+                    if(combat){
+                        if(!newState.combatQueue) newState.combatQueue = [];
+                        let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id && unit.type !== 'aaa'});
+                        let otherTeamUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && unit.type !== 'aaa'});
+                        if(region.attributes.defaultOwner === playerInfo.id) newState.combatQueue.push({ defenderUnits: playerUnitsInRegion, attackerUnits: otherTeamUnitsInRegion });
+                        else newState.combatQueue.push({ attackerUnits: playerUnitsInRegion, defenderUnits: otherTeamUnitsInRegion });
+                    }
                 }
             });
             //Load first combat

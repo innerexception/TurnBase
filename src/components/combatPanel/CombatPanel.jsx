@@ -22,13 +22,13 @@ class CombatPanel extends React.Component {
         let attackerUnitTypes = new Map();
         let i=0;
         combatInfo.attackerUnits.forEach((unit) => {
-            attackerEls.push(this._getUnitPortrait(unit, i)); i++;
+            attackerEls.push(this._getUnitPortrait(unit, combatInfo.attackerUnits.length, combatInfo)); i++;
             if(!attackerUnitTypes.get(unit.type)) attackerUnitTypes.set(unit.type, 1);
             else attackerUnitTypes.set(unit.type, attackerUnitTypes.get(unit.type)+1);
         });
         i=0;
         let defenderEls = [];
-        combatInfo.defenderUnits.forEach((unit) => {defenderEls.push(this._getUnitPortrait(unit, i)); i++;});
+        combatInfo.defenderUnits.forEach((unit) => {defenderEls.push(this._getUnitPortrait(unit, combatInfo.attackerUnits.length, combatInfo)); i++;});
 
         //auto roll for later
         //this.setTimeout(()=>this.props.unitTypeHasRolled(combatInfo.activePlayer.activeUnitType), 5000);
@@ -43,22 +43,22 @@ class CombatPanel extends React.Component {
         if(!combatInfo.victor){
             return (<div style={{height:'100%'}}>
                 <div onClick={()=>{this.props.onRollClick(combatInfo)}} className='turnbase-rollbutton'>
-                    <Dice className='static1'/>
-                    <Dice className='static2'/>
+                    <Dice className='static1 no-events'/>
+                    <Dice className='static2 no-events'/>
                 </div>
                 <div className='turnbase-dicefield'>
                     { diceEls }
                 </div>
                 <div className='turnbase-fields'>
                     <div className='turnbase-field'>
-                        <svg><g>
+                        <div>
                             { attackerEls }
-                        </g></svg>
+                        </div>
                     </div>
                     <div className='turnbase-field'>
-                        <svg><g>
+                        <div>
                             { defenderEls }
-                        </g></svg>
+                        </div>
                     </div>
                 </div>
             </div>);
@@ -74,13 +74,20 @@ class CombatPanel extends React.Component {
 
     };
 
-    _getUnitPortrait = (unit, i) => {
+    _getUnitPortrait = (unit, total, combatInfo) => {
         let pathEls = [];
         unit.paths.forEach((path) => {
-            pathEls.push((<path d={path.attributes.d} id={'combat_'+unit.id} fill={unit.isCasualty ? 'gray' : Constants.Players[unit.owner].color}></path>));
+            pathEls.push((<path d={path.attributes.d} id={'combat_'+unit.id} fill={Constants.Players[unit.owner].color}></path>));
         });
+
+
+        let shouldHighlight;
+        if(combatInfo.activePlayer) shouldHighlight = combatInfo.activePlayer.activeUnitType.type === unit.type && combatInfo.activePlayer.units[0].owner === unit.owner;
+
         pathEls.push((<text x={10} y={50} fontSize="20">{(unit.number - (unit.casualtyCount ? unit.casualtyCount : 0)) + 'x'}</text>));
-        return (<svg x={i*150} y={0}><g>{pathEls}</g></svg>);
+        return (<svg className='turnbase-combat-portrait' style={{width: (100/total)+'%', backgroundColor: shouldHighlight ? 'yellow' : null}}>
+                    <g>{pathEls}</g>
+                </svg>);
     };
 
     _getInOutState = (combatInfo) => {

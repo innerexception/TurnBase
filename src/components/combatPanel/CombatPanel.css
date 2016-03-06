@@ -27,6 +27,12 @@
     left: 20%;
 }
 
+.turnbase-combat-portrait{
+    height: auto;
+    display: inline-block;
+    border-radius: 5px;
+}
+
 .turnbase-fields{
     width: 100%;
     height: 100%;
@@ -53,5 +59,5 @@
     position: absolute;
     top: 39%;
     left: 0;
-    background:darkslategray;
+    z-index: 1212;
 }
