@@ -23,6 +23,21 @@ export const unitTypeUnpurchased = (unitType) => {
     }
 };
 
+export const updatePlacementPortrait = (e) => {
+    return {
+        type: 'UPDATE_PLACEMENT_PORTRAIT',
+        e
+    }
+};
+
+export const purchaseUnitClick = (unitType, e) => {
+    return {
+        type: 'GRAB_PURCHASED_UNIT',
+        unitType,
+        e
+    }
+};
+
 export const nextCombat = (combatInfo) => {
     return {
         type: 'NEXT_COMBAT',

@@ -3,7 +3,7 @@ import { regionClicked, regionMouseEnter, mapDragged,
     mapDragEnd, mapDragStart, mapZoom, unitDragStart,
     unitDragEnd, unitMove, moveCancel, chipOut, chipOver,
     sendOneUnitToOrigin, endPhase, highlightNextRegion,
-    unitTypeUnpurchased, unitTypePurchased } from './MapActions.js';
+    unitTypeUnpurchased, unitTypePurchased, purchaseUnitClick, updatePlacementPortrait } from './MapActions.js';
 import Map from './Map.jsx'
 
 const mapStateToProps = (state) => {
@@ -66,6 +66,12 @@ const mapDispatchToProps = (dispatch) => {
         },
         unitTypeUnpurchased: (unitType) => {
             dispatch(unitTypeUnpurchased(unitType));
+        },
+        onPurchasedUnitClick: (unitType, e) => {
+            dispatch(purchaseUnitClick(unitType, e));
+        },
+        updatePlacementPortraitPosition: (e) => {
+            dispatch(updatePlacementPortrait(e));
         }
     }
 };

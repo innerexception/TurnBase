@@ -56,7 +56,7 @@ class Unit {
             let playerRect = {x: regionCentroid.x, y: regionCentroid.y + ((regionCentroid.height/(numPlayers))*i), width: regionCentroid.width, height: regionCentroid.height/numPlayers, px: regionCentroid.px, py: regionCentroid.py + ((regionCentroid.pxHeight/(numPlayers))*i)};
 
             playerUnitTypes.forEach((unitType) => {
-                if(fit || !(measurementPassDone)){
+                //if(fit || !(measurementPassDone)){
 
                     let defaultUnitPosition = Constants.Units.DefaultPositions.filter((unitPosition) => {
                         return unitPosition.region + unitPosition.type + unitPosition.owner === regionId + unitType + player;
@@ -93,17 +93,17 @@ class Unit {
                         unitPositions.push(potentialPosition);
                     }
                     numCols++;
-                }
+                //}
             });
 
             i++;
 
-            if(fit || !measurementPassDone){
+            //if(fit || !measurementPassDone){
                 return { player, unitTypes: playerUnitTypes, rect: playerRect, unitPositions };
-            }
-            else{
-                return { player, showRondel: true, roundelPosition: { x: playerRect.x + (playerRect.width/2) - 2.5, y: playerRect.y + (playerRect.height/2) - 2.5 } };
-            }
+            //}
+            //else{
+            //    return { player, showRondel: true, roundelPosition: { x: playerRect.x + (playerRect.width/2) - 2.5, y: playerRect.y + (playerRect.height/2) - 2.5 } };
+            //}
         });
 
 

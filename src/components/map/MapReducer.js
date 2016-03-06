@@ -4,7 +4,7 @@ import Constants from '../Constants.js';
 const mapReducer = (state = {}, action) => {
     switch (action.type) {
         case 'REGION_CLICKED':
-            return { ...state, viewState: updateViewStateSelectedRegion(state.viewState, action.id, state.units, state.regions), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart, state.viewState.regionOver, state.viewState.currentPathIsValid) };
+            return { ...state, playerInfo: updatePlayerInfoPlacedUnitType(state.playerInfo, state.viewState, state.units, action.id), viewState: updateViewStateSelectedRegion(state.viewState, action.id, state.units, state.regions, state.playerInfo), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart, state.viewState.regionOver, state.viewState.currentPathIsValid, state.viewState.placingPurchasedUnitType, state.playerInfo.id, action.id, state.regions) };
         case 'MAP_LOAD':
             return { ...state, regions: action.regions };
         case 'UNIT_LOAD':
@@ -45,9 +45,45 @@ const mapReducer = (state = {}, action) => {
             return {...state, viewState: updateViewStateLoadNextCombat(state.viewState), units: updateUnitsCombatEnd(state.units, action.combatInfo), regions: updateRegionsCombatEnd(state.regions, action.combatInfo)};
         case 'HIGHLIGHT_NEXT_REGION':
             return {...state, viewState: updateViewStateHighlightNextRegion(state.viewState), playerInfo: updatePlayerInfoIncome(state.playerInfo, state.viewState)};
+        case 'GRAB_PURCHASED_UNIT':
+            return {...state, viewState: updateViewStatePlacingUnitType(action.unitType, state.viewState, action.e)};
+        case 'UPDATE_PLACEMENT_PORTRAIT':
+            return {...state, viewState: updateViewStatePlacementPortrait(state.viewState, action.e)};
         default:
             return state
     }
+};
+
+const updateViewStatePlacementPortrait = (viewState, e) => {
+    let newState = {...viewState};
+
+    if(newState.placingPurchasedUnitPosition){
+        //Update unit position
+        let currentX = newState.placingPurchasedUnitPosition.x;
+        let currentY = newState.placingPurchasedUnitPosition.y;
+        let offset = {x: ((e.clientX - currentX)/viewState.zoomLevel), y: ((e.clientY -  currentY)/viewState.zoomLevel)};
+
+        newState.placingPurchasedUnitPosition = {x:currentX + offset.x, y:currentY + offset.y};
+    }
+
+    return newState;
+};
+
+const updatePlayerInfoPlacedUnitType = (playerInfo, viewState, units, regionId) => {
+    let newInfo = {...playerInfo};
+    //TODO: sea unit placement validation
+    let hasICInRegion = units.filter((unit) => { return unit.owner === playerInfo.id && unit.region === regionId && (unit.type === 'majorIC' || unit.type === 'minorIC')});
+    if(hasICInRegion.length > 0) {
+        if (newInfo.purchasedUnits && playerInfo.activePhase === 'Placement') newInfo.purchasedUnits.splice(newInfo.purchasedUnits.indexOf(viewState.placingPurchasedUnitType), 1);
+    }
+    return newInfo;
+};
+
+const updateViewStatePlacingUnitType = (unitType, viewState, e) => {
+    let newState = {...viewState};
+    newState.placingPurchasedUnitType = unitType;
+    newState.placingPurchasedUnitPosition = {x: e.clientX, y:e.clientY};
+    return newState;
 };
 
 const updatePlayerInfoUnitPurchased = (unitType, playerInfo) => {
@@ -287,10 +323,18 @@ const updateViewStateRemoveSavedMoveArrows = (viewState, uniqueId) => {
     return newState;
 };
 
-const updateViewStateSelectedRegion = (viewState, regionId, units, regions) => {
+const updateViewStateSelectedRegion = (viewState, regionId, units, regions, playerInfo) => {
     let newState = {...viewState};
     newState.selectedRegionId = regionId;
     if(newState.unitDragStart) updateViewStateUnitDragEnd(newState, units, regions);
+
+    let unitsOfType = playerInfo.purchasedUnits.filter((unitType) => { return unitType === newState.placingPurchasedUnitType});
+    //Placed the last one.
+    if(unitsOfType.length === 0){
+        delete newState.placingPurchasedUnitType;
+        delete newState.placingPurchasedUnitPosition;
+    }
+
     return newState;
 };
 
@@ -412,7 +456,7 @@ const updateViewStateUnitDragEnd = (viewState, units) => {
     return newState;
 };
 
-const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath) => {
+const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath, placingPurchasedUnitType, playerId, regionId, regions) => {
     let newUnits = Array.from(units);
     let unitInfo = unitDragStart && unitDragStart.unitInfo;
     if(unitInfo){
@@ -433,6 +477,25 @@ const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath) => {
             }
         });
     }
+
+    if(placingPurchasedUnitType){
+        let unitsOfTypeInRegionForOwner = newUnits.filter((unit) => { return unit.owner === playerId && unit.type === placingPurchasedUnitType && unit.region === regionId })[0];
+        //TODO: sea unit placement validation
+        let hasICInRegion = newUnits.filter((unit) => { return unit.owner === playerId && unit.region === regionId && (unit.type === 'majorIC' || unit.type === 'minorIC')});
+        if(hasICInRegion.length > 0){
+            if(unitsOfTypeInRegionForOwner){
+                unitsOfTypeInRegionForOwner.number++;
+            }
+            else{
+                let region = regions.filter((region) => {return region.attributes.id === regionId})[0];
+                let position = {x: region.bbox.x+region.bbox.width/3, y: region.bbox.y+region.bbox.height/3 };
+                newUnits.push({type: placingPurchasedUnitType, number: 1, owner: playerId, region: regionId,
+                    id:Math.random(), paths: Constants.Units[placingPurchasedUnitType].paths, lastGoodPosition:position, dragPosition:position});
+            }
+        }
+
+    }
+
 
     return newUnits;
 };

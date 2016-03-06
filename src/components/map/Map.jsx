@@ -73,11 +73,33 @@ class BaseMap extends React.Component {
         return null;
     };
 
+    _getPlacementPortraitForType = (unitType, position) => {
+        let pathEls = [];
+        let unitInfo = Constants.Units[unitType];
+        if(unitInfo.paths){
+            unitInfo.paths.forEach((path) => {
+                pathEls.push((<path d={path.attributes.d} className='turnbase-unit' fill={Constants.Players.N.color}></path>));
+            });
+        }
+
+        return (
+            <div style={{top:position.y, left:position.x, position:'absolute'}}>
+                <svg>
+                    <g transform={'scale('+Constants.Units[unitType].staticScaleFactor+')'}>
+                        {pathEls}
+                    </g>
+                </svg>
+            </div>
+        );
+    };
+
     render() {
         if (this.props.regions) {
             return (
-                <div className='turnbase-map-outer'>
-                    {Player.getPlayerUIEls(this.props.playerInfo, this.props.onEndPhaseClick, this.props.viewState.combatInfo, this.props.units, this.props.onUnitTypePurchased, this.props.unitTypeUnpurchased)}
+                <div onMouseMove={this.props.updatePlacementPortraitPosition} className='turnbase-map-outer'>
+                    {Player.getPlayerUIEls(this.props.playerInfo, this.props.onEndPhaseClick, this.props.viewState.combatInfo,
+                                            this.props.units, this.props.onUnitTypePurchased, this.props.unitTypeUnpurchased,
+                                            this.props.onPurchasedUnitClick, this.props.viewState)}
                     <CombatStateContainer store={this.props.store}/>
                     <svg onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this._getMapMouseUpHandler(this.props.viewState)} onWheel={this.props.onMapZoom} >
                         <g transform={this._getViewTransformString(this.props.viewState)}>
@@ -89,6 +111,7 @@ class BaseMap extends React.Component {
                                                                   this.props.sendOneUnitToOrigin, this.props.playerInfo) : null}
                         </g>
                     </svg>
+                    {this.props.viewState.placingPurchasedUnitType ? this._getPlacementPortraitForType(this.props.viewState.placingPurchasedUnitType, this.props.viewState.placingPurchasedUnitPosition) : null}
                 </div>);
         }
         else {
