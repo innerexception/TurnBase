@@ -3,7 +3,7 @@ import Constants from '../Constants.js';
 import './Player.css';
 
 class Player {
-    static getPlayerUIEls = (playerInfo, onEndPhaseClick, combatInfo, units) => {
+    static getPlayerUIEls = (playerInfo, onEndPhaseClick, combatInfo, units, onUnitTypePurchased) => {
         return (
             <div className='turnbase-ui-frame'>
                 <div className='turnbase-ui-outer' style={{backgroundColor:Constants.Players[playerInfo.id].color}}>
@@ -15,7 +15,7 @@ class Player {
                     {Player.getIncomeEl(playerInfo)}
                 </div>
                 <div className={'turnbase-ui-panel ' + (playerInfo.activePhase === 'Purchase' || playerInfo.activePhase === 'Placement'? 'in' : 'out')}>
-                    {units ? Player.getPurchaseEl(playerInfo, units) : null}
+                    {units ? Player.getPurchaseEl(playerInfo, units, onUnitTypePurchased) : null}
                 </div>
                 <div className={'turnbase-ui-panel ' + (playerInfo.activePhase === 'Research' ? 'in' : 'out')}>
                     {Player.getResearchEl(playerInfo)}
@@ -24,7 +24,7 @@ class Player {
         )
     };
 
-    static getPurchaseEl = (playerInfo, units) => {
+    static getPurchaseEl = (playerInfo, units, onUnitTypePurchased) => {
         let unitTypePortraitEls = [];
 
         let playerUnits = units.filter((unit) => {
@@ -38,7 +38,7 @@ class Player {
         let i=0;
         if(hasAnyIC.length > 0){
             Constants.Units.LandUnitTypes.forEach((landUnitType) => {
-                unitTypePortraitEls.push(Player.getPortraitforUnitType(landUnitType, i, playerInfo));
+                unitTypePortraitEls.push(Player.getPortraitforUnitType(onUnitTypePurchased, landUnitType, i, playerInfo));
                 i++;
             });
         }
@@ -50,7 +50,7 @@ class Player {
         i=0;
         if(hasAnyHarbor.length > 0){
             Constants.Units.SeaUnitTypes.forEach((seaUnitType) => {
-                unitTypePortraitEls.push(Player.getPortraitforUnitType(seaUnitType, i, playerInfo, 100));
+                unitTypePortraitEls.push(Player.getPortraitforUnitType(onUnitTypePurchased, seaUnitType, i, playerInfo, 100));
                 i++;
                 if(i > 6) i=0;
             });
@@ -75,7 +75,7 @@ class Player {
         );
     };
 
-    static getPortraitforUnitType = (unitType, i, playerInfo, y) => {
+    static getPortraitforUnitType = (unitTypePurchased, unitType, i, playerInfo, y) => {
         let pathEls = [];
         let unitInfo = Constants.Units[unitType];
         if(unitInfo.paths){
@@ -84,8 +84,22 @@ class Player {
             });
         }
         return (
-            <svg x={i*150} y={ y?y:5}><g transform={'scale('+Constants.Units[unitType].staticScaleFactor+')'}>{pathEls}</g></svg>
+            <svg onClick={()=>unitTypePurchased(unitType)} x={i*150} y={ y?y:5}>
+                <g>
+                    <text x={-20} y={20}>{Player.getTypeCount(playerInfo) + ' x'}</text>
+                </g>
+                <g transform={'scale('+Constants.Units[unitType].staticScaleFactor+')'}>
+                    {pathEls}
+                </g>
+            </svg>
         );
+    };
+
+    static getTypeCount = (playerInfo) => {
+        if(playerInfo.puchasedUnits){
+            if(playerInfo.puchasedUnits[unitType]) return playerInfo.puchasedUnits[unitType].number;
+        }
+        return 0;
     };
 
 

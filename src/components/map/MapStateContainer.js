@@ -62,6 +62,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         highlightNextIncomeRegion: () => {
             dispatch(highlightNextRegion());
+        },
+        onUnitTypePurchased: (unitType) => {
+            dispatch(unitTypePurchased(unitType));
         }
     }
 };

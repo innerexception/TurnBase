@@ -209,7 +209,7 @@ export default {
         Chip1: {markerPath: './res/chip.png'},
         Chip10: {markerPath: './res/chip10.png'},
         Chip5: {markerPath: './res/chip5.png'},
-        Phases: ['Purchase', 'Income', 'Research', 'Combat', 'Move', 'Placement' ]
+        Phases: ['Purchase', 'Research', 'Combat', 'Move', 'Placement', 'Income']
     }
 
 }
