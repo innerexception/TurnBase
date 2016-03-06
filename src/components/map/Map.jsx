@@ -43,13 +43,16 @@ class BaseMap extends React.Component {
                 let bbox = path.getBBox();
                 centroidMap.set(path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, width:bbox.width, height:bbox.height});
             });
-            this.props.store.dispatch(fetchUnits(Constants.Units.DefaultPositions, centroidMap, this.props.regions));
+            this.props.store.dispatch(fetchUnits(Constants.Units.DefaultPositions, centroidMap, this.props.regions, Constants.Units.LandUnitTypes, Constants.Units.SeaUnitTypes));
         }
         if(this.props.units && !this.props.unitPathDispatch){
             let unitPathMap = new Map();
             d3.selectAll('.turnbase-unit')[0].forEach((path) =>{
                 let bbox = path.getBBox();
                 unitPathMap.set(+path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, width:bbox.width, height:bbox.height});
+            });
+            this.props.staticUnitPaths.forEach((unitPath) => {
+                Constants.Units[unitPath.name].paths = unitPath.paths;
             });
             this.props.store.dispatch(fetchUnitPaths(unitPathMap));
         }
@@ -75,7 +78,7 @@ class BaseMap extends React.Component {
         if (this.props.regions) {
             return (
                 <div className='turnbase-map-outer'>
-                    {Player.getPlayerUIEls(this.props.playerInfo, this.props.onEndPhaseClick, this.props.viewState.combatInfo)}
+                    {Player.getPlayerUIEls(this.props.playerInfo, this.props.onEndPhaseClick, this.props.viewState.combatInfo, this.props.units)}
                     <CombatStateContainer store={this.props.store}/>
                     <svg onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this._getMapMouseUpHandler(this.props.viewState)} onWheel={this.props.onMapZoom} >
                         <g transform={this._getViewTransformString(this.props.viewState)}>

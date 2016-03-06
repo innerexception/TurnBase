@@ -8,7 +8,7 @@ const mapReducer = (state = {}, action) => {
         case 'MAP_LOAD':
             return { ...state, regions: action.regions };
         case 'UNIT_LOAD':
-            return { ...state, units: action.units, regions: action.regions };
+            return { ...state, units: action.units, regions: action.regions, staticUnitPaths: action.staticUnitPaths };
         case 'VIEW_STATE_CHANGED':
             return { ...state, viewState: action.viewState};
         case 'CHIP_MOUSE_OVER':

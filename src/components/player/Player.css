@@ -1,5 +1,8 @@
 .turnbase-ui-frame{
-
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
 
 .turnbase-ui-outer{
@@ -39,4 +42,8 @@
 
 .turnbase-ui-panel.in{
     top: 65%;
+}
+
+.turnbase-purchase-frame{
+    margin-left: 5%;
 }

@@ -3,7 +3,7 @@ import Constants from '../Constants.js';
 import './Player.css';
 
 class Player {
-    static getPlayerUIEls = (playerInfo, onEndPhaseClick, combatInfo) => {
+    static getPlayerUIEls = (playerInfo, onEndPhaseClick, combatInfo, units) => {
         return (
             <div className='turnbase-ui-frame'>
                 <div className='turnbase-ui-outer' style={{backgroundColor:Constants.Players[playerInfo.id].color}}>
@@ -15,7 +15,7 @@ class Player {
                     {Player.getIncomeEl(playerInfo)}
                 </div>
                 <div className={'turnbase-ui-panel ' + (playerInfo.activePhase === 'Purchase' || playerInfo.activePhase === 'Placement'? 'in' : 'out')}>
-                    {Player.getPurchaseEl(playerInfo)}
+                    {units ? Player.getPurchaseEl(playerInfo, units) : null}
                 </div>
                 <div className={'turnbase-ui-panel ' + (playerInfo.activePhase === 'Research' ? 'in' : 'out')}>
                     {Player.getResearchEl(playerInfo)}
@@ -24,8 +24,43 @@ class Player {
         )
     };
 
-    static getPurchaseEl = (playerInfo) => {
+    static getPurchaseEl = (playerInfo, units) => {
+        let unitTypePortraitEls = [];
 
+        let playerUnits = units.filter((unit) => {
+            return unit.owner === playerInfo.id;
+        });
+
+        let hasAnyIC = playerUnits.filter((unit) => {
+            return unit.type === 'majorIC' || unit.type === 'minorIC';
+        });
+
+        let i=0;
+        if(hasAnyIC.length > 0){
+            Constants.Units.LandUnitTypes.forEach((landUnitType) => {
+                unitTypePortraitEls.push(Player.getPortraitforUnitType(landUnitType, i, playerInfo));
+                i++;
+            });
+        }
+
+        let hasAnyHarbor = playerUnits.filter((unit) => {
+            return unit.type === 'harbor'
+        });
+
+        i=0;
+        if(hasAnyHarbor.length > 0){
+            Constants.Units.SeaUnitTypes.forEach((seaUnitType) => {
+                unitTypePortraitEls.push(Player.getPortraitforUnitType(seaUnitType, i, playerInfo, 100));
+                i++;
+                if(i > 6) i=0;
+            });
+        }
+
+        return (
+            <div className='turnbase-purchase-frame'>
+                <svg><g>{ unitTypePortraitEls }</g></svg>
+            </div>
+        );
     };
 
     static getResearchEl = (playerInfo) => {
@@ -39,6 +74,21 @@ class Player {
             </div>
         );
     };
+
+    static getPortraitforUnitType = (unitType, i, playerInfo, y) => {
+        let pathEls = [];
+        let unitInfo = Constants.Units[unitType];
+        if(unitInfo.paths){
+            unitInfo.paths.forEach((path) => {
+                pathEls.push((<path d={path.attributes.d} className='turnbase-unit' fill={Constants.Players[playerInfo.id].color}></path>));
+            });
+        }
+        return (
+            <svg x={i*150} y={ y?y:5}><g transform={'scale('+Constants.Units[unitType].staticScaleFactor+')'}>{pathEls}</g></svg>
+        );
+    };
+
+
 }
 
 export default Player;

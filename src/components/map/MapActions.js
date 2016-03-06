@@ -113,13 +113,19 @@ export const mapZoom = (e) => {
     }
 };
 
-export const fetchUnits = (units, centroidMap, regions) => {
+export const fetchUnits = (units, centroidMap, regions, landTypes, seaTypes) => {
     return (dispatch) => {
         let fetchArray = [];
         let typesFetched = new Map();
         units.forEach((unitInfo) => {
             if(!typesFetched.get(unitInfo.type)) fetchArray.push(fetch('./res/svg/units/de/'+Constants.Units[unitInfo.type].svgName));
             typesFetched.set(unitInfo.type, true);
+        });
+        landTypes.forEach((landType) => {
+            if(!typesFetched.get(landType)) fetchArray.push(fetch('./res/svg/units/de/'+Constants.Units[landType].svgName));
+        });
+        seaTypes.forEach((seaType) => {
+            if(!typesFetched.get(seaType)) fetchArray.push(fetch('./res/svg/units/de/'+Constants.Units[seaType].svgName));
         });
         return Promise.all(fetchArray).then((responseArray) => {
             let textFetches = [];
@@ -145,7 +151,8 @@ export const fetchedUnits = (regionUnits, textResponseArray, centroidMap, region
         type: 'UNIT_LOAD',
         units: getUnitPathsFromResponse(regionUnits, textResponseArray),
         regions: updateRegionsWithCentroids(regions, centroidMap),
-        centroidMap
+        centroidMap,
+        staticUnitPaths: getStaticUnitPathsFromResponse(textResponseArray)
     };
 };
 
@@ -197,6 +204,24 @@ const getUnitPathsFromResponse = (units, textArray) => {
             return child.name === 'g'
         })[0].children;
         units.forEach((unit) => { if(unit.type === unitName) unit.paths = unitPaths });
+    });
+    return units;
+};
+
+const getStaticUnitPathsFromResponse = (textArray) => {
+    let units = []; let typesFound = new Map();
+    textArray.forEach((svgText) => {
+        let svgObj = parser(svgText);
+        let unitName = svgObj.root.children.filter((child) => {
+            return child.name === 'title'
+        })[0].content;
+        let unitPaths = svgObj.root.children.filter((child) => {
+            return child.name === 'g'
+        })[0].children;
+        if(!typesFound.get(unitName)){
+            units.push({ paths: unitPaths, name: unitName });
+            typesFound.set(unitName, true);
+        }
     });
     return units;
 };
