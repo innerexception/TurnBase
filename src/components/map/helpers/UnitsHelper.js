@@ -38,9 +38,21 @@ export const updateUnitsCombatEnd = (units, combatInfo) => {
     let newUnits = Array.from(units);
     let deleteUnits = [];
     newUnits.forEach((unit) => {
-        unit.number -= unit.casualtyCount;
+        if(unit.casualtyCount){
+            unit.number -= unit.casualtyCount;
+            unit.casualtyCount = 0;
+        }
         if(unit.number <= 0) deleteUnits.push(unit.id);
     });
+
+    if(combatInfo.retreated){
+        combatInfo.attackerUnits.forEach((aunit) => {
+            newUnits = updateUnitsSendToOrigin(aunit, newUnits);
+            newUnits = newUnits.filter((unit) => {
+                return unit.id !== aunit.id;
+            });
+        });
+    }
 
     return newUnits.filter((unit) => {
         return deleteUnits.indexOf(unit.id) === -1;
@@ -51,15 +63,15 @@ export const updateUnitsSendToOrigin = (unitInfo, units) => {
     let newUnits = Array.from(units);
     newUnits.forEach((unit)=>{
         if(unit.id === unitInfo.id){
-            if(unit.number > 1){
-                unit.number -= 1;
-            }
+            //if(unit.number > 1){
+            //    unit.number -= 1;
+            //}
             let regionTypeUnits = newUnits.filter((unit) => {return unit.region === unitInfo.lastRegion && unit.type === unitInfo.type;});
             if(regionTypeUnits.length > 0){
                 regionTypeUnits[0].number++;
             }
             else{
-                let newUnit = {...unit, number:1, region:unit.lastRegion, queuedForMove:false, id:Math.random(), dragPosition:null, showUnitCount:false};
+                let newUnit = {...unit, number:unitInfo.number, region:unit.lastRegion, queuedForMove:false, id:Math.random(), dragPosition:null, showUnitCount:false};
                 newUnits.push(newUnit);
             }
         }

@@ -42,7 +42,7 @@ const updateCombatInfo = (combatInfo) => {
             if(!newCombatInfo.newRound){
                 console.debug('rolled defender unit '+newCombatInfo.activeUnitIndex);
                 //defender units fire with casualties added if not a new round
-                activeUnit.unitDice = rollIt(activeUnit.number - (activeUnit.casualtyCount + activeUnit.unconfirmedCasualtyCount));
+                activeUnit.unitDice = rollIt(activeUnit.number - activeUnit.casualtyCount);
 
                 //Set attacker casualties
                 activeUnit.unitDice.forEach((dieRoll) => {
@@ -92,7 +92,7 @@ const updateCombatInfo = (combatInfo) => {
         if(activeUnit){
             console.debug('attacker fires unit '+newCombatInfo.activeUnitIndex);
 
-            activeUnit.unitDice = rollIt(activeUnit.number - (activeUnit.casualtyCount ? activeUnit.casualtyCount : 0));
+            activeUnit.unitDice = rollIt(activeUnit.number - activeUnit.casualtyCount);
 
             //Now set defender casualties
             activeUnit.unitDice.forEach((dieRoll) => {
@@ -129,7 +129,6 @@ const updateCombatInfo = (combatInfo) => {
 const setAllUnconfirmedAsCasualties = (units) => {
     units.forEach((unit) => {
         if(unit.unconfirmedCasualtyCount){
-            if(!unit.casualtyCount) unit.casualtyCount = 0;
             unit.casualtyCount += unit.unconfirmedCasualtyCount;
             unit.unconfirmedCasualtyCount = 0;
         }
@@ -145,6 +144,7 @@ const markLowestCostUnitASUnconfirmed = (units) => {
     });
     if(!lowestCostUnit.unconfirmedCasualtyCount) lowestCostUnit.unconfirmedCasualtyCount=0;
     lowestCostUnit.unconfirmedCasualtyCount++;
+    if(lowestCostUnit.unconfirmedCasualtyCount + lowestCostUnit.casualtyCount > lowestCostUnit.number) lowestCostUnit.unconfirmedCasualtyCount--;
     return newUnits;
 };
 

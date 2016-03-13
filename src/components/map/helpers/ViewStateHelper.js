@@ -43,13 +43,13 @@ export const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, pl
             //Player performs combat moves...
             break;
         case 'Move':
-            //Resolve player combat moves...
+            //Resolve player combat moves...if retreated then its different
+            //TODO: handle combat retreat to previous positions here...
             if(newState.savedMoveArrows){
                 units.forEach((unit) => {
                     newState.savedMoveArrows.delete(unit.id);
                 });
             }
-
             //Check for combats...
             regions.forEach((region) => {
                 let unitsInRegion = units.filter((unit) => { return unit.region === region.attributes.id});
