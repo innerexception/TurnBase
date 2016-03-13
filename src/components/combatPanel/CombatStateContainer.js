@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { rollTheBones, endCombat } from './CombatActions.js';
+import { rollTheBones, endCombat, retreat, noRetreat } from './CombatActions.js';
 import { nextCombat } from '../map/MapActions.js';
 import CombatPanel from './CombatPanel.jsx'
 
@@ -18,6 +18,12 @@ const mapDispatchToProps = (dispatch) => {
         onNextCombatClick: (combatInfo) => {
             dispatch(endCombat());
             dispatch(nextCombat(combatInfo));
+        },
+        onRetreatClick: () => {
+            dispatch(retreat());
+        },
+        noRetreatClick: () => {
+            dispatch(noRetreat());
         }
     }
 };

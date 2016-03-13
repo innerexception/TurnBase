@@ -12,3 +12,15 @@ export const endCombat = () => {
         type: 'END_COMBAT'
     }
 };
+
+export const noRetreat = () => {
+    return {
+        type: 'NO_RETREAT'
+    }
+};
+
+export const retreat = () => {
+    return {
+        type: 'RETREAT'
+    }
+};

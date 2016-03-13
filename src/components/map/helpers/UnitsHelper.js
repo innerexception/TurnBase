@@ -38,18 +38,8 @@ export const updateUnitsCombatEnd = (units, combatInfo) => {
     let newUnits = Array.from(units);
     let deleteUnits = [];
     newUnits.forEach((unit) => {
-        combatInfo.attackerUnits.forEach((aunit) => {
-            if(aunit.id === unit.id){
-                unit.number -= aunit.casualtyCount;
-                if(unit.number <= 0) deleteUnits.push(unit.id);
-            }
-        });
-        combatInfo.defenderUnits.forEach((dunit) => {
-            if(dunit.id === unit.id){
-                unit.number -= dunit.casualtyCount;
-                if(unit.number <= 0) deleteUnits.push(unit.id);
-            }
-        });
+        unit.number -= unit.casualtyCount;
+        if(unit.number <= 0) deleteUnits.push(unit.id);
     });
 
     return newUnits.filter((unit) => {

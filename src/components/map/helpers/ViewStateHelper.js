@@ -104,11 +104,13 @@ export const updateViewStateSelectedRegion = (viewState, regionId, units, region
     newState.selectedRegionId = regionId;
     if(newState.unitDragStart) updateViewStateUnitDragEnd(newState, units, regions);
 
-    let unitsOfType = playerInfo.purchasedUnits.filter((unitType) => { return unitType === newState.placingPurchasedUnitType});
-    //Placed the last one.
-    if(unitsOfType.length === 0){
-        delete newState.placingPurchasedUnitType;
-        delete newState.placingPurchasedUnitPosition;
+    if(playerInfo.purchasedUnits){
+        let unitsOfType = playerInfo.purchasedUnits.filter((unitType) => { return unitType === newState.placingPurchasedUnitType});
+        //Placed the last one.
+        if(unitsOfType.length === 0){
+            delete newState.placingPurchasedUnitType;
+            delete newState.placingPurchasedUnitPosition;
+        }
     }
 
     return newState;
