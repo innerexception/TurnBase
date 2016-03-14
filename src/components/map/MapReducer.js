@@ -12,7 +12,10 @@ import {updateRegionsCombatEnd} from './helpers/RegionHelper.js';
 const mapReducer = (state = {}, action) => {
     switch (action.type) {
         case 'REGION_CLICKED':
-            return { ...state, playerInfo: updatePlayerInfoPlacedUnitType(state.playerInfo, state.viewState, state.units, action.id), viewState: updateViewStateSelectedRegion(state.viewState, action.id, state.units, state.regions, state.playerInfo), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart, state.viewState.regionOver, state.viewState.currentPathIsValid, state.viewState.placingPurchasedUnitType, state.playerInfo.id, action.id, state.regions) };
+            return { ...state, playerInfo: updatePlayerInfoPlacedUnitType(state.playerInfo, state.viewState, state.units, action.id, state.regions),
+                                viewState: updateViewStateSelectedRegion(state.viewState, action.id, state.units, state.regions, state.playerInfo),
+                                units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart, state.viewState.regionOver, state.viewState.currentPathIsValid,
+                                    state.viewState.placingPurchasedUnitType, state.playerInfo.id, action.id, state.regions, state.viewState.placingPurchasedUnitPosition) };
         case 'MAP_LOAD':
             return { ...state, regions: action.regions };
         case 'UNIT_LOAD':
@@ -46,7 +49,7 @@ const mapReducer = (state = {}, action) => {
         case 'SEND_UNIT_TO_ORIGIN':
             return {...state, units: updateUnitsSendToOrigin(action.unitInfo, state.units)};
         case 'END_PHASE':
-            return {...state, playerInfo: updatePlayerInfoPhase(state.playerInfo, action.phaseName), units: updateUnitsPhaseEnd(state.units, action.phaseName),  viewState: updateViewStatePhaseEnd(state.viewState, action.phaseName, state.units, state.regions, state.playerInfo)};
+            return {...state, playerInfo: updatePlayerInfoPhase(state.playerInfo, action.phaseName), units: updateUnitsPhaseEnd(state.units, action.phaseName, state.regions),  viewState: updateViewStatePhaseEnd(state.viewState, action.phaseName, state.units, state.regions, state.playerInfo)};
         case 'PLAYER_INFO_LOAD':
             return {...state, playerInfo: action.playerInfo};
         case 'NEXT_COMBAT':

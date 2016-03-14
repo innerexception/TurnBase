@@ -1,7 +1,7 @@
 import Constants from '../../Constants.js';
 import Utils from '../MapUtils.js';
 
-export const updateUnitsPhaseEnd = (units, phaseName) => {
+export const updateUnitsPhaseEnd = (units, phaseName, regions) => {
     let newUnits = Array.from(units);
     let phase = Utils.getNextActivePhase(phaseName);
     switch(phase){
@@ -19,7 +19,7 @@ export const updateUnitsPhaseEnd = (units, phaseName) => {
                 if(unit.queuedForMove) unit.hasMoved = true;
                 delete unit.queuedForMove;
             });
-            //TODO: consolidate owned unit type stacks in all regions
+            newUnits = _consolidateUnitStacks(regions, newUnits);
             break;
         case 'Placement':
             //Move phase moves...
@@ -28,10 +28,31 @@ export const updateUnitsPhaseEnd = (units, phaseName) => {
                 if(unit.queuedForMove) unit.hasMoved = true;
                 delete unit.queuedForMove;
             });
-            //TODO: consolidate owned unit type stacks in all regions
+            newUnits = _consolidateUnitStacks(regions, newUnits);
             break;
     }
     return newUnits;
+};
+
+const _consolidateUnitStacks = (regions, units) => {
+    let unitIdsToDelete = [];
+    regions.forEach((region) => {
+        let unitsInRegion = units.filter((unit) => {
+            return unit.region === region.attributes.id;
+        });
+        let typesInRegion = new Map();
+        unitsInRegion.forEach((unit) => {
+            if(typesInRegion.get(unit.type)){
+                typesInRegion.get(unit.type).number += unit.number;
+                unitIdsToDelete.push(unit.id);
+            }
+            else{
+                typesInRegion.set(unit.type, unit);
+            }
+        });
+    });
+    units = units.filter((unit) => { return unitIdsToDelete.indexOf(unit.id) === -1 });
+    return units;
 };
 
 export const updateUnitsCombatEnd = (units, combatInfo) => {
@@ -125,7 +146,7 @@ export const updateUnitsDragStart = (units, unitInfo) => {
     return newUnits;
 };
 
-export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath, placingPurchasedUnitType, playerId, regionId, regions) => {
+export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath, placingPurchasedUnitType, playerId, regionId, regions, purchaseUnitScreenPosition) => {
     let newUnits = Array.from(units);
     let unitInfo = unitDragStart && unitDragStart.unitInfo;
     if(unitInfo){
@@ -148,20 +169,56 @@ export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath
     }
 
     if(placingPurchasedUnitType){
-        let unitsOfTypeInRegionForOwner = newUnits.filter((unit) => { return unit.owner === playerId && unit.type === placingPurchasedUnitType && unit.region === regionId })[0];
-        //TODO: sea unit placement validation
-        let hasICInRegion = newUnits.filter((unit) => { return unit.owner === playerId && unit.region === regionId && (unit.type === 'majorIC' || unit.type === 'minorIC')});
-        if(hasICInRegion.length > 0){
-            if(unitsOfTypeInRegionForOwner){
-                unitsOfTypeInRegionForOwner.number++;
-            }
-            else{
-                let region = regions.filter((region) => {return region.attributes.id === regionId})[0];
-                let position = {x: region.bbox.x+region.bbox.width/3, y: region.bbox.y+region.bbox.height/3 };
-                newUnits.push({type: placingPurchasedUnitType, number: 1, owner: playerId, region: regionId,
-                    id:Math.random(), paths: Constants.Units[placingPurchasedUnitType].paths, lastGoodPosition:position, dragPosition:position});
+
+        let p = document.getElementById(regionId);
+        let svg = document.getElementById('mapSvg');
+        let rect = svg.getBoundingClientRect();
+        let matrix = p.getScreenCTM().inverse();
+        let position = {
+            x: (matrix.a * purchaseUnitScreenPosition.x) + (matrix.c * purchaseUnitScreenPosition.y) + matrix.e - rect.left,
+            y: (matrix.b * purchaseUnitScreenPosition.x) + (matrix.d * purchaseUnitScreenPosition.y) + matrix.f - rect.top
+        };
+
+        let type = getUnitType(placingPurchasedUnitType);
+
+        //TODO: maximum number of units per turn for major/minor IC
+
+        if(type === 'sea' && regionId.indexOf('Sea') !== -1){
+            let hasHarborAdjacent;
+            //Must check all adjacent regions to see if there is a harbor
+            let region = regions.filter((region) => region.attributes.id === regionId)[0];
+            region.adjacencyMap.forEach((adjregion) => {
+                if(!hasHarborAdjacent) hasHarborAdjacent = units.filter((unit) => { return unit.owner === playerId && unit.region === adjregion.name && (unit.type === 'harbor')}).length > 0;
+            });
+            if(hasHarborAdjacent){
+                let unitsOfTypeInRegionForOwner = newUnits.filter((unit) => { return unit.owner === playerId && unit.type === placingPurchasedUnitType && unit.region === regionId })[0];
+                if(unitsOfTypeInRegionForOwner){
+                    unitsOfTypeInRegionForOwner.number++;
+                }
+                else{
+                    //let position = {x: region.bbox.x+region.bbox.width/3, y: region.bbox.y+region.bbox.height/3 };
+                    newUnits.push({type: placingPurchasedUnitType, number: 1, owner: playerId, region: regionId,
+                        id:Math.random(), paths: Constants.Units[placingPurchasedUnitType].paths, lastGoodPosition:position, dragPosition:position});
+                }
             }
         }
+        if(type === 'land' || type === 'air'){
+            let hasICInRegion = newUnits.filter((unit) => { return unit.owner === playerId && unit.region === regionId && (unit.type === 'majorIC' || unit.type === 'minorIC')});
+            if(hasICInRegion.length > 0){
+                let unitsOfTypeInRegionForOwner = newUnits.filter((unit) => { return unit.owner === playerId && unit.type === placingPurchasedUnitType && unit.region === regionId })[0];
+                if(unitsOfTypeInRegionForOwner){
+                    unitsOfTypeInRegionForOwner.number++;
+                }
+                else{
+                    let region = regions.filter((region) => {return region.attributes.id === regionId})[0];
+                    //let position = {x: region.bbox.x+region.bbox.width/3, y: region.bbox.y+region.bbox.height/3 };
+                    newUnits.push({type: placingPurchasedUnitType, number: 1, owner: playerId, region: regionId,
+                        id:Math.random(), paths: Constants.Units[placingPurchasedUnitType].paths, lastGoodPosition:position, dragPosition:position});
+                }
+            }
+        }
+
+
 
     }
 
@@ -190,6 +247,11 @@ export const updateUnitRegionOnMoveCancelled = (units, unitInfo) => {
 
     return newUnits;
 };
+
+export const getUnitType = (unitType) => {
+    return Constants.Units[unitType].type;
+};
+
 
 
 

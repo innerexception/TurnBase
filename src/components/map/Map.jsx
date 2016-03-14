@@ -101,7 +101,7 @@ class BaseMap extends React.Component {
                                             this.props.units, this.props.onUnitTypePurchased, this.props.unitTypeUnpurchased,
                                             this.props.onPurchasedUnitClick, this.props.viewState)}
                     <CombatStateContainer store={this.props.store}/>
-                    <svg onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this._getMapMouseUpHandler(this.props.viewState)} onWheel={this.props.onMapZoom} >
+                    <svg id="mapSvg" onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this._getMapMouseUpHandler(this.props.viewState)} onWheel={this.props.onMapZoom} >
                         <g transform={this._getViewTransformString(this.props.viewState)}>
                             {Region.getRegionPaths(this.props.regions, this.props.onRegionClick, this.props.viewState, this.props.highlightNextIncomeRegion)}
                             {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units,

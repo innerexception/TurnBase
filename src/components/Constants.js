@@ -3,7 +3,7 @@ export default {
         UK: { markerPath: './res/uk_round.png', color: 'beige', team: 'AL'},
         US: { markerPath: './res/us_round.png', color: 'green', team: 'AL'},
         DE: { markerPath: './res/german_round.png', color: 'darkbrown', team: 'AX'},
-        FR: { markerPath: './res/france_round.png', color: 'blue', id: 'FR', lastIncome: 17, activePhase: 'Combat', team: 'AL'},
+        FR: { markerPath: './res/france_round.png', color: 'blue', id: 'FR', lastIncome: 17, activePhase: 'Research', team: 'AL'},
         JP: { markerPng: 'japan_round.png', color: 'orange', team: 'AX'},
         IT: { markerPng: 'italy_round.png', color: 'darkgoldenrod', team: 'AX'},
         CH: { markerPng: 'china_round.png', color: 'yellow', team: 'AL'},
@@ -53,7 +53,8 @@ export default {
             cost: 3,
             svgName: 'infantry.svg',
             scaleFactor: 0.07,
-            staticScaleFactor: 0.5
+            staticScaleFactor: 0.5,
+            type: 'land'
         },
         tank: {
             width: 10,
@@ -64,7 +65,8 @@ export default {
             cost: 5,
             svgName: 'tank.svg',
             scaleFactor: 0.07,
-            staticScaleFactor: 0.5
+            staticScaleFactor: 0.5,
+            type: 'land'
         },
         fighter: {
             width: 5,
@@ -75,7 +77,8 @@ export default {
             cost: 8,
             svgName: 'fighter.svg',
             scaleFactor: 0.13,
-            staticScaleFactor: 1
+            staticScaleFactor: 1,
+            type: 'air'
         },
         bomber: {
             width:40,
@@ -86,7 +89,8 @@ export default {
             cost: 12,
             svgName: 'bomber.svg',
             scaleFactor: 0.07,
-            staticScaleFactor: 0.5
+            staticScaleFactor: 0.5,
+            type: 'air'
         },
         artillery: {
             width: 10,
@@ -97,7 +101,8 @@ export default {
             cost: 6,
             svgName: 'artillery.svg',
             scaleFactor: 0.13,
-            staticScaleFactor: 1
+            staticScaleFactor: 1,
+            type: 'land'
         },
         mechinfantry: {
             width: 30,
@@ -108,7 +113,8 @@ export default {
             cost: 4,
             svgName: 'mechinfantry.svg',
             scaleFactor: 0.07,
-            staticScaleFactor: 0.5
+            staticScaleFactor: 0.5,
+            type: 'land'
         },
         destroyer: {
             width: 40,
@@ -118,8 +124,9 @@ export default {
             move: 3,
             cost: 8,
             svgName: 'destroyer.svg',
-            scaleFactor: 0.07,
-            staticScaleFactor: 1
+            scaleFactor: 0.15,
+            staticScaleFactor: 1,
+            type: 'sea'
         },
         cruiser: {
             width: 50,
@@ -128,8 +135,9 @@ export default {
             defend: 3,
             cost: 12,
             svgName: 'cruiser.svg',
-            scaleFactor: 0.07,
-            staticScaleFactor: 0.5
+            scaleFactor: 0.08,
+            staticScaleFactor: 0.5,
+            type: 'sea'
         },
         battleship: {
             width: 60,
@@ -138,8 +146,9 @@ export default {
             defend: 4,
             cost: 20,
             svgName: 'battleship.svg',
-            scaleFactor: 0.07,
-            staticScaleFactor: 0.5
+            scaleFactor: 0.1,
+            staticScaleFactor: 0.5,
+            type: 'sea'
         },
         carrier: {
             width: 60,
@@ -148,8 +157,9 @@ export default {
             defend: 4,
             cost: 18,
             svgName: 'carrier.svg',
-            scaleFactor: 0.07,
-            staticScaleFactor: 0.5
+            scaleFactor: 0.09,
+            staticScaleFactor: 0.5,
+            type: 'sea'
         },
         transport: {
             width: 50,
@@ -158,8 +168,9 @@ export default {
             defend: 1,
             cost: 8,
             svgName: 'transport.svg',
-            scaleFactor: 0.07,
-            staticScaleFactor: 1
+            scaleFactor: 0.1,
+            staticScaleFactor: 1,
+            type: 'sea'
         },
         submarine: {
             width: 30,
@@ -168,8 +179,9 @@ export default {
             defend: 2,
             cost: 8,
             svgName: 'submarine.svg',
-            scaleFactor: 0.07,
-            staticScaleFactor: 0.5
+            scaleFactor: 0.08,
+            staticScaleFactor: 0.5,
+            type: 'sea'
         },
         aaa: {
             width: 5,
@@ -179,7 +191,8 @@ export default {
             cost: 8,
             svgName: 'aaa.svg',
             scaleFactor: 0.13,
-            staticScaleFactor: 1
+            staticScaleFactor: 1,
+            type: 'land'
         },
         airfield: {
             width: 20,
@@ -187,7 +200,8 @@ export default {
             svgName: 'airfield.svg',
             isBuilding: true,
             scaleFactor: 0.07,
-            staticScaleFactor: 0.5
+            staticScaleFactor: 0.5,
+            type: 'land'
         },
         majorIC: {
             width: 20,
@@ -195,7 +209,8 @@ export default {
             svgName: 'majorIC.svg',
             isBuilding: true,
             scaleFactor: 0.07,
-            staticScaleFactor: 0.5
+            staticScaleFactor: 0.5,
+            type: 'land'
         },
         harbor: {
             width: 20,
@@ -203,14 +218,15 @@ export default {
             svgName: 'harbor.svg',
             isBuilding: true,
             scaleFactor: 0.003,
-            staticScaleFactor: 0.5
+            staticScaleFactor: 0.5,
+            type: 'land'
         }
     },
     UI: {
         Chip1: {markerPath: './res/chip.png'},
         Chip10: {markerPath: './res/chip10.png'},
         Chip5: {markerPath: './res/chip5.png'},
-        Phases: ['Combat', 'Move', 'Purchase', 'Placement', 'Research',  'Income']
+        Phases: ['Research', 'Purchase', 'Combat', 'Move', 'Placement', 'Income']
     }
 
 }

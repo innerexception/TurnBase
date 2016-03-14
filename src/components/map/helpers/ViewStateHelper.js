@@ -8,7 +8,7 @@ export const updateViewStatePlacementPortrait = (viewState, e) => {
         //Update unit position
         let currentX = newState.placingPurchasedUnitPosition.x;
         let currentY = newState.placingPurchasedUnitPosition.y;
-        let offset = {x: ((e.clientX - currentX)/viewState.zoomLevel), y: ((e.clientY -  currentY)/viewState.zoomLevel)};
+        let offset = {x: (((e.clientX-15) - currentX)/viewState.zoomLevel), y: (((e.clientY-15) -  currentY)/viewState.zoomLevel)};
 
         newState.placingPurchasedUnitPosition = {x:currentX + offset.x, y:currentY + offset.y};
     }
@@ -25,8 +25,10 @@ export const updateViewStatePlacingUnitType = (unitType, viewState, e) => {
 
 export const updateViewStateHighlightNextRegion = (viewState) => {
     let newState = {...viewState};
-    newState.activeIncomeRegion = newState.incomeRegions.pop();
-    if(!newState.activeIncomeRegion) delete newState.incomeRegions;
+    if(newState.incomeRegions){
+        newState.activeIncomeRegion = newState.incomeRegions.pop();
+        if(!newState.activeIncomeRegion) delete newState.incomeRegions;
+    }
     return newState;
 };
 
@@ -43,8 +45,6 @@ export const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, pl
             //Player performs combat moves...
             break;
         case 'Move':
-            //Resolve player combat moves...if retreated then its different
-            //TODO: handle combat retreat to previous positions here...
             if(newState.savedMoveArrows){
                 units.forEach((unit) => {
                     newState.savedMoveArrows.delete(unit.id);

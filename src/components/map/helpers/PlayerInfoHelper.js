@@ -1,13 +1,34 @@
 import Constants from '../../Constants.js';
 import Utils from '../MapUtils.js';
+import { getUnitType } from './UnitsHelper.js';
 
-export const updatePlayerInfoPlacedUnitType = (playerInfo, viewState, units, regionId) => {
+export const updatePlayerInfoPlacedUnitType = (playerInfo, viewState, units, regionId, regions) => {
     let newInfo = {...playerInfo};
-    //TODO: sea unit placement validation
-    let hasICInRegion = units.filter((unit) => { return unit.owner === playerInfo.id && unit.region === regionId && (unit.type === 'majorIC' || unit.type === 'minorIC')});
-    if(hasICInRegion.length > 0) {
-        if (newInfo.purchasedUnits && playerInfo.activePhase === 'Placement') newInfo.purchasedUnits.splice(newInfo.purchasedUnits.indexOf(viewState.placingPurchasedUnitType), 1);
+
+    if(viewState.placingPurchasedUnitType){
+        let type = getUnitType(viewState.placingPurchasedUnitType);
+
+        //TODO: maximum number of units per turn for major/minor IC
+
+        if(type === 'sea' && regionId.indexOf('Sea') !== -1){
+            let hasHarborAdjacent;
+            //Must check all adjacent regions to see if there is a harbor
+            let region = regions.filter((region) => region.attributes.id === regionId)[0];
+            region.adjacencyMap.forEach((adjregion) => {
+                if(!hasHarborAdjacent) hasHarborAdjacent = units.filter((unit) => { return unit.owner === playerInfo.id && unit.region === adjregion.name && (unit.type === 'harbor')}).length > 0;
+            });
+            if(hasHarborAdjacent){
+                if (newInfo.purchasedUnits && playerInfo.activePhase === 'Placement') newInfo.purchasedUnits.splice(newInfo.purchasedUnits.indexOf(viewState.placingPurchasedUnitType), 1);
+            }
+        }
+        if(type === 'land' || type === 'air'){
+            let hasICInRegion = units.filter((unit) => { return unit.owner === playerInfo.id && unit.region === regionId && (unit.type === 'majorIC' || unit.type === 'minorIC')});
+            if(hasICInRegion.length > 0) {
+                if (newInfo.purchasedUnits && playerInfo.activePhase === 'Placement') newInfo.purchasedUnits.splice(newInfo.purchasedUnits.indexOf(viewState.placingPurchasedUnitType), 1);
+            }
+        }
     }
+
     return newInfo;
 };
 
@@ -35,9 +56,11 @@ export const updatePlayerInfoUnitUnPurchased = (unitType, playerInfo) => {
 export const updatePlayerInfoIncome = (playerInfo, viewState) => {
     let newInfo = {...playerInfo};
     if(!newInfo.income)newInfo.income=0;
-    let nextRegion = viewState.incomeRegions.pop();
-    if(nextRegion) newInfo.income += parseInt(nextRegion.attributes.value);
-    else newInfo.lastIncome += newInfo.income;
+    if(viewState.incomeRegions){
+        let nextRegion = viewState.incomeRegions.pop();
+        if(nextRegion) newInfo.income += parseInt(nextRegion.attributes.value);
+        else newInfo.lastIncome += newInfo.income;
+    }
     return newInfo;
 };
 
