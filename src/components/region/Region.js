@@ -3,19 +3,40 @@ import Constants from '../Constants.js';
 
 class Region {
 
-    static getRegionPaths = (regions, onRegionClick, viewState, highlightNextIncomeRegion) => {
+    static getRegionPaths = (regions, onRegionClick, viewState, highlightNextIncomeRegion, units) => {
 
         if(viewState.incomeRegions) setTimeout(highlightNextIncomeRegion, 500);
 
+
         return regions.map((region) => {
+            let buildings = [];
+            if(units) buildings = units.filter((unit) => {return Constants.Units[unit.type].isBuilding && unit.region === region.attributes.id});
             return (
-                <path onClick={() => onRegionClick(region.attributes.id)}
-                      d={region.attributes.d}
-                      fill={Constants.Players[region.attributes.defaultOwner ? region.attributes.defaultOwner : 'N'].color}
-                      stroke={Region.getRegionStroke(viewState, region)}
-                      id={region.attributes.id} title={region.attributes.title}
-                      className={'turnbase-region ' + Region.getRegionClassNames(region, viewState)}></path>
+                <svg>
+                    <g>
+                        <path onClick={() => onRegionClick(region.attributes.id)}
+                              d={region.attributes.d}
+                              fill={Constants.Players[region.attributes.defaultOwner ? region.attributes.defaultOwner : 'N'].color}
+                              stroke={Region.getRegionStroke(viewState, region)}
+                              id={region.attributes.id} title={region.attributes.title}
+                              className={'turnbase-region ' + Region.getRegionClassNames(region, viewState)}></path>
+                        <image xlinkHref={Constants.Players[region.attributes.defaultOwner] ? Constants.Players[region.attributes.defaultOwner].markerPath : null}
+                               x={region.bbox ? region.bbox.x + (region.bbox.width/3) : 0} y={region.bbox ? region.bbox.y + (region.bbox.height/3) : 0} opacity="0.2" height="5px" width="5px"/>
+                        { Region.getBuildingImages(buildings, region) }
+                    </g>
+                </svg>
+
             )
+        });
+    };
+
+    static getBuildingImages = (buildings, region) => {
+        return buildings.map((building) => {
+            return (
+                <image xlinkHref={Constants.Units[building.type].imageName}
+                       x={region.bbox ? region.bbox.x + (region.bbox.width/8) : 0} y={region.bbox ? region.bbox.y + (region.bbox.height/2) : 0}
+                       opacity="0.6" height="5px" width="5px"/>
+            );
         });
     };
 

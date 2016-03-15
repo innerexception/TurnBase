@@ -40,16 +40,24 @@ const _consolidateUnitStacks = (regions, units) => {
         let unitsInRegion = units.filter((unit) => {
             return unit.region === region.attributes.id;
         });
-        let typesInRegion = new Map();
+        let unitsByOwner = new Map();
         unitsInRegion.forEach((unit) => {
-            if(typesInRegion.get(unit.type)){
-                typesInRegion.get(unit.type).number += unit.number;
-                unitIdsToDelete.push(unit.id);
-            }
-            else{
-                typesInRegion.set(unit.type, unit);
-            }
+            if(!unitsByOwner.get(unit.owner)) unitsByOwner.set(unit.owner, []);
+            unitsByOwner.get(unit.owner).push(unit);
         });
+        for(var owner of unitsByOwner.keys()){
+            let typesInRegion = new Map();
+            unitsByOwner.get(owner).forEach((unit) => {
+                if(typesInRegion.get(unit.type)){
+                    typesInRegion.get(unit.type).number += unit.number;
+                    unitIdsToDelete.push(unit.id);
+                }
+                else{
+                    typesInRegion.set(unit.type, unit);
+                }
+            });
+        }
+
     });
     units = units.filter((unit) => { return unitIdsToDelete.indexOf(unit.id) === -1 });
     return units;

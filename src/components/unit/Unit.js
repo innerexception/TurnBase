@@ -9,7 +9,7 @@ class Unit {
         let els = [];
         regions.forEach((region) => {
             let unitsInRegion = unitList.filter((unitInfo) => {
-                return unitInfo.region === region.attributes.id;
+                return unitInfo.region === region.attributes.id && !Constants.Units[unitInfo.type].isBuilding;
             });
             if(unitsInRegion.length > 0){
                 let regionBbox = Utils.getPathBoundingRectById(region.attributes.id);
@@ -173,7 +173,7 @@ class Unit {
             let dist = Math.sqrt( ((viewState.unitOriginalStart.x-position.x)*(viewState.unitOriginalStart.x - position.x)) + ((viewState.unitOriginalStart.y-position.y)*(viewState.unitOriginalStart.y-position.y)) );
 
             //let scale = Math.max(dist/200, 0.01);
-            moveFill = viewState.currentPathIsValid ? 'green' : 'red';
+            moveFill = viewState.currentPathIsValid ? 'lightgreen' : 'red';
 
             let x2 = -(viewState.unitOriginalStart.x-position.x);
             let y2 = -(viewState.unitOriginalStart.y-position.y);
@@ -189,13 +189,13 @@ class Unit {
                 let dist = Math.sqrt( ((savedMoveArrowInfo.unitOriginalStart.x-savedMoveArrowInfo.newPosition.x)*(savedMoveArrowInfo.unitOriginalStart.x - savedMoveArrowInfo.newPosition.x))
                     + ((savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)*(savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)) );
 
-                moveFill = 'green';
+                moveFill = 'lightgreen';
 
                 let x2 = -(savedMoveArrowInfo.unitOriginalStart.x-savedMoveArrowInfo.newPosition.x);
                 let y2 = -(savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y);
 
                 pathEl=(<g transform={'scale('+Math.min(Math.max(dist/20, 0.6), 0.9)+')translate(0,5)'}>
-                    <line onClick={()=>onMoveCancelClick(unitInfo)} markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill} strokeWidth={1.5}/>
+                    <line onClick={()=>onMoveCancelClick(unitInfo)} markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill} strokeOpacity="0.4" strokeWidth={1.5}/>
                 </g>);
             }
         }

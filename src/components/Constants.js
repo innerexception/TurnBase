@@ -3,9 +3,9 @@ export default {
         UK: { markerPath: './res/uk_round.png', color: 'beige', team: 'AL'},
         US: { markerPath: './res/us_round.png', color: 'green', team: 'AL'},
         DE: { markerPath: './res/german_round.png', color: 'darkbrown', team: 'AX'},
-        FR: { markerPath: './res/france_round.png', color: 'blue', id: 'FR', lastIncome: 17, activePhase: 'Research', team: 'AL'},
+        FR: { markerPath: './res/france_round.png', color: '#4980CC', id: 'FR', lastIncome: 17, activePhase: 'Research', team: 'AL'},
         JP: { markerPng: 'japan_round.png', color: 'orange', team: 'AX'},
-        IT: { markerPng: 'italy_round.png', color: 'darkgoldenrod', team: 'AX'},
+        IT: { markerPng: './res/italy_round.png', color: 'darkgoldenrod', team: 'AX'},
         CH: { markerPng: 'china_round.png', color: 'yellow', team: 'AL'},
         N: { color: 'gray'},
         RU: { markerPng: 'cccp_round.png', color: 'darkred', team: 'AL'}
@@ -197,29 +197,38 @@ export default {
         airfield: {
             width: 20,
             height: 20,
-            svgName: 'airfield.svg',
             isBuilding: true,
             scaleFactor: 0.07,
             staticScaleFactor: 0.5,
-            type: 'land'
+            type: 'land',
+            imageName: './res/airfield.png'
         },
         majorIC: {
             width: 20,
             height: 20,
-            svgName: 'majorIC.svg',
             isBuilding: true,
             scaleFactor: 0.07,
             staticScaleFactor: 0.5,
-            type: 'land'
+            type: 'land',
+            imageName: './res/majorIC.png'
+        },
+        minorIC: {
+            width: 20,
+            height: 20,
+            isBuilding: true,
+            scaleFactor: 0.07,
+            staticScaleFactor: 0.5,
+            type: 'land',
+            imageName: './res/minorIC.png'
         },
         harbor: {
             width: 20,
             height: 20,
-            svgName: 'harbor.svg',
             isBuilding: true,
-            scaleFactor: 0.003,
+            scaleFactor: 0.03,
             staticScaleFactor: 0.5,
-            type: 'land'
+            type: 'land',
+            imageName: './res/harbor.png'
         }
     },
     UI: {

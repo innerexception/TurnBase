@@ -140,7 +140,7 @@ export const fetchUnits = (units, centroidMap, regions, landTypes, seaTypes) => 
         let fetchArray = [];
         let typesFetched = new Map();
         units.forEach((unitInfo) => {
-            if(!typesFetched.get(unitInfo.type)) fetchArray.push(fetch('./res/svg/units/de/'+Constants.Units[unitInfo.type].svgName));
+            if(!typesFetched.get(unitInfo.type) && !Constants.Units[unitInfo.type].isBuilding) fetchArray.push(fetch('./res/svg/units/de/'+Constants.Units[unitInfo.type].svgName));
             typesFetched.set(unitInfo.type, true);
         });
         landTypes.forEach((landType) => {

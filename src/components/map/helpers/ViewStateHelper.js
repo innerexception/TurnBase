@@ -101,7 +101,7 @@ export const updateViewStateRemoveSavedMoveArrows = (viewState, uniqueId) => {
 
 export const updateViewStateSelectedRegion = (viewState, regionId, units, regions, playerInfo) => {
     let newState = {...viewState};
-    newState.selectedRegionId = regionId;
+    //newState.selectedRegionId = regionId;
     if(newState.unitDragStart) updateViewStateUnitDragEnd(newState, units, regions);
 
     if(playerInfo.purchasedUnits){
