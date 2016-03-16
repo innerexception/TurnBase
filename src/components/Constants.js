@@ -38,6 +38,7 @@ export default {
             {type: 'infantry', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'Algeria', initialX:478, initialY:374, id:Math.random()},
             {type: 'infantry', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'TN', initialX:495, initialY:365, id:Math.random()},
             {type: 'infantry', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'SY', initialX:582, initialY:365, id:Math.random()},
+            {type: 'cruiser', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'Sea15', initialX:-20, initialY:365, id:Math.random()}
             //{type: 'fighter', number: 1, owner: 'FR', region: 'Normandy'},
             //{type: 'infantry', number: 6, owner: 'UK', region: 'Switzerland'},
             //{type: 'artillery', number: 6, owner: 'UK', region: 'Normandy'},

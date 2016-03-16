@@ -52,7 +52,7 @@ export const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, pl
             }
             //Check for combats...
             regions.forEach((region) => {
-                let unitsInRegion = units.filter((unit) => { return unit.region === region.attributes.id || unit.firstMove === region.attributes.id});
+                let unitsInRegion = units.filter((unit) => { return unit.region === region.attributes.id});
                 let myUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id});
                 if(myUnitsInRegion.length > 0){
                     let combat = false;
@@ -119,6 +119,7 @@ export const updateViewStateSelectedRegion = (viewState, regionId, units, region
 export const updateViewStateZoom = (viewState, e) => {
     let newState = { ...viewState };
     newState.zoomLevel += e.deltaY*0.001;
+    newState.zoomLevel = Math.max(2.5, newState.zoomLevel);
     newState.pan.x += e.deltaY > 0 ? -10/newState.zoomLevel : 10/newState.zoomLevel;
     return newState;
 };
@@ -127,7 +128,14 @@ export const updateViewStatePanFromEvent = (viewState, e) => {
     let newState = { ...viewState };
     let currentX = newState.mapDragStart.x;
     let currentY = newState.mapDragStart.y;
-    newState.pan = {x: newState.pan.x + ((e.clientX - currentX)/viewState.zoomLevel), y: newState.pan.y + ((e.clientY -  currentY)/viewState.zoomLevel)};
+    //Clamp pan values to a maximum so they wrap
+    // if you roll over 1180, reset pan to 0,
+    // if you roll under -1555, reset to -485
+    let xVal = newState.pan.x + ((e.clientX - currentX)/viewState.zoomLevel);
+    if(xVal > 1180) xVal = 0;
+    if(xVal < -1555) xVal = -485;
+    let yVal = newState.pan.y + ((e.clientY -  currentY)/viewState.zoomLevel);
+    newState.pan = {x: xVal, y: yVal};
     newState.mapDragStart = {x: e.clientX, y: e.clientY};
     return newState;
 };
@@ -186,8 +194,8 @@ export const updateViewStateUnitDragEnd = (viewState, units) => {
 
         if(newState.currentPathIsValid){
             if(!newState.savedMoveArrows) newState.savedMoveArrows = new Map();
-            if(!unitInfo.firstMove) newState.savedMoveArrows.set(unitInfo.id, {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region});
-            else newState.savedMoveArrows.set(unitInfo.id + '_returnPath', {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region});
+            newState.savedMoveArrows.set(unitInfo.id, {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region})
+
         }
     }
 
