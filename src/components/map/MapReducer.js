@@ -5,7 +5,7 @@ import {updateViewStatePlacementPortrait, updateViewStatePlacingUnitType, update
 import {updatePlayerInfoPlacedUnitType, updatePlayerInfoUnitPurchased, updatePlayerInfoUnitUnPurchased, updatePlayerInfoIncome,
         updatePlayerInfoPhase} from './helpers/PlayerInfoHelper.js';
 import {updateUnitsPhaseEnd, updateUnitsCombatEnd, updateUnitsSendToOrigin, updateUnitsCountDisplay, updateUnitsPathMap,
-        updateUnitsFromPanEvent, updateUnitsDragStart, updateUnitsDragEnd, updateUnitRegionOnMoveCancelled} from './helpers/UnitsHelper.js';
+        updateUnitsFromPanEvent, updateUnitsDragStart, updateUnitsRegionClick, updateUnitsDragEnd, updateUnitRegionOnMoveCancelled} from './helpers/UnitsHelper.js';
 import {updateRegionsCombatEnd} from './helpers/RegionHelper.js';
 
 
@@ -14,8 +14,7 @@ const mapReducer = (state = {}, action) => {
         case 'REGION_CLICKED':
             return { ...state, playerInfo: updatePlayerInfoPlacedUnitType(state.playerInfo, state.viewState, state.units, action.id, state.regions),
                                 viewState: updateViewStateSelectedRegion(state.viewState, action.id, state.units, state.regions, state.playerInfo),
-                                units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart, state.viewState.regionOver, state.viewState.currentPathIsValid,
-                                    state.viewState.placingPurchasedUnitType, state.playerInfo.id, action.id, state.regions, state.viewState.placingPurchasedUnitPosition) };
+                                units: updateUnitsRegionClick(state.units, state.viewState.placingPurchasedUnitType, state.playerInfo.id, action.id, state.regions, state.viewState.placingPurchasedUnitPosition) };
         case 'MAP_LOAD':
             return { ...state, regions: action.regions };
         case 'UNIT_LOAD':
@@ -41,7 +40,7 @@ const mapReducer = (state = {}, action) => {
         case 'UNIT_DRAG_START':
             return { ...state, viewState: updateViewStateUnitDragStart(state.viewState, action.e, action.unitInfo, state.regions), units: updateUnitsDragStart(state.units, action.unitInfo, action.e, state.viewState, state.regions)};
         case 'UNIT_DRAG_END':
-            return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units, state.regions), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart, state.viewState.regionOver, state.viewState.currentPathIsValid)};
+            return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units, state.regions), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart, state.viewState.regionOver, state.viewState.currentPathIsValid, state.playerInfo.activePhase)};
         case 'UNIT_MOVE_CANCELLED':
             return { ...state, units: updateUnitRegionOnMoveCancelled(state.units, action.unitInfo), viewState: updateViewStateRemoveSavedMoveArrows(state.viewState, action.uniqueId)};
         case 'UNIT_PATH_MAP':

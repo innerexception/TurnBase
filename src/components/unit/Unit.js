@@ -130,7 +130,8 @@ class Unit {
             return unitInfo.dragPosition;
         }
         else if(unitInfo.dragPosition && !unitInfo.queuedForMove){
-            unitInfo.dragPosition = unitInfo.lastGoodPosition;
+            if(unitInfo.airUnitCancelPosition) unitInfo.dragPosition = unitInfo.airUnitCancelPosition;
+            else unitInfo.dragPosition = unitInfo.lastGoodPosition;
             return unitInfo.dragPosition;
         }
         else{
@@ -165,7 +166,7 @@ class Unit {
         });
 
 
-        let pathEl, moveFill;
+        let pathEl, returnPathEl, moveFill;
 
         //Drawing move arrows
         if(viewState.unitDragStart && (viewState.unitDragStart.unitInfo.id) === unitInfo.id && unitInfo.queuedForMove){
@@ -182,21 +183,16 @@ class Unit {
                          <line markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill} />
                     </g>);
         }
-        let savedMoveArrowInfo;
+        let savedMoveArrowInfo, savedReturnMoveArrowInfo;
         if((!viewState.unitDragStart) && viewState.savedMoveArrows){
             savedMoveArrowInfo = viewState.savedMoveArrows.get(unitInfo.id);
             if(savedMoveArrowInfo && unitInfo.queuedForMove){
-                let dist = Math.sqrt( ((savedMoveArrowInfo.unitOriginalStart.x-savedMoveArrowInfo.newPosition.x)*(savedMoveArrowInfo.unitOriginalStart.x - savedMoveArrowInfo.newPosition.x))
-                    + ((savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)*(savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)) );
-
                 moveFill = 'lightgreen';
-
-                let x2 = -(savedMoveArrowInfo.unitOriginalStart.x-savedMoveArrowInfo.newPosition.x);
-                let y2 = -(savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y);
-
-                pathEl=(<g transform={'scale('+Math.min(Math.max(dist/20, 0.6), 0.9)+')translate(0,5)'}>
-                    <line onClick={()=>onMoveCancelClick(unitInfo)} markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill} strokeOpacity="0.4" strokeWidth={1.5}/>
-                </g>);
+                pathEl = Unit._getPathEl(savedMoveArrowInfo, moveFill, onMoveCancelClick, unitInfo);
+            }
+            savedReturnMoveArrowInfo = viewState.savedMoveArrows.get(unitInfo.id + '_returnPath');
+            if(savedReturnMoveArrowInfo && unitInfo.queuedForMove){
+                returnPathEl = Unit._getPathEl(savedReturnMoveArrowInfo, 'whitesmoke', onMoveCancelClick, unitInfo);
             }
         }
 
@@ -222,19 +218,33 @@ class Unit {
 
         return (<svg onContextMenu={(e) => {e.preventDefault(); if(!unitInfo.queuedForMove) onChipMouseOver(unitInfo); if(unitInfo.queuedForMove) sendOneUnitToOrigin(unitInfo);}} >
             {pathEl ? <svg x={viewState.unitOriginalStart ? viewState.unitOriginalStart.x : savedMoveArrowInfo.unitOriginalStart.x} y={viewState.unitOriginalStart ? viewState.unitOriginalStart.y : savedMoveArrowInfo.unitOriginalStart.y}>
-                        <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="'+moveFill+'" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
+                <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="'+moveFill+'" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
+            {returnPathEl ? <svg x={savedReturnMoveArrowInfo.unitOriginalStart.x} y={savedReturnMoveArrowInfo.unitOriginalStart.y}>
+                <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="whitesmoke" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{returnPathEl}</svg> : null}
 
                     <svg x={position.x} y={position.y + (unitInfo.number > 3 ? unitInfo.number*0.2 : 0)}>
                         <g>{chipEls}</g>
                     </svg>
 
-                    <svg className={unitInfo.queuedForMove ? 'no-events' : null} x={position.x} y={position.y}>
+                    <svg className={unitInfo.queuedForMove && !unitInfo.firstMove ? 'no-events' : null} x={position.x} y={position.y}>
                         <g onMouseDown={Unit.getUnitClickHandler(playerInfo, (e) => { if(e.button!==2) onUnitDragStart(e, unitInfo);}, unitInfo)}
                            onMouseUp={()=>{onUnitDragEnd()}}
                            transform={'scale('+Constants.Units[unitInfo.type].scaleFactor+')'}>{pathEls}</g>
                     </svg>
 
                 </svg>);
+    };
+
+    static _getPathEl = (savedMoveArrowInfo, moveFill, onMoveCancelClick, unitInfo) => {
+        let dist = Math.sqrt( ((savedMoveArrowInfo.unitOriginalStart.x-savedMoveArrowInfo.newPosition.x)*(savedMoveArrowInfo.unitOriginalStart.x - savedMoveArrowInfo.newPosition.x))
+            + ((savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)*(savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)) );
+
+        let x2 = -(savedMoveArrowInfo.unitOriginalStart.x-savedMoveArrowInfo.newPosition.x);
+        let y2 = -(savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y);
+
+        return (<g transform={'scale('+Math.min(Math.max(dist/20, 0.6), 0.9)+')translate(0,5)'}>
+            <line onClick={()=>onMoveCancelClick(unitInfo)} markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill} strokeOpacity="0.4" strokeWidth={1.5}/>
+        </g>);
     };
 }
 

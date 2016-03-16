@@ -154,19 +154,38 @@ export const updateUnitsDragStart = (units, unitInfo) => {
     return newUnits;
 };
 
-export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath, placingPurchasedUnitType, playerId, regionId, regions, purchaseUnitScreenPosition) => {
+export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath, activePhase) => {
     let newUnits = Array.from(units);
     let unitInfo = unitDragStart && unitDragStart.unitInfo;
     if(unitInfo){
         newUnits.forEach((unit) => {
             if(unit.id === unitInfo.id){
-                unit.lastRegion = unit.region;
-                if(isValidPath) unit.region = regionOver;
+                if(getUnitType(unitInfo.type) === 'air' && activePhase === 'Combat' && unit.firstMove){
+                    //Air unit placed over return region. Do not update lastRegion.
+                    console.debug('Air unit placed over return region. Do not update lastRegion.');
+                }
+                else{
+                    unit.lastRegion = unit.region;
+                }
+                if(isValidPath){
+                    if(getUnitType(unitInfo.type) === 'air' && activePhase === 'Combat'){
+                        if(!unit.firstMove){
+                            unit.firstMove = regionOver;
+                            //save position in case entire move series is cancelled
+                            unit.airUnitCancelPosition = unit.lastGoodPosition;
+                            //save position for next move arrow start point
+                            unit.lastGoodPosition = unit.dragPosition;
+                        }
+                    }
+                    unit.region = regionOver;
+                }
                 else{
                     if(regionOver === unitInfo.region){
+                        //Allow nudge
                         unit.lastGoodPosition = unit.dragPosition;
                     }
                     else{
+                        //Reset to original position
                         unit.dragPosition = unit.lastGoodPosition;
                     }
                     delete unit.queuedForMove;
@@ -175,6 +194,13 @@ export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath
             }
         });
     }
+
+    return newUnits;
+};
+
+
+export const updateUnitsRegionClick = (units, placingPurchasedUnitType, playerId, regionId, regions, purchaseUnitScreenPosition) => {
+    let newUnits = Array.from(units);
 
     if(placingPurchasedUnitType){
 
@@ -225,11 +251,7 @@ export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath
                 }
             }
         }
-
-
-
     }
-
 
     return newUnits;
 };
@@ -246,8 +268,6 @@ export const updateUnitRegionOnMoveCancelled = (units, unitInfo) => {
             }
             unit.region = unitInfo.lastRegion;
             delete unit.queuedForMove;
-
-
         }
     });
 

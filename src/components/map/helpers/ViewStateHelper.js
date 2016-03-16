@@ -52,7 +52,7 @@ export const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, pl
             }
             //Check for combats...
             regions.forEach((region) => {
-                let unitsInRegion = units.filter((unit) => { return unit.region === region.attributes.id});
+                let unitsInRegion = units.filter((unit) => { return unit.region === region.attributes.id || unit.firstMove === region.attributes.id});
                 let myUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id});
                 if(myUnitsInRegion.length > 0){
                     let combat = false;
@@ -159,7 +159,7 @@ export const updateViewStateUnitPanFromEvent = (viewState, e, regions, playerInf
     let activePhase = playerInfo.activePhase;
     let playerTeam = Constants.Players[playerInfo.id].team;
 
-    newState.currentPathIsValid = Utils.getValidMove(originRegionId, viewState.regionOver ? viewState.regionOver : viewState.unitDragStart.unitInfo.region, viewState.unitDragStart.unitInfo, region.adjacencyMap, newState.unitPath, activePhase, units, playerTeam);
+    newState.currentPathIsValid = Utils.getValidMove(originRegionId, viewState.regionOver ? viewState.regionOver : viewState.unitDragStart.unitInfo.region, viewState.unitDragStart.unitInfo, region.adjacencyMap, newState.unitPath, activePhase, units, playerTeam, regions);
 
     return newState;
 };
@@ -186,7 +186,8 @@ export const updateViewStateUnitDragEnd = (viewState, units) => {
 
         if(newState.currentPathIsValid){
             if(!newState.savedMoveArrows) newState.savedMoveArrows = new Map();
-            newState.savedMoveArrows.set(unitInfo.id, {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region})
+            if(!unitInfo.firstMove) newState.savedMoveArrows.set(unitInfo.id, {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region});
+            else newState.savedMoveArrows.set(unitInfo.id + '_returnPath', {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region});
         }
     }
 
