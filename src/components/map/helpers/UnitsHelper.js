@@ -118,14 +118,6 @@ export const updateUnitsCountDisplay = (units, unitInfo) => {
     return newUnits;
 };
 
-export const updateUnitsPathMap = (units, unitPathMap) => {
-    let newUnits = Array.from(units);
-    newUnits.forEach((unit) => {
-        unit.bbox = unitPathMap.get(unit.id);
-    });
-    return newUnits;
-};
-
 export const updateUnitsFromPanEvent = (e, units, viewState) => {
     let newUnits = Array.from(units);
 

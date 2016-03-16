@@ -4,7 +4,7 @@ import {updateViewStatePlacementPortrait, updateViewStatePlacingUnitType, update
         updateViewStateUnitPanFromEvent, updateViewStateUnitDragStart, updateViewStateUnitDragEnd} from './helpers/ViewStateHelper.js';
 import {updatePlayerInfoPlacedUnitType, updatePlayerInfoUnitPurchased, updatePlayerInfoUnitUnPurchased, updatePlayerInfoIncome,
         updatePlayerInfoPhase} from './helpers/PlayerInfoHelper.js';
-import {updateUnitsPhaseEnd, updateUnitsCombatEnd, updateUnitsSendToOrigin, updateUnitsCountDisplay, updateUnitsPathMap,
+import {updateUnitsPhaseEnd, updateUnitsCombatEnd, updateUnitsSendToOrigin, updateUnitsCountDisplay,
         updateUnitsFromPanEvent, updateUnitsDragStart, updateUnitsRegionClick, updateUnitsDragEnd, updateUnitRegionOnMoveCancelled} from './helpers/UnitsHelper.js';
 import {updateRegionsCombatEnd} from './helpers/RegionHelper.js';
 
@@ -43,8 +43,6 @@ const mapReducer = (state = {}, action) => {
             return { ...state, viewState: updateViewStateUnitDragEnd(state.viewState, state.units, state.regions), units: updateUnitsDragEnd(state.units, state.viewState.unitDragStart, state.viewState.regionOver, state.viewState.currentPathIsValid, state.playerInfo.activePhase)};
         case 'UNIT_MOVE_CANCELLED':
             return { ...state, units: updateUnitRegionOnMoveCancelled(state.units, action.unitInfo), viewState: updateViewStateRemoveSavedMoveArrows(state.viewState, action.uniqueId)};
-        case 'UNIT_PATH_MAP':
-            return { ...state, units: updateUnitsPathMap(state.units, action.unitPathMap), unitPathDispatch: true};
         case 'SEND_UNIT_TO_ORIGIN':
             return {...state, units: updateUnitsSendToOrigin(action.unitInfo, state.units)};
         case 'END_PHASE':

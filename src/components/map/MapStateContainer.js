@@ -11,7 +11,6 @@ const mapStateToProps = (state) => {
         regions: state.mapReducer.regions,
         units: state.mapReducer.units,
         viewState: state.mapReducer.viewState,
-        unitPathDispatch : state.mapReducer.unitPathDispatch,
         playerInfo: state.mapReducer.playerInfo,
         staticUnitPaths: state.mapReducer.staticUnitPaths
     };

@@ -5,24 +5,18 @@ import d3 from 'd3';
 
 class Unit {
 
-    static getUnitPaths = (regions, unitList, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onArmyClick, measurementPassDone, onChipMouseOver, sendOneUnitToOrigin, playerInfo) => {
+    static getUnitPaths = (regions, unitList, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onArmyClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo) => {
         let els = [];
         regions.forEach((region) => {
             let unitsInRegion = unitList.filter((unitInfo) => {
                 return unitInfo.region === region.attributes.id && !Constants.Units[unitInfo.type].isBuilding;
             });
             if(unitsInRegion.length > 0){
-                let regionBbox = Utils.getPathBoundingRectById(region.attributes.id);
-                region.bbox.pxWidth = regionBbox.width;
-                region.bbox.pxHeight = regionBbox.height;
-                region.bbox.px = regionBbox.left;
-                region.bbox.py = regionBbox.top;
-
-                let regionTestPositions = Unit.getPlacementPositions(unitsInRegion, region.bbox, measurementPassDone);
+                let regionTestPositions = Unit.getPlacementPositions(unitsInRegion);
                 regionTestPositions.forEach((playerPositions) => {
                     let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerPositions.player });
-                    if(playerPositions.showRondel && measurementPassDone) els.push(Unit.getPlayerArmyRondelPath(playerPositions.roundelPosition, playerPositions.player, onArmyClick, region.attributes.id));
-                    else els = els.concat(Unit.getPlayerUnitPathsForRegion(playerPositions, playerUnitsInRegion, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo));
+                    //els.push(Unit.getPlayerArmyRondelPath(playerPositions.roundelPosition, playerPositions.player, onArmyClick, region.attributes.id));
+                    els = els.concat(Unit.getPlayerUnitPathsForRegion(playerPositions, playerUnitsInRegion, onUnitStackClick, onUnitDragStart, onUnitDragEnd, viewState, onMoveCancelClick, onChipMouseOver, sendOneUnitToOrigin, playerInfo));
                 });
             }
         });
@@ -30,13 +24,11 @@ class Unit {
         return els;
     };
 
-    static getPlacementPositions = (unitsInRegion, regionCentroid, measurementPassDone) => {
+    static getPlacementPositions = (unitsInRegion) => {
 
-        let players = [], numPlayers = 0;
+        let players = [];
         let regionId;
-        unitsInRegion.forEach((unit) => { if(players.indexOf(unit.owner) === -1) { players.push(unit.owner); numPlayers++; regionId=unit.region; }});
-
-        let i=0;
+        unitsInRegion.forEach((unit) => { if(players.indexOf(unit.owner) === -1) { players.push(unit.owner); regionId=unit.region; }});
 
         players = players.map((player) => {
             let playerUnitTypes = [];
@@ -48,64 +40,19 @@ class Unit {
                 if(playerUnitTypes.indexOf(unit.type) === -1) playerUnitTypes.push(unit.type);
             });
 
-            let fit = true;
-            let numRows = 0;
-            let numCols = 0;
-
             let unitPositions = [];
-            let playerRect = {x: regionCentroid.x, y: regionCentroid.y + ((regionCentroid.height/(numPlayers))*i), width: regionCentroid.width, height: regionCentroid.height/numPlayers, px: regionCentroid.px, py: regionCentroid.py + ((regionCentroid.pxHeight/(numPlayers))*i)};
-
             playerUnitTypes.forEach((unitType) => {
-                //if(fit || !(measurementPassDone)){
+                let defaultUnitPosition = Constants.Units.DefaultPositions.filter((unitPosition) => {
+                    return unitPosition.region + unitPosition.type + unitPosition.owner === regionId + unitType + player;
+                })[0];
 
-                    let defaultUnitPosition = Constants.Units.DefaultPositions.filter((unitPosition) => {
-                        return unitPosition.region + unitPosition.type + unitPosition.owner === regionId + unitType + player;
-                    })[0];
-
-                    if(defaultUnitPosition && defaultUnitPosition.initialX){
-                        unitPositions.push({ x: defaultUnitPosition.initialX, y:defaultUnitPosition.initialY});
-                    }
-                    else{
-                        let potentialPosition = { x: playerRect.x + (numCols*7), y: playerRect.y + (5*numRows) };
-
-                        let currentUnit =playerUnits.filter((unit) => {
-                            return unit.type === unitType;
-                        })[0];
-
-                        let unitWidth = currentUnit.bbox ? currentUnit.bbox.width : 0;
-                        let unitHeight = currentUnit.bbox ? currentUnit.bbox.height : 0;
-
-                        //Will it fit into the player unit slots?
-                        let fitBeforeWrap = (potentialPosition.x + ((playerRect.width/unitWidth)*15)) < playerRect.width + playerRect.x;
-
-                        if(!fitBeforeWrap){
-                            //We need to try wrapping before we give up
-                            numRows++;
-                            numCols = 0;
-                            potentialPosition.y += 5;
-                            potentialPosition.x = playerRect.x;
-                        }
-
-                        //If we don't fit the height, we don't continue
-                        fit = (potentialPosition.y + ((playerRect.height/unitHeight)*15)) < playerRect.height + playerRect.y;
-
-
-                        unitPositions.push(potentialPosition);
-                    }
-                    numCols++;
-                //}
+                if(defaultUnitPosition && defaultUnitPosition.initialX){
+                    unitPositions.push({ x: defaultUnitPosition.initialX, y:defaultUnitPosition.initialY});
+                }
             });
 
-            i++;
-
-            //if(fit || !measurementPassDone){
-                return { player, unitTypes: playerUnitTypes, rect: playerRect, unitPositions };
-            //}
-            //else{
-            //    return { player, showRondel: true, roundelPosition: { x: playerRect.x + (playerRect.width/2) - 2.5, y: playerRect.y + (playerRect.height/2) - 2.5 } };
-            //}
+            return { player, unitTypes: playerUnitTypes, unitPositions };
         });
-
 
         return players;
     };
@@ -164,7 +111,6 @@ class Unit {
         unitInfo.paths.forEach((path) => {
             pathEls.push((<path  d={path.attributes.d} className='turnbase-unit' id={unitInfo.id} fill={Constants.Players[unitInfo.owner].color}></path>));
         });
-
 
         let pathEl, returnPathEl, moveFill;
 

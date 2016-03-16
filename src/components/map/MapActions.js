@@ -161,13 +161,6 @@ export const fetchUnits = (units, centroidMap, regions, landTypes, seaTypes) => 
     }
 };
 
-export const fetchUnitPaths = (unitPathMap) => {
-    return {
-        type: 'UNIT_PATH_MAP',
-        unitPathMap
-    }
-};
-
 export const fetchedUnits = (regionUnits, textResponseArray, centroidMap, regions) => {
     return {
         type: 'UNIT_LOAD',

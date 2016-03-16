@@ -44,16 +44,10 @@ class BaseMap extends React.Component {
             });
             this.props.store.dispatch(fetchUnits(Constants.Units.DefaultPositions, centroidMap, this.props.regions, Constants.Units.LandUnitTypes, Constants.Units.SeaUnitTypes));
         }
-        if(this.props.units && !this.props.unitPathDispatch){
-            let unitPathMap = new Map();
-            d3.selectAll('.turnbase-unit')[0].forEach((path) =>{
-                let bbox = path.getBBox();
-                unitPathMap.set(+path.attributes.id.nodeValue, {x: bbox.x, y: bbox.y, width:bbox.width, height:bbox.height});
-            });
+        if(this.props.units && this.props.staticUnitPaths){
             this.props.staticUnitPaths.forEach((unitPath) => {
                 Constants.Units[unitPath.name].paths = unitPath.paths;
             });
-            this.props.store.dispatch(fetchUnitPaths(unitPathMap));
         }
     }
 
@@ -107,7 +101,7 @@ class BaseMap extends React.Component {
                             {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units,
                                                                   this.props.onUnitStackClick, this.props.onUnitDragStart,
                                                                   this.props.onUnitDragEnd, this.props.viewState, this.props.onMoveCancelClick,
-                                                                  this.props.onArmyClick, this.props.unitPathDispatch, this.props.onChipMouseOver,
+                                                                  this.props.onArmyClick, this.props.onChipMouseOver,
                                                                   this.props.sendOneUnitToOrigin, this.props.playerInfo) : null}
                         </g>
                     </svg>
