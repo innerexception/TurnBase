@@ -51,16 +51,9 @@ class BaseMap extends React.Component {
         }
     }
 
-    _getViewTransformString = (viewState, buffer) => {
+    _getViewTransformString = (viewState) => {
         if(viewState){
-            if(buffer){
-                let panValue = viewState.pan.x-1070;
-                if(panValue < -1076) panValue = viewState.pan.x+1070;
-                return viewState ? 'scale('+viewState.zoomLevel+')translate('+(panValue) + ',' + (viewState.pan.y-(1000/viewState.zoomLevel)) + ')' : null;
-            }
-            else{
-                return viewState ? 'scale('+viewState.zoomLevel+')translate('+viewState.pan.x + ',' + viewState.pan.y + ')' : null;
-            }
+            return viewState ? 'scale('+viewState.zoomLevel+')translate('+viewState.pan.x + ',' + viewState.pan.y + ')' : null;
         }
     };
 
@@ -112,16 +105,6 @@ class BaseMap extends React.Component {
                                                                   this.props.onUnitDragEnd, this.props.viewState, this.props.onMoveCancelClick,
                                                                   this.props.onArmyClick, this.props.onChipMouseOver,
                                                                   this.props.sendOneUnitToOrigin, this.props.playerInfo) : null}
-                        </g>
-                    </svg>
-                    <svg id="mapSvg" onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this._getMapMouseUpHandler(this.props.viewState)} onWheel={this.props.onMapZoom} >
-                        <g transform={this._getViewTransformString(this.props.viewState, true)}>
-                            {Region.getRegionPaths(this.props.regions, this.props.onRegionClick, this.props.viewState, this.props.highlightNextIncomeRegion, this.props.units)}
-                            {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units,
-                                this.props.onUnitStackClick, this.props.onUnitDragStart,
-                                this.props.onUnitDragEnd, this.props.viewState, this.props.onMoveCancelClick,
-                                this.props.onArmyClick, this.props.onChipMouseOver,
-                                this.props.sendOneUnitToOrigin, this.props.playerInfo) : null}
                         </g>
                     </svg>
                     {this.props.viewState.placingPurchasedUnitType ? this._getPlacementPortraitForType(this.props.viewState.placingPurchasedUnitType, this.props.viewState.placingPurchasedUnitPosition) : null}
