@@ -168,9 +168,6 @@ export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath
                             //save position for next move arrow start point
                             unit.lastGoodPosition = unit.dragPosition;
                         }
-                        else if(unit.firstMove){
-                            unit.secondMove = true;
-                        }
                     }
                     unit.region = regionOver;
                 }
@@ -257,7 +254,7 @@ export const updateUnitRegionOnMoveCancelled = (units, unitInfo) => {
     newUnits.forEach((unit) => {
         if(unit.id === unitInfo.id){
             let regionTypeUnits = newUnits.filter((unit) => {return unit.region === unitInfo.lastRegion && unit.type === unitInfo.type;});
-            if(regionTypeUnits.length > 0 && regionTypeUnits[0].id !== unitInfo.id){
+            if(regionTypeUnits.length > 0){
                 regionTypeUnits[0].number += unitInfo.number;
                 deleteId = unit.id;
             }

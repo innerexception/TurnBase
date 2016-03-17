@@ -25,6 +25,7 @@ class Unit {
     };
 
     static getPlacementPositions = (unitsInRegion) => {
+
         let players = [];
         let regionId;
         unitsInRegion.forEach((unit) => { if(players.indexOf(unit.owner) === -1) { players.push(unit.owner); regionId=unit.region; }});
@@ -162,10 +163,9 @@ class Unit {
         if(unitInfo.showUnitCount) chipEls.push(<text x={0} y={0} width={1} height={1} fontSize="3">{unitInfo.number}</text>);
 
         return (<svg onContextMenu={(e) => {e.preventDefault(); if(!unitInfo.queuedForMove) onChipMouseOver(unitInfo); if(unitInfo.queuedForMove) sendOneUnitToOrigin(unitInfo);}} >
-                    {pathEl ? <svg x={viewState.unitOriginalStart ? viewState.unitOriginalStart.x : savedMoveArrowInfo.unitOriginalStart.x} y={viewState.unitOriginalStart ? viewState.unitOriginalStart.y : savedMoveArrowInfo.unitOriginalStart.y}>
+            {pathEl ? <svg x={viewState.unitOriginalStart ? viewState.unitOriginalStart.x : savedMoveArrowInfo.unitOriginalStart.x} y={viewState.unitOriginalStart ? viewState.unitOriginalStart.y : savedMoveArrowInfo.unitOriginalStart.y}>
                 <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="'+moveFill+'" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
-
-                    {returnPathEl ? <svg x={savedReturnMoveArrowInfo.unitOriginalStart.x} y={savedReturnMoveArrowInfo.unitOriginalStart.y}>
+            {returnPathEl ? <svg x={savedReturnMoveArrowInfo.unitOriginalStart.x} y={savedReturnMoveArrowInfo.unitOriginalStart.y}>
                 <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="whitesmoke" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{returnPathEl}</svg> : null}
 
                     <svg x={position.x} y={position.y + (unitInfo.number > 3 ? unitInfo.number*0.2 : 0)}>
@@ -177,13 +177,6 @@ class Unit {
                            onMouseUp={()=>{onUnitDragEnd()}}
                            transform={'scale('+Constants.Units[unitInfo.type].scaleFactor+')'}>{pathEls}</g>
                     </svg>
-
-                    {(unitInfo.firstMove && !unitInfo.secondMove) ? <svg x={position.x} y={position.y}>
-                                            <g>
-                                                <text fontSize="8" fill="red">!</text>
-                                                <rect width="5" height="7" fillOpacity="0" x="-1" y="-6"><title>Air unit needs return path</title></rect>
-                                            </g>
-                                          </svg> : null}
 
                 </svg>);
     };

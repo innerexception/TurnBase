@@ -38,7 +38,6 @@ input[type=range]{
     fill-opacity: 1;
     stroke-opacity: 1;
     stroke-width:1;
-    cursor: pointer;
 }
 
 .turnbase-region.selected{

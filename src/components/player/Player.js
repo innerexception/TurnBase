@@ -6,8 +6,8 @@ class Player {
     static getPlayerUIEls = (playerInfo, onEndPhaseClick, combatInfo, units, onUnitTypePurchased, unitTypeUnpurchased, onPurchasedUnitClick, viewState) => {
         return (
             <div className='turnbase-ui-frame'>
-                <div className='turnbase-ui-outer' title={Player.findUnfinishedAirMoves(units) ? 'You have unfinished air unit moves!' : null} style={{backgroundColor:Constants.Players[playerInfo.id].color}}>
-                    <img className={combatInfo || Player.findUnfinishedAirMoves(units) ? 'no-events' : null} onClick={() => onEndPhaseClick(playerInfo.activePhase)} src={Constants.Players[playerInfo.id].markerPath}/>
+                <div className='turnbase-ui-outer' style={{backgroundColor:Constants.Players[playerInfo.id].color}}>
+                    <img className={combatInfo ? 'no-events' : null} onClick={() => onEndPhaseClick(playerInfo.activePhase)} src={Constants.Players[playerInfo.id].markerPath}/>
                     <div className='player-phase'>{playerInfo.activePhase}</div>
                     <div className='player-bank'>{playerInfo.lastIncome}</div>
                 </div>
@@ -22,12 +22,6 @@ class Player {
                 </div>
             </div>
         )
-    };
-
-    static findUnfinishedAirMoves = (units) => {
-        return units && units.filter((unit) => {
-            return unit.firstMove && !unit.secondMove;
-        }).length;
     };
 
     static getPurchaseEl = (playerInfo, units, onUnitTypePurchased, unitTypeUnpurchased, onPurchasedUnitClick) => {
