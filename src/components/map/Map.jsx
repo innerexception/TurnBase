@@ -89,15 +89,25 @@ class BaseMap extends React.Component {
         );
     };
 
+    _getModalState = (viewState, units) => {
+        if(units){
+            if(viewState.combatInfo) return true;
+            if(units.filter((unit) => unit.showMissionTypeModal).length > 0) return true;
+        }
+        return false;
+    };
+
     render() {
         if (this.props.regions) {
+            let modalState = this._getModalState(this.props.viewState, this.props.units);
+            let unitMission = this.props.units ? this.props.units.filter((unit) => unit.showMissionTypeModal)[0] : null;
             return (
                 <div onMouseMove={this.props.updatePlacementPortraitPosition} className='turnbase-map-outer'>
                     {Player.getPlayerUIEls(this.props.playerInfo, this.props.onEndPhaseClick, this.props.viewState.combatInfo,
                                             this.props.units, this.props.onUnitTypePurchased, this.props.unitTypeUnpurchased,
-                                            this.props.onPurchasedUnitClick, this.props.viewState)}
+                                            this.props.onPurchasedUnitClick, modalState)}
                     <CombatStateContainer store={this.props.store}/>
-                    <svg id="mapSvg" onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this._getMapMouseUpHandler(this.props.viewState)} onWheel={this.props.onMapZoom} >
+                    <svg id="mapSvg" className={ modalState ? 'no-events' : null } onMouseDown={this.props.onMapDragStart} onMouseMove={this._getMapMoveHandler(this.props.viewState)} onMouseUp={this._getMapMouseUpHandler(this.props.viewState)} onWheel={this.props.onMapZoom} >
                         <g transform={this._getViewTransformString(this.props.viewState)}>
                             {Region.getRegionPaths(this.props.regions, this.props.onRegionClick, this.props.viewState, this.props.highlightNextIncomeRegion, this.props.units)}
                             {this.props.units ? Unit.getUnitPaths(this.props.regions, this.props.units,
@@ -108,6 +118,7 @@ class BaseMap extends React.Component {
                         </g>
                     </svg>
                     {this.props.viewState.placingPurchasedUnitType ? this._getPlacementPortraitForType(this.props.viewState.placingPurchasedUnitType, this.props.viewState.placingPurchasedUnitPosition) : null}
+                    {unitMission ? Unit.getMissionModal(unitMission, this.props.setUnitMissionTransitionIn, this.props.onUnitMissionSelect) : null}
                 </div>);
         }
         else {

@@ -20,6 +20,7 @@ export default {
             {type: 'infantry', number: 2,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'DE', region: 'Spain', initialX:465, initialY:350, id:Math.random()},
             {type: 'aaa', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'CentralFrance', initialX:485, initialY:316, id:Math.random()},
             {type: 'fighter', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'CentralFrance', initialX:478, initialY:316, id:Math.random()},
+            {type: 'bomber', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'CentralFrance', initialX:478, initialY:323, id:Math.random()},
             {type: 'majorIC', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'CentralFrance', id:Math.random()},
             //{type: 'airfield', number: 1, owner: 'FR', region: 'CentralFrance'}
             //{type: 'artillery', number: 1, owner: 'IT', region: 'UnitedKingdom', id:Math.random()},
@@ -236,7 +237,12 @@ export default {
         Chip1: {markerPath: './res/chip.png'},
         Chip10: {markerPath: './res/chip10.png'},
         Chip5: {markerPath: './res/chip5.png'},
-        Phases: ['Purchase', 'Combat', 'Move', 'Placement', 'Income']
+        Phases: ['Purchase', 'Combat', 'Move', 'Placement', 'Income'],
+        BombingMissions: {
+            Strategic: { imagePath: './res/strategicBombing.png'},
+            Standard: { imagePath: './res/standardBombing.png'},
+            Infrastructure: { imagePath: './res/infrastructureBombing.png'}
+        }
     }
 
 }

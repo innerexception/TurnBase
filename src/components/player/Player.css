@@ -3,6 +3,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
+    transition: background 500ms;
 }
 
 .turnbase-ui-outer{

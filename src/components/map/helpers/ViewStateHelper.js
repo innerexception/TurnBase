@@ -55,14 +55,28 @@ export const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, pl
                 let unitsInRegion = units.filter((unit) => { return unit.region === region.attributes.id});
                 let myUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id});
                 if(myUnitsInRegion.length > 0){
-                    let combat = false;
-                    unitsInRegion.forEach((unit) => { if(Constants.Players[unit.owner].team !== playerInfo.team) combat = true; });
+                    let combat = false, specialCombat = new Map();
+                    unitsInRegion.forEach((unit) => {
+                        if(Constants.Players[unit.owner].team !== playerInfo.team) combat = true;
+                        if(unit.missionType){
+                            //Group together all units in the region by special mission type
+                            let specialMissionUnits = specialCombat.get(unit.missionType);
+                            if(!specialMissionUnits){ specialCombat.set(unit.missionType, []); specialMissionUnits = []; }
+                            specialMissionUnits.push(unit);
+                            specialCombat.set(unit.missionType, specialMissionUnits);
+                        }
+                    });
+                    //TODO: check for bombing runs, do not include bombers on non-standard mission type in combat. Queue a special combat object for these seperately.
                     if(combat){
                         if(!newState.combatQueue) newState.combatQueue = [];
                         let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id && unit.type !== 'aaa'});
                         let otherTeamUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && unit.type !== 'aaa'});
+                        let otherTeamAAAUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && unit.type === 'aaa'});
                         if(region.attributes.defaultOwner === playerInfo.id) newState.combatQueue.push({ defenderUnits: playerUnitsInRegion, attackerUnits: otherTeamUnitsInRegion });
                         else newState.combatQueue.push({ attackerUnits: playerUnitsInRegion, defenderUnits: otherTeamUnitsInRegion });
+                        for(var key of specialCombat.keys()){
+                            newState.combatQueue.push({ attackerUnits: specialCombat.get(key), defenderUnits: otherTeamAAAUnitsInRegion, missionType:key });
+                        }
                     }
                 }
             });

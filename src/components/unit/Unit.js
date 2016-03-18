@@ -187,6 +187,20 @@ class Unit {
                 </svg>);
     };
 
+    static getMissionModal = (unit, setUnitMissionTransitionIn, onUnitMissionSelect) => {
+        //TODO: animate in
+        if(!unit.missionTransitionIn) setTimeout(()=>setUnitMissionTransitionIn(unit), 500);
+        if(unit.type === 'bomber'){
+            return (
+                <div className={'turnbase-unit-mission-modal '+(unit.missionTransitionIn?'in' : 'out')}>
+                    <img onClick={()=>onUnitMissionSelect(unit, 'Strategic')} src={Constants.UI.BombingMissions.Strategic.imagePath}/>
+                    <img onClick={()=>onUnitMissionSelect(unit, 'Standard')} src={Constants.UI.BombingMissions.Standard.imagePath}/>
+                    <img onClick={()=>onUnitMissionSelect(unit, 'Infrastructure')} src={Constants.UI.BombingMissions.Infrastructure.imagePath}/>
+                </div>
+            );
+        }
+    };
+
     static _getPathEl = (savedMoveArrowInfo, moveFill, onMoveCancelClick, unitInfo) => {
         let dist = Math.sqrt( ((savedMoveArrowInfo.unitOriginalStart.x-savedMoveArrowInfo.newPosition.x)*(savedMoveArrowInfo.unitOriginalStart.x - savedMoveArrowInfo.newPosition.x))
             + ((savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)*(savedMoveArrowInfo.unitOriginalStart.y-savedMoveArrowInfo.newPosition.y)) );

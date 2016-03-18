@@ -30,6 +30,21 @@ export const updatePlacementPortrait = (e) => {
     }
 };
 
+export const setUnitMissionTransitionIn = (unit) => {
+    return {
+        type: 'SET_UNIT_MISSION_TRANSITION_IN',
+        unit
+    }
+};
+
+export const setUnitMissionType = (unit, missionType) => {
+    return {
+        type: 'SET_UNIT_MISSION_TYPE',
+        unit,
+        missionType
+    }
+};
+
 export const purchaseUnitClick = (unitType, e) => {
     return {
         type: 'GRAB_PURCHASED_UNIT',

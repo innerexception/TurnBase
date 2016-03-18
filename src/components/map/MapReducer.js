@@ -5,7 +5,8 @@ import {updateViewStatePlacementPortrait, updateViewStatePlacingUnitType, update
 import {updatePlayerInfoPlacedUnitType, updatePlayerInfoUnitPurchased, updatePlayerInfoUnitUnPurchased, updatePlayerInfoIncome,
         updatePlayerInfoPhase} from './helpers/PlayerInfoHelper.js';
 import {updateUnitsPhaseEnd, updateUnitsCombatEnd, updateUnitsSendToOrigin, updateUnitsCountDisplay,
-        updateUnitsFromPanEvent, updateUnitsDragStart, updateUnitsRegionClick, updateUnitsDragEnd, updateUnitRegionOnMoveCancelled} from './helpers/UnitsHelper.js';
+        updateUnitsFromPanEvent, updateUnitsDragStart, updateUnitsRegionClick, updateUnitsDragEnd,
+        updateUnitRegionOnMoveCancelled, updateUnitTransitionIn, updateUnitMissionType} from './helpers/UnitsHelper.js';
 import {updateRegionsCombatEnd} from './helpers/RegionHelper.js';
 
 
@@ -57,6 +58,10 @@ const mapReducer = (state = {}, action) => {
             return {...state, viewState: updateViewStatePlacingUnitType(action.unitType, state.viewState, action.e)};
         case 'UPDATE_PLACEMENT_PORTRAIT':
             return {...state, viewState: updateViewStatePlacementPortrait(state.viewState, action.e)};
+        case 'SET_UNIT_MISSION_TRANSITION_IN':
+            return {...state, units: updateUnitTransitionIn(state.units, action.unit)};
+        case 'SET_UNIT_MISSION_TYPE':
+            return {...state, units: updateUnitMissionType(state.units, action.unit, action.missionType)};
         default:
             return state
     }

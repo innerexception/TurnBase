@@ -3,7 +3,8 @@ import { regionClicked, regionMouseEnter, mapDragged,
     mapDragEnd, mapDragStart, mapZoom, unitDragStart,
     unitDragEnd, unitMove, moveCancel, chipOut, chipOver,
     sendOneUnitToOrigin, endPhase, highlightNextRegion,
-    unitTypeUnpurchased, unitTypePurchased, purchaseUnitClick, updatePlacementPortrait } from './MapActions.js';
+    unitTypeUnpurchased, unitTypePurchased, purchaseUnitClick,
+    updatePlacementPortrait, setUnitMissionTransitionIn, setUnitMissionType } from './MapActions.js';
 import Map from './Map.jsx'
 
 const mapStateToProps = (state) => {
@@ -71,6 +72,12 @@ const mapDispatchToProps = (dispatch) => {
         },
         updatePlacementPortraitPosition: (e) => {
             dispatch(updatePlacementPortrait(e));
+        },
+        setUnitMissionTransitionIn: (unit) => {
+            dispatch(setUnitMissionTransitionIn(unit));
+        },
+        onUnitMissionSelect: (unit, missionType) => {
+            dispatch(setUnitMissionType(unit, missionType));
         }
     }
 };

@@ -3,9 +3,9 @@ import Constants from '../Constants.js';
 import './Player.css';
 
 class Player {
-    static getPlayerUIEls = (playerInfo, onEndPhaseClick, combatInfo, units, onUnitTypePurchased, unitTypeUnpurchased, onPurchasedUnitClick, viewState) => {
+    static getPlayerUIEls = (playerInfo, onEndPhaseClick, combatInfo, units, onUnitTypePurchased, unitTypeUnpurchased, onPurchasedUnitClick, modalState) => {
         return (
-            <div className='turnbase-ui-frame'>
+            <div className={'turnbase-ui-frame '+(modalState ? 'modal' : '')}>
                 <div className='turnbase-ui-outer' title={Player.findUnfinishedAirMoves(units) ? 'You have unfinished air unit moves!' : null} style={{backgroundColor:Constants.Players[playerInfo.id].color}}>
                     <img className={combatInfo || Player.findUnfinishedAirMoves(units) ? 'no-events' : null} onClick={() => onEndPhaseClick(playerInfo.activePhase)} src={Constants.Players[playerInfo.id].markerPath}/>
                     <div className='player-phase'>{playerInfo.activePhase}</div>

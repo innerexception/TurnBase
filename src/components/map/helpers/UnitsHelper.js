@@ -160,7 +160,11 @@ export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath
                     unit.lastRegion = unit.region;
                 }
                 if(isValidPath){
+                    unit.showMissionTypeModal = false;
                     if(getUnitType(unitInfo.type) === 'air' && activePhase === 'Combat'){
+                        if(unit.type === 'bomber' && !unit.firstMove){
+                            unit.showMissionTypeModal = true;
+                        }
                         if(!unit.firstMove){
                             unit.firstMove = regionOver;
                             //save position in case entire move series is cancelled
@@ -171,6 +175,8 @@ export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath
                         else if(unit.firstMove){
                             unit.secondMove = true;
                         }
+
+
                     }
                     unit.region = regionOver;
                 }
@@ -192,7 +198,6 @@ export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath
 
     return newUnits;
 };
-
 
 export const updateUnitsRegionClick = (units, placingPurchasedUnitType, playerId, regionId, regions, purchaseUnitScreenPosition) => {
     let newUnits = Array.from(units);
@@ -278,6 +283,25 @@ export const getUnitType = (unitType) => {
     return Constants.Units[unitType].type;
 };
 
+export const updateUnitTransitionIn = (units, unit) => {
+    let newUnits = Array.from(units);
+    newUnits.forEach((nunit) => {
+        if(nunit.id === unit.id) nunit.missionTransitionIn = true;
+        else delete nunit.missionTransitionIn;
+    });
+    return newUnits;
+};
 
+export const updateUnitMissionType = (units, unit, missionType) => {
+    let newUnits = Array.from(units);
+    newUnits.forEach((nunit) => {
+        if(nunit.id === unit.id){
+            nunit.missionType = missionType;
+            delete nunit.showMissionTypeModal;
+            delete nunit.missionTransitionIn;
+        }
+    });
+    return newUnits;
+};
 
 

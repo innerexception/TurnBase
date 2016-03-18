@@ -18,6 +18,12 @@ input[type=range]{
     pointer-events: none;
 }
 
+.modal{
+    background-color: black;
+    opacity: 0.6;
+    z-index: 1;
+}
+
 .turnbase-map-outer{
     height: 100%;
 }
@@ -47,4 +53,28 @@ input[type=range]{
 
 .turnbase-region.unit-path-region{
     fill: green;
+}
+
+.turnbase-unit-mission-modal{
+    position: absolute;
+    top: 43%;
+    width: 20%;
+    height: 17%;
+    transition: 1s all;
+    z-index:10;
+    background-color: burlywood;
+    border-radius: 10px;
+    padding-bottom: 10px;
+}
+.turnbase-unit-mission-modal.out{
+    left:-20%;
+}
+.turnbase-unit-mission-modal.in{
+    left: 40%;
+}
+.turnbase-unit-mission-modal img{
+    width: 80px;
+    height: 100%;
+    margin-left: 8%;
+    cursor: pointer;
 }
