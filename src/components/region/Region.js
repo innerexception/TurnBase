@@ -12,7 +12,7 @@ class Region {
             let buildings = [];
             if(units) buildings = units.filter((unit) => {return Constants.Units[unit.type].isBuilding && unit.region === region.attributes.id});
             return (
-                <svg>
+                <svg x={region.translate}>
                     <g>
                         <path onClick={() => onRegionClick(region.attributes.id)}
                               d={region.attributes.d}

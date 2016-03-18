@@ -28,7 +28,7 @@ const mapReducer = (state = {}, action) => {
         case 'CHIP_MOUSE_OVER':
             return { ...state, units: updateUnitsCountDisplay(state.units, action.unitInfo)};
         case 'MAP_DRAGGED':
-            return { ...state, viewState: updateViewStatePanFromEvent(state.viewState, action.e)};
+            return { ...state, viewState: updateViewStatePanFromEvent(state.viewState, action.e, state.regions)};
         case 'MAP_DRAG_START':
             return { ...state, viewState: updateViewStateDragStart(state.viewState, action.e)};
         case 'MAP_DRAG_END':

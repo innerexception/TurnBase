@@ -124,7 +124,7 @@ export const updateViewStateZoom = (viewState, e) => {
     return newState;
 };
 
-export const updateViewStatePanFromEvent = (viewState, e) => {
+export const updateViewStatePanFromEvent = (viewState, e, regions) => {
     let newState = { ...viewState };
     let currentX = newState.mapDragStart.x;
     let currentY = newState.mapDragStart.y;
@@ -132,11 +132,51 @@ export const updateViewStatePanFromEvent = (viewState, e) => {
     // if you roll over 1180, reset pan to 0,
     // if you roll under -1555, reset to -485
     let xVal = newState.pan.x + ((e.clientX - currentX)/viewState.zoomLevel);
-    if(xVal > 1180) xVal = 0;
-    if(xVal < -1555) xVal = -485;
+    if(xVal > 1030){
+        xVal = 0;
+        //reset to normal position
+        regions.forEach((region) => {
+            delete region.translate;
+        });
+    }
+    if(xVal < -1555){
+        xVal = -485;
+        //reset to normal position
+        regions.forEach((region) => {
+            delete region.translate;
+        });
+    }
     let yVal = newState.pan.y + ((e.clientY -  currentY)/viewState.zoomLevel);
     newState.pan = {x: xVal, y: yVal};
     newState.mapDragStart = {x: e.clientX, y: e.clientY};
+
+    if(xVal > -30){
+        //Start bringing regions over from japan pacific
+        let regionRange = 970-(xVal+30);
+        regions.forEach((region) => {
+            if(region.bbox.x > regionRange){
+                //Move this region over to the us pacific
+               if(!region.translate) region.translate = -1030;
+            }
+        });
+    }
+    else if(xVal < -485){
+        //Start bringing over regions from us pacific
+        let regionRange = Math.abs(xVal)-485;
+        regions.forEach((region) => {
+            if(region.bbox.x < regionRange){
+                //Move this region over to the japon pacific
+                if(!region.translate) region.translate = 1030;
+            }
+        });
+    }
+    else{
+        //reset to normal position
+        regions.forEach((region) => {
+            delete region.translate;
+        });
+    }
+
     return newState;
 };
 
