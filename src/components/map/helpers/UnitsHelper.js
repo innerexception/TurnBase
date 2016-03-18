@@ -261,8 +261,11 @@ export const updateUnitRegionOnMoveCancelled = (units, unitInfo) => {
                 regionTypeUnits[0].number += unitInfo.number;
                 deleteId = unit.id;
             }
+            if(unit.airUnitCancelPosition) unit.lastGoodPosition = unit.airUnitCancelPosition;
             unit.region = unitInfo.lastRegion;
             delete unit.queuedForMove;
+            delete unit.firstMove;
+            delete unit.secondMove;
         }
     });
 

@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react'
 import Constants from '../Constants.js';
+import { getUnitType } from '../map/helpers/UnitsHelper.js';
 
 class Region {
 
@@ -16,7 +17,7 @@ class Region {
                     <g>
                         <path onClick={() => onRegionClick(region.attributes.id)}
                               d={region.attributes.d}
-                              fill={Constants.Players[region.attributes.defaultOwner ? region.attributes.defaultOwner : 'N'].color}
+                              fill={Region.getFillColor(viewState, region, buildings)}
                               stroke={Region.getRegionStroke(viewState, region)}
                               id={region.attributes.id} title={region.attributes.title}
                               className={'turnbase-region ' + Region.getRegionClassNames(region, viewState)}></path>
@@ -28,6 +29,26 @@ class Region {
 
             )
         });
+    };
+
+    static getFillColor = (viewState, region, buildings) => {
+        let defaultColor = Constants.Players[region.attributes.defaultOwner ? region.attributes.defaultOwner : 'N'].color;
+        if(viewState.placingPurchasedUnitType){
+            let unitDomain = getUnitType(viewState.placingPurchasedUnitType);
+            if(unitDomain === 'sea'){
+                if(buildings.filter((building => building.type === 'harbor')).length > 0){
+                    return 'green';
+                }
+                else return defaultColor;
+            }
+            else{
+                if(buildings.filter((building => building.type === 'majorIC' || building.type === 'minorIC')).length > 0){
+                    return 'green';
+                }
+                else return defaultColor;
+            }
+        }
+        else return defaultColor;
     };
 
     static getBuildingImages = (buildings, region) => {

@@ -96,6 +96,7 @@ export const updateViewStateLoadNextCombat = (viewState) => {
 export const updateViewStateRemoveSavedMoveArrows = (viewState, uniqueId) => {
     let newState = {...viewState};
     newState.savedMoveArrows.delete(uniqueId);
+    newState.savedMoveArrows.delete(uniqueId + '_returnPath');
     return newState;
 };
 
@@ -234,9 +235,8 @@ export const updateViewStateUnitDragEnd = (viewState, units) => {
 
         if(newState.currentPathIsValid){
             if(!newState.savedMoveArrows) newState.savedMoveArrows = new Map();
-            newState.savedMoveArrows.set(unitInfo.id, {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region})
-
-        }
+            if(!unitInfo.firstMove) newState.savedMoveArrows.set(unitInfo.id, {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region});
+            else newState.savedMoveArrows.set(unitInfo.id + '_returnPath', {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region});}
     }
 
     newState.unitDragStart = null;

@@ -76,8 +76,7 @@ class Unit {
             return unitInfo.dragPosition;
         }
         else if(unitInfo.dragPosition && !unitInfo.queuedForMove){
-            if(unitInfo.airUnitCancelPosition) unitInfo.dragPosition = unitInfo.airUnitCancelPosition;
-            else unitInfo.dragPosition = unitInfo.lastGoodPosition;
+            unitInfo.dragPosition = unitInfo.lastGoodPosition;
             return unitInfo.dragPosition;
         }
         else{
