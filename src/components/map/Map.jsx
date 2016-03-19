@@ -118,7 +118,7 @@ class BaseMap extends React.Component {
                         </g>
                     </svg>
                     {this.props.viewState.placingPurchasedUnitType ? this._getPlacementPortraitForType(this.props.viewState.placingPurchasedUnitType, this.props.viewState.placingPurchasedUnitPosition) : null}
-                    {unitMission ? Unit.getMissionModal(unitMission, this.props.setUnitMissionTransitionIn, this.props.onUnitMissionSelect) : null}
+                    {Unit.getMissionModal(unitMission, this.props.setUnitMissionTransitionIn, this.props.onUnitMissionSelect)}
                 </div>);
         }
         else {

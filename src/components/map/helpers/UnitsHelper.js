@@ -18,6 +18,9 @@ export const updateUnitsPhaseEnd = (units, phaseName, regions) => {
                 unit.lastGoodPosition = unit.dragPosition;
                 if(unit.queuedForMove) unit.hasMoved = true;
                 delete unit.queuedForMove;
+
+                //TODO: check air units over sea zones here to see if there is a friendly carrier with room present, else delete them
+
             });
             newUnits = _consolidateUnitStacks(regions, newUnits);
             break;
@@ -27,6 +30,9 @@ export const updateUnitsPhaseEnd = (units, phaseName, regions) => {
                 unit.lastGoodPosition = unit.dragPosition;
                 if(unit.queuedForMove) unit.hasMoved = true;
                 delete unit.queuedForMove;
+
+                //TODO: check air units over sea zones here to see if there is a friendly carrier with room present, else delete them
+
             });
             newUnits = _consolidateUnitStacks(regions, newUnits);
             break;

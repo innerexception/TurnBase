@@ -9,14 +9,11 @@
     border-radius: 10px;
 }
 
-.turnbase-combat-outer h3{
+.turnbase-combat-outer h3, h2{
     text-align: center;
 }
-
-.turnbase-combat-outer .victor-holder{
-    width: 100px;
-    margin-left: auto;
-    margin-right: auto;
+.turnbase-combat-outer img{
+    margin-left: 46%;
 }
 
 .turnbase-combat-outer.out{

@@ -11,13 +11,19 @@ export default {
         RU: { markerPng: 'cccp_round.png', color: 'darkred', team: 'AL'}
     },
     Units: {
+        MissionTypes: {
+            Strategic:'strategic',
+            Infrastructure:'infrastructure',
+            AAADefense:'aaadefense'
+        },
         LandUnitTypes: ['infantry', 'mechinfantry', 'artillery', 'tank', 'fighter', 'bomber', 'aaa' ],
         SeaUnitTypes: ['transport', 'destroyer', 'submarine', 'cruiser', 'battleship', 'carrier'],
         DefaultPositions: [
             {type: 'infantry', number: 8, casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'CentralFrance', initialX:485, initialY:322, id:Math.random()},
             //{type: 'tank', number: 3, owner: 'DE', region: 'CentralFrance', id:Math.random()},
-            {type: 'tank', number: 2,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'DE', region: 'Spain', initialX:458, initialY:350, id:Math.random()},
-            {type: 'infantry', number: 2,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'DE', region: 'Spain', initialX:465, initialY:350, id:Math.random()},
+            {type: 'majorIC', number: 1, owner: 'DE', region: 'Spain', id:Math.random()},
+            {type: 'infantry', number: 2,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'DE', region: 'Spain', initialX:455, initialY:350, id:Math.random()},
+            {type: 'aaa', number: 2,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'DE', region: 'Spain', initialX:465, initialY:350, id:Math.random()},
             {type: 'aaa', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'CentralFrance', initialX:485, initialY:316, id:Math.random()},
             {type: 'fighter', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'CentralFrance', initialX:478, initialY:316, id:Math.random()},
             {type: 'bomber', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'CentralFrance', initialX:478, initialY:323, id:Math.random()},
@@ -32,7 +38,7 @@ export default {
             //{type: 'minorIC', number: 1, owner: 'FR', region: 'Normandy'},
             {type: 'infantry', number: 2,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'SouthernFrance', initialX:474, initialY:333, id:Math.random()},
             {type: 'artillery', number: 2,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'SouthernFrance', initialX:485, initialY:333, id:Math.random()},
-            {type: 'harbor', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'SouthernFrance', id:Math.random()},
+            {type: 'harbor', number: 1, owner: 'FR', region: 'SouthernFrance', id:Math.random()},
             //{type: 'minorIC', number: 1, owner: 'FR', region: 'SouthernFrance'},
             {type: 'infantry', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'WestAfrica',  initialX:435, initialY:394, id:Math.random()},
             {type: 'infantry', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'MOR', initialX:460, initialY:369, id:Math.random()},

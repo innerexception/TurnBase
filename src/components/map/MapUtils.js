@@ -14,7 +14,7 @@ let Utils = {
         return Constants.UI.Phases[index];
     },
 
-    getValidMove: (originRegionId, targetRegionId, unitInfo, adjacencyMap, unitPath, activePhase, units, playerTeam, regions) => {
+    getValidMove: (originRegionId, targetRegionId, unitInfo, adjacencyMap, unitPath, activePhase, units, playerTeam, regions, targetUnitId) => {
         // for unit move value, get adjacent regions of origin and return true if target region is one of them.
 
         let isValid = false;
@@ -26,7 +26,7 @@ let Utils = {
                 return region.attributes.id === targetRegionId;
             })[0];
             if(targetRegion.attributes.id.indexOf('Sea') === -1){
-                //Nobody owns space
+                //Nobody owns space. Stop acting like you do.
                 if(activePhase === 'Combat'){
                     //Must drop on an enemy region
                     isValid = Constants.Players[targetRegion.attributes.defaultOwner].team !== playerTeam;
@@ -48,14 +48,14 @@ let Utils = {
                 let pathRegion = regions.filter((region) => region.attributes.id === regionId)[0];
                 if(unitType === 'land' && pathRegion.attributes.id.indexOf('Sea') !== -1) isValid = false;
                 if(unitType === 'sea' && pathRegion.attributes.id.indexOf('Sea') === -1) isValid = false;
-
             });
 
             if(unitType === 'air'){
-                //In the move phase, simply assure the end point is a friendly region or a sea zone.
+                //In the move phase, simply assure the end point is a friendly region or a sea zone or a carrier.
                 if(activePhase === 'Move'){
                     isValid = Constants.Players[targetRegion.attributes.defaultOwner].team === playerTeam || targetRegionId.indexOf('Sea') !== -1;
                     if(!isValid) console.debug('air unit must end turn on sea or friendly during move');
+                    //TODO: Friendly carrier with room is a valid target
                 }
                 if(activePhase === 'Combat'){
                     if(!unitInfo.firstMove){
@@ -69,6 +69,7 @@ let Utils = {
                     if(unitInfo.firstMove){
                         isValid = Constants.Players[targetRegion.attributes.defaultOwner].team === playerTeam || targetRegionId.indexOf('Sea') !== -1;
                         if(!isValid) console.debug('air unit must end turn on sea or friendly during second move during combat.');
+                        //TODO: Friendly carrier with room is a valid target for return trip
                     }
                 }
 
@@ -77,7 +78,6 @@ let Utils = {
         }
 
         //TODO: Transport might be a valid target in the same region
-
 
 
         return isValid;

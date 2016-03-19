@@ -1,5 +1,6 @@
 import Constants from '../../Constants.js';
 import Utils from '../MapUtils.js';
+import { getUnitType } from './UnitsHelper.js';
 
 export const updateViewStatePlacementPortrait = (viewState, e) => {
     let newState = {...viewState};
@@ -52,32 +53,57 @@ export const updateViewStatePhaseEnd = (viewState, phaseName, units, regions, pl
             }
             //Check for combats...
             regions.forEach((region) => {
-                let unitsInRegion = units.filter((unit) => { return unit.region === region.attributes.id});
+                let unitsInRegion = units.filter((unit) => {
+                    if(unit.firstMove === region.attributes.id){
+                        return true;
+                    }
+                    if(unit.region === region.attributes.id && !unit.firstMove){
+                        return true;
+                    }
+                    return false;
+                });
                 let myUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id});
                 if(myUnitsInRegion.length > 0){
                     let combat = false, specialCombat = new Map();
                     unitsInRegion.forEach((unit) => {
-                        if(Constants.Players[unit.owner].team !== playerInfo.team) combat = true;
-                        if(unit.missionType){
+                        if(Constants.Players[unit.owner].team !== playerInfo.team){
+                            combat = true;
+                        }
+                        if(unit.owner === playerInfo.id && unit.missionType){
                             //Group together all units in the region by special mission type
                             let specialMissionUnits = specialCombat.get(unit.missionType);
-                            if(!specialMissionUnits){ specialCombat.set(unit.missionType, []); specialMissionUnits = []; }
+                            if(!specialMissionUnits){ specialMissionUnits = []; }
                             specialMissionUnits.push(unit);
                             specialCombat.set(unit.missionType, specialMissionUnits);
                         }
                     });
-                    //TODO: check for bombing runs, do not include bombers on non-standard mission type in combat. Queue a special combat object for these seperately.
+                    if(!newState.combatQueue) newState.combatQueue = [];
+
+                    let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id && unit.type !== 'aaa'});
+                    let otherTeamUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && unit.type !== 'aaa' && !Constants.Units[unit.type].isBuilding});
+
                     if(combat){
-                        if(!newState.combatQueue) newState.combatQueue = [];
-                        let playerUnitsInRegion = unitsInRegion.filter((unit) => { return unit.owner === playerInfo.id && unit.type !== 'aaa'});
-                        let otherTeamUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && unit.type !== 'aaa'});
-                        let otherTeamAAAUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && unit.type === 'aaa'});
-                        if(region.attributes.defaultOwner === playerInfo.id) newState.combatQueue.push({ defenderUnits: playerUnitsInRegion, attackerUnits: otherTeamUnitsInRegion });
-                        else newState.combatQueue.push({ attackerUnits: playerUnitsInRegion, defenderUnits: otherTeamUnitsInRegion });
-                        for(var key of specialCombat.keys()){
-                            newState.combatQueue.push({ attackerUnits: specialCombat.get(key), defenderUnits: otherTeamAAAUnitsInRegion, missionType:key });
+                        //Standard combats
+                        let myUnitsNotOnSpecialMission = playerUnitsInRegion.filter((unit) => !unit.missionType);
+                        if(otherTeamUnitsInRegion.length > 0 && myUnitsNotOnSpecialMission.length > 0){
+                            if(region.attributes.defaultOwner === playerInfo.id) newState.combatQueue.push({ defenderUnits: myUnitsNotOnSpecialMission, attackerUnits: otherTeamUnitsInRegion });
+                            else newState.combatQueue.push({ attackerUnits: myUnitsNotOnSpecialMission, defenderUnits: otherTeamUnitsInRegion });
                         }
                     }
+
+                    //SPECIAL combat check for special missions. Queue a special combat object for these seperately.
+                    if(specialCombat.get(Constants.Units.MissionTypes.Strategic)){
+                        debugger;
+                        newState.combatQueue.push({attackerUnits: specialCombat.get(Constants.Units.MissionTypes.Strategic), type: 'Strategic'});
+                    }
+                    let otherTeamBuildingsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && Constants.Units[unit.type].isBuilding});
+                    if(specialCombat.get(Constants.Units.MissionTypes.Infrastructure)) newState.combatQueue.push({message: 'Infrastructure Mission', defenderUnits: otherTeamBuildingsInRegion, attackerUnits: specialCombat.get(Constants.Units.MissionTypes.Infrastructure), type: 'Infrastructure'});
+
+
+                    //SPECIAL combat check if defender has AAA and attacker has air units. If so, queue an AAADefense special combat for this before the normal combat.
+                    let otherTeamAAAUnitsInRegion = unitsInRegion.filter((unit) => { return Constants.Players[unit.owner].team !== playerInfo.team && unit.type === 'aaa'});
+                    if(otherTeamAAAUnitsInRegion.length > 0) newState.combatQueue.push({message: 'AAA Defends...', attackerUnits: otherTeamAAAUnitsInRegion, defenderUnits: playerUnitsInRegion.filter((unit) => getUnitType(unit.type) === 'air'), type:'AAADefense'});
+
                 }
             });
             //Load first combat
@@ -214,6 +240,8 @@ export const updateViewStateUnitPanFromEvent = (viewState, e, regions, playerInf
     newState.unitDragStart.y = e.clientY;
 
     newState = Utils.updateUnitPath(newState, e);
+
+    //TODO: check for enemy AAA in latest overregion and display warning ! and flag unit for an AAADefend combat in case the move is confirmed
 
     let originRegionId = viewState.lastRegionOver ? viewState.lastRegionOver : viewState.unitDragStart.unitInfo.region;
     let region = regions.filter((regionItem) => {
