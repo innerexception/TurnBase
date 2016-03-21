@@ -5,19 +5,38 @@ export const updateUnitsPhaseEnd = (units, phaseName, regions) => {
     let newUnits = Array.from(units);
     let phase = Utils.getNextActivePhase(phaseName);
     switch(phase){
-        case 'Purchase': break;
-        case 'Research':
-            //Reset unit mobility
+        case 'Purchase':
             newUnits.forEach((unit) => {
                 delete unit.hasMoved
             });
             break;
+        //case 'Research':
+        //    //Reset unit mobility
+        //    newUnits.forEach((unit) => {
+        //        delete unit.hasMoved
+        //    });
+        //    break;
         case 'Move':
             //Combat moves...
             newUnits.forEach((unit) => {
                 unit.lastGoodPosition = unit.dragPosition;
                 if(unit.queuedForMove) unit.hasMoved = true;
                 delete unit.queuedForMove;
+
+                if(unit.overCarrier){
+                    unit.inCarrier = unit.overCarrier;
+                    unit.inCarrier.carriedUnits.push(unit);
+                    console.debug('unit added to carrier. space remaining: '+unit.inCarrier.space-unit.inCarrier.carriedUnits.length);
+                    delete unit.overCarrier;
+                }
+
+                if(unit.overTransport){
+                    unit.inTransport = unit.overTransport;
+                    unit.inTransport.carriedUnits.push(unit);
+                    console.debug('unit added to transport space remaining: '+unit.inTransport.space-unit.inTransport.carriedUnits.length);
+                    delete unit.overTransport;
+                }
+
 
                 //TODO: check air units over sea zones here to see if there is a friendly carrier with room present, else delete them
 
@@ -30,6 +49,20 @@ export const updateUnitsPhaseEnd = (units, phaseName, regions) => {
                 unit.lastGoodPosition = unit.dragPosition;
                 if(unit.queuedForMove) unit.hasMoved = true;
                 delete unit.queuedForMove;
+
+                if(unit.overCarrier){
+                    unit.inCarrier = unit.overCarrier;
+                    unit.inCarrier.carriedUnits.push(unit);
+                    console.debug('unit added to carrier. space remaining: '+unit.inCarrier.space-unit.inCarrier.carriedUnits.length);
+                    delete unit.overCarrier;
+                }
+
+                if(unit.overTransport){
+                    unit.inTransport = unit.overTransport;
+                    unit.inTransport.carriedUnits.push(unit);
+                    console.debug('unit added to transport space remaining: '+unit.inTransport.space-unit.inTransport.carriedUnits.length);
+                    delete unit.overTransport;
+                }
 
                 //TODO: check air units over sea zones here to see if there is a friendly carrier with room present, else delete them
 
@@ -83,9 +116,6 @@ export const updateUnitsCombatEnd = (units, combatInfo) => {
     if(combatInfo.retreated){
         combatInfo.attackerUnits.forEach((aunit) => {
             newUnits = updateUnitsSendToOrigin(aunit, newUnits);
-            newUnits = newUnits.filter((unit) => {
-                return unit.id !== aunit.id;
-            });
         });
     }
 
@@ -106,7 +136,7 @@ export const updateUnitsSendToOrigin = (unitInfo, units) => {
                 regionTypeUnits[0].number++;
             }
             else{
-                let newUnit = {...unit, number:unitInfo.number, region:unit.lastRegion, queuedForMove:false, id:Math.random(), dragPosition:null, showUnitCount:false};
+                let newUnit = {...unit, number:unitInfo.number, region:unit.secondMove ? unit.secondMove : unit.lastRegion, queuedForMove:false, dragPosition:null, showUnitCount:false};
                 newUnits.push(newUnit);
             }
         }
@@ -118,7 +148,24 @@ export const updateUnitsCountDisplay = (units, unitInfo) => {
     let newUnits = Array.from(units);
     newUnits.forEach((unit) => {
         if(unitInfo.id === unit.id){
-            unit.showUnitCount = !unit.showUnitCount;
+            if(unitInfo.type === 'carrier'){
+                unit.showContainedFighters = !unit.showContainedFighters;
+                if(unit.showContainedFighters){
+                    unit.carriedUnits.forEach((cunit) => {
+                        let tempUnit = newUnits.filter((nunit) => nunit.id === cunit.id)[0];
+                        tempUnit.inCarrier = false; tempUnit.region = unit.region; tempUnit.lastGoodPosition = unit.lastGoodPosition; tempUnit.dragPosition = unit.lastGoodPosition
+                    });
+                }
+                else{
+                    unit.carriedUnits.forEach((cunit) => {
+                        let tempUnit = newUnits.filter((nunit) => nunit.id === cunit.id)[0];
+                        tempUnit.inCarrier = true;
+                    });
+                }
+            }
+            else{
+                unit.showUnitCount = !unit.showUnitCount;
+            }
         }
     });
     return newUnits;
@@ -181,8 +228,6 @@ export const updateUnitsDragEnd = (units, unitDragStart, regionOver, isValidPath
                         else if(unit.firstMove){
                             unit.secondMove = true;
                         }
-
-
                     }
                     unit.region = regionOver;
                 }
@@ -277,6 +322,14 @@ export const updateUnitRegionOnMoveCancelled = (units, unitInfo) => {
             delete unit.queuedForMove;
             delete unit.firstMove;
             delete unit.secondMove;
+            delete unit.overCarrier;
+            delete unit.overTransport;
+            if(unit.dropUnits){
+                unit.carriedUnits.forEach((cunit) => {
+                    cunit.inTransport = true;
+                });
+            }
+            delete unit.dropUnits;
         }
     });
 

@@ -241,16 +241,14 @@ export const updateViewStateUnitPanFromEvent = (viewState, e, regions, playerInf
 
     newState = Utils.updateUnitPath(newState, e);
 
-    //TODO: check for enemy AAA in latest overregion and display warning ! and flag unit for an AAADefend combat in case the move is confirmed
-
-    let originRegionId = viewState.lastRegionOver ? viewState.lastRegionOver : viewState.unitDragStart.unitInfo.region;
+    let originRegionId = newState.lastRegionOver ? newState.lastRegionOver : newState.unitDragStart.unitInfo.region;
     let region = regions.filter((regionItem) => {
         return regionItem.attributes.id === originRegionId;
     })[0];
     let activePhase = playerInfo.activePhase;
     let playerTeam = Constants.Players[playerInfo.id].team;
 
-    newState.currentPathIsValid = Utils.getValidMove(originRegionId, viewState.regionOver ? viewState.regionOver : viewState.unitDragStart.unitInfo.region, viewState.unitDragStart.unitInfo, region.adjacencyMap, newState.unitPath, activePhase, units, playerTeam, regions);
+    newState.currentPathIsValid = Utils.getValidMove(originRegionId, newState.regionOver ? newState.regionOver : newState.unitDragStart.unitInfo.region, newState.unitDragStart.unitInfo, region.adjacencyMap, newState.unitPath, activePhase, units, playerTeam, regions, newState.overUnitIds, playerInfo.id);
 
     return newState;
 };
@@ -278,7 +276,8 @@ export const updateViewStateUnitDragEnd = (viewState, units) => {
         if(newState.currentPathIsValid){
             if(!newState.savedMoveArrows) newState.savedMoveArrows = new Map();
             if(!unitInfo.firstMove) newState.savedMoveArrows.set(unitInfo.id, {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region});
-            else newState.savedMoveArrows.set(unitInfo.id + '_returnPath', {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region});}
+            else newState.savedMoveArrows.set(unitInfo.id + '_returnPath', {unitOriginalStart: newState.unitOriginalStart, newPosition: targetUnit.dragPosition, originalRegionId:unitInfo.region});
+        }
     }
 
     newState.unitDragStart = null;

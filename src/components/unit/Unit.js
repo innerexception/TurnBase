@@ -127,6 +127,7 @@ class Unit {
                          <line markerEnd="url(#arrowhead)" x1={0} y1={5} x2={x2} y2={y2} stroke={moveFill} />
                     </g>);
         }
+
         let savedMoveArrowInfo, savedReturnMoveArrowInfo;
         if((!viewState.unitDragStart) && viewState.savedMoveArrows){
             savedMoveArrowInfo = viewState.savedMoveArrows.get(unitInfo.id);
@@ -160,31 +161,38 @@ class Unit {
 
         if(unitInfo.showUnitCount) chipEls.push(<text x={0} y={0} width={1} height={1} fontSize="3">{unitInfo.number}</text>);
 
-        return (<svg onContextMenu={(e) => {e.preventDefault(); if(!unitInfo.queuedForMove) onChipMouseOver(unitInfo); if(unitInfo.queuedForMove) sendOneUnitToOrigin(unitInfo);}} >
-                    {pathEl ? <svg x={viewState.unitOriginalStart ? viewState.unitOriginalStart.x : savedMoveArrowInfo.unitOriginalStart.x} y={viewState.unitOriginalStart ? viewState.unitOriginalStart.y : savedMoveArrowInfo.unitOriginalStart.y}>
-                <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="'+moveFill+'" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
+        //render asterix on transport units that are not empty
+        if(unitInfo.carriedUnits && unitInfo.carriedUnits.length > 0) chipEls.push(<text x={-1} y={5} width={1} height={1} fontSize="3">*</text>);
 
-                    {returnPathEl ? <svg x={savedReturnMoveArrowInfo.unitOriginalStart.x} y={savedReturnMoveArrowInfo.unitOriginalStart.y}>
-                <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="whitesmoke" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{returnPathEl}</svg> : null}
+        if(!unitInfo.inCarrier && !unitInfo.inTransport){
+            return (<svg onContextMenu={(e) => {e.preventDefault(); if(!unitInfo.queuedForMove) onChipMouseOver(unitInfo); if(unitInfo.queuedForMove) sendOneUnitToOrigin(unitInfo);}} >
+                {pathEl ? <svg x={viewState.unitOriginalStart ? viewState.unitOriginalStart.x : savedMoveArrowInfo.unitOriginalStart.x} y={viewState.unitOriginalStart ? viewState.unitOriginalStart.y : savedMoveArrowInfo.unitOriginalStart.y}>
+                    <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="'+moveFill+'" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{pathEl}</svg> : null}
 
-                    <svg x={position.x} y={position.y + (unitInfo.number > 3 ? unitInfo.number*0.2 : 0)}>
-                        <g>{chipEls}</g>
-                    </svg>
+                {returnPathEl ? <svg x={savedReturnMoveArrowInfo.unitOriginalStart.x} y={savedReturnMoveArrowInfo.unitOriginalStart.y}>
+                    <defs dangerouslySetInnerHTML={{__html: '<marker id="arrowhead" markerWidth="5" markerHeight="5" orient="auto" refX="0" refY="2.5"><polygon fill="whitesmoke" points="0,0 5,2.5 0,5"/></marker>'}}></defs>{returnPathEl}</svg> : null}
 
-                    <svg className={unitInfo.queuedForMove && !unitInfo.firstMove ? 'no-events' : null} x={position.x} y={position.y}>
-                        <g onMouseDown={Unit.getUnitClickHandler(playerInfo, (e) => { if(e.button!==2) onUnitDragStart(e, unitInfo);}, unitInfo)}
-                           onMouseUp={()=>{onUnitDragEnd()}}
-                           transform={'scale('+Constants.Units[unitInfo.type].scaleFactor+')'}>{pathEls}</g>
-                    </svg>
+                <svg x={position.x} y={position.y + (unitInfo.number > 3 ? unitInfo.number*0.2 : 0)}>
+                    <g>{chipEls}</g>
+                </svg>
 
-                    {(unitInfo.firstMove && !unitInfo.secondMove) ? <svg x={position.x} y={position.y}>
-                                            <g>
-                                                <text fontSize="8" fill="red">!</text>
-                                                <rect width="5" height="7" fillOpacity="0" x="-1" y="-6"><title>Air unit needs return path</title></rect>
-                                            </g>
-                                          </svg> : null}
+                <svg className={unitInfo.queuedForMove && !unitInfo.firstMove ? 'no-events' : null} x={position.x} y={position.y}>
+                    <g onMouseDown={Unit.getUnitClickHandler(playerInfo, (e) => { if(e.button!==2) onUnitDragStart(e, unitInfo);}, unitInfo)}
+                       onMouseUp={()=>{onUnitDragEnd()}}
+                       transform={'scale('+Constants.Units[unitInfo.type].scaleFactor+')'}>{pathEls}</g>
+                </svg>
 
-                </svg>);
+                {(unitInfo.firstMove && !unitInfo.secondMove) ? <svg x={position.x} y={position.y}>
+                    <g>
+                        <text fontSize="8" fill="red">!</text>
+                        <rect width="5" height="7" fillOpacity="0" x="-1" y="-6"><title>Air unit needs return path</title></rect>
+                    </g>
+                </svg> : null}
+            </svg>);
+        }
+        else{
+            return null;
+        }
     };
 
     static getMissionModal = (unit, setUnitMissionTransitionIn, onUnitMissionSelect) => {

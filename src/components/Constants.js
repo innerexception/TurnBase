@@ -38,6 +38,8 @@ export default {
             //{type: 'minorIC', number: 1, owner: 'FR', region: 'Normandy'},
             {type: 'infantry', number: 2,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'SouthernFrance', initialX:474, initialY:333, id:Math.random()},
             {type: 'artillery', number: 2,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'SouthernFrance', initialX:485, initialY:333, id:Math.random()},
+            {type: 'transport', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, space:2, carriedUnits:[], owner: 'FR', region: 'Sea93', initialX:485, initialY:343, id:Math.random()},
+            {type: 'carrier', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, space:2, carriedUnits:[], owner: 'FR', region: 'Sea93', initialX:485, initialY:345, id:Math.random()},
             {type: 'harbor', number: 1, owner: 'FR', region: 'SouthernFrance', id:Math.random()},
             //{type: 'minorIC', number: 1, owner: 'FR', region: 'SouthernFrance'},
             {type: 'infantry', number: 1,casualtyCount:0, unconfirmedCasualtyCount:0, owner: 'FR', region: 'WestAfrica',  initialX:435, initialY:394, id:Math.random()},

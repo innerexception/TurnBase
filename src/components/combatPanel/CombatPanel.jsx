@@ -35,15 +35,6 @@ class CombatPanel extends React.Component {
                 });
                 let defenderEls = [];
                 if(combatInfo.defenderUnits) combatInfo.defenderUnits.forEach((unit) => {defenderEls.push(this._getUnitPortrait(unit, combatInfo.defenderUnits.length, combatInfo));});
-                if(combatInfo.type === 'Strategic'){
-                    //TODO: the defender unit is the region itself
-
-                }
-                if(combatInfo.type === 'Infrastructure'){
-                    //TODO: the defender is the buildings in the the region
-
-                }
-
 
                 //auto roll for later
                 //this.setTimeout(()=>this.props.unitTypeHasRolled(combatInfo.activePlayer.activeUnitType), 5000);

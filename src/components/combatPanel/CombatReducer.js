@@ -67,7 +67,6 @@ const updateCombatInfo = (combatInfo) => {
                 setAllUnconfirmedAsCasualties(newCombatInfo.attackerUnits);
                 if(newCombatInfo.type){
                     //if special mission end combat
-                    //TODO: display appropriate end of mission message
                     newCombatInfo.victor = newCombatInfo.defenderUnits[0].owner;
                     return newCombatInfo;
                 }
@@ -174,6 +173,9 @@ const setAllUnconfirmedAsCasualties = (units) => {
 };
 
 const markLowestCostUnitASUnconfirmed = (units) => {
+
+    //TODO: mark undamaged BB as first hit if exists in fight
+
     let newUnits = units.filter((unit) => {return unit.casualtyCount<unit.number});
     let lowestCostUnit = newUnits[0];
     newUnits.forEach((unit) => {
